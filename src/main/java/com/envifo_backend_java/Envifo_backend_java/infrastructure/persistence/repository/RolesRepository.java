@@ -23,4 +23,9 @@ public class RolesRepository implements RolRepository {
     public RolesEntity save(RolesEntity rol) {
         return rolCrudRepository.save(rol);
     }
+
+    @Override
+    public boolean existsByPermisos_IdPermisoAndNameIgnoreCase(Long idPermiso, String name) {
+        return rolCrudRepository.existsByPermisos_IdPermisoAndNameIgnoreCase(idPermiso, name);
+    }
 }

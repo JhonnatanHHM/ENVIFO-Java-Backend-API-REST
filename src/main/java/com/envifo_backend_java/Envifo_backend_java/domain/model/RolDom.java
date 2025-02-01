@@ -1,28 +1,16 @@
-package com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity;
+package com.envifo_backend_java.Envifo_backend_java.domain.model;
 
-import jakarta.persistence.*;
+import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.PermisosEntity;
 
-@Entity
-@Table(name ="roles")
-public class RolesEntity {
+public class RolDom {
 
-    //Atributos
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_rol")
     private Long idRol;
 
-    @Column(name = "nombre",unique = true)
     private String name;
 
-    @Column(name = "descripcion")
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "id_permiso")
     private PermisosEntity permisos ;
-
 
     // Getters and Setters
 

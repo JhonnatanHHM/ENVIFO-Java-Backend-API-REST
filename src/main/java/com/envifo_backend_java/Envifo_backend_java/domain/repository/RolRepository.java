@@ -7,4 +7,6 @@ import java.util.Optional;
 public interface RolRepository {
     Optional<RolesEntity> getByName(String name);
     RolesEntity save (RolesEntity rol);
+    // Verificar si existe un rol "RESTRINGIDO" con el idPermiso indicado
+    boolean existsByPermisos_IdPermisoAndNameIgnoreCase(Long idPermiso, String name);
 }
