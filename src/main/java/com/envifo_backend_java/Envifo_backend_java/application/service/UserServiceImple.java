@@ -2,10 +2,7 @@ package com.envifo_backend_java.Envifo_backend_java.application.service;
 
 import com.envifo_backend_java.Envifo_backend_java.application.service.interfaces.RolService;
 import com.envifo_backend_java.Envifo_backend_java.application.service.interfaces.UserService;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.JwtResponseDom;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.LoginDom;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.RegisterDom;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.UserDom;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.*;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.ConflictException;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.JwtAuthenticationException;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.NotFoundException;
@@ -77,9 +74,11 @@ public class UserServiceImple implements UserService {
 
     @Override
     public UserDom register(RegisterDom registerDom) {
-        if (usuarioRepository.getExistsByEmail(registerDom.getEmail())){
+        if (usuarioRepository.getExistsByEmail(registerDom.getEmail())) {
             throw new ConflictException("El usuario ya existe!");
         }
+
+        // Convertir RegisterDom a UsuarioEntity
         UsuarioEntity user = new UsuarioEntity();
         user.setEstado(registerDom.isState());
         user.setUserName(registerDom.getUserName());
@@ -91,16 +90,15 @@ public class UserServiceImple implements UserService {
         user.setPassword(passwordEncoder.encode(registerDom.getPassword()));
         user.setFechaNacimiento(registerDom.getBirthDate());
 
-
         // Verificar si el rol "RESTRINGIDO" ya existe, y si no, crearlo
-        RolesEntity rol = rolService.getByname("RESTRINGIDO").orElseGet(() -> {
-            RolesEntity newRol = new RolesEntity();
-            newRol.setName("RESTRINGIDO");
-            newRol.setDescription("Usuario general");
+        RolesEntity rol = rolesRepository.getByName("RESTRINGIDO").orElseGet(() -> {
 
-            // Crear permisos predeterminados para el nuevo usuario
+            RolesEntity rolEntity = new RolesEntity();
+            rolEntity.setName("RESTRINGIDO");
+            rolEntity.setDescription("Usuario general");
+
+            // Crear permisos predeterminados
             PermisosEntity permisos = new PermisosEntity();
-            permisos.setIdPermiso(permisos.getIdPermiso());
             permisos.setEditPermisos(false);
             permisos.setVistaUsuarios(true);
             permisos.setEditUsuarios(false);
@@ -114,21 +112,23 @@ public class UserServiceImple implements UserService {
             permisos.setVistaCategorias(true);
             permisos.setEditCategorias(false);
 
-            // Guardar los permisos en la base de datos
+            // Guardar permisos en la base de datos
             PermisosEntity savedPermisos = permisosRepository.save(permisos);
 
-            // Asignar los permisos al usuario
-            newRol.setPermisos(savedPermisos);
+            // Asignar permisos al rol
+            rolEntity.setPermisos(savedPermisos);
 
-            return rolesRepository.save(newRol); // Guardar el nuevo rol en la base de datos
+            // Guardar el nuevo rol en la base de datos
+            return rolesRepository.save(rolEntity);
         });
 
-        // Asignar el rol "USER" al usuario
+        // Asignar el rol al usuario
         user.setRol(rol);
 
         // Guardar el usuario
         usuarioRepository.save(user);
 
+        // Convertir UsuarioEntity a UserDom antes de retornarlo
         UserDom userDom = new UserDom();
         userDom.setState(user.isEstado());
         userDom.setUserName(user.getUserName());
@@ -139,10 +139,37 @@ public class UserServiceImple implements UserService {
         userDom.setEmail(user.getEmail());
         userDom.setPassword(user.getPassword());
         userDom.setBirthDate(user.getFechaNacimiento());
-        userDom.setRol(user.getRol());
+
+        // Convertir RolDom a RolesEntity
+        RolesEntity rolesEntity = new RolesEntity();
+        rolesEntity.setIdRol(rol.getIdRol());
+        rolesEntity.setName(rol.getName());
+        rolesEntity.setDescription(rol.getDescription());
+        rolesEntity.setPermisos(rol.getPermisos());
+
+        // Convertir PermissionsDom a PermisosEntity
+        PermisosEntity permisosEntity = new PermisosEntity();
+        permisosEntity.setEditPermisos(rol.getPermisos().isEditPermisos());
+        permisosEntity.setVistaUsuarios(rol.getPermisos().isVistaUsuarios());
+        permisosEntity.setEditUsuarios(rol.getPermisos().isEditUsuarios());
+        permisosEntity.setVistaProyectos(rol.getPermisos().isVistaProyectos());
+        permisosEntity.setEditProyectos(rol.getPermisos().isEditProyectos());
+        permisosEntity.setVistaDisenios3d(rol.getPermisos().isVistaDisenios3d());
+        permisosEntity.setEditDisenios3d(rol.getPermisos().isEditDisenios3d());
+        permisosEntity.setVistaMateriales(rol.getPermisos().isVistaMateriales());
+        permisosEntity.setEditMateriales(rol.getPermisos().isEditMateriales());
+        permisosEntity.setVistaInformes(rol.getPermisos().isVistaInformes());
+        permisosEntity.setVistaCategorias(rol.getPermisos().isVistaCategorias());
+        permisosEntity.setEditCategorias(rol.getPermisos().isEditCategorias());
+
+        // Asignar permisos al rol
+        rolesEntity.setPermisos(permisosEntity);
+        userDom.setRol(rolesEntity);
 
         return userDom;
     }
+
+
 
     @Override
     public void editUser(UserDom userDom) {
@@ -167,55 +194,53 @@ public class UserServiceImple implements UserService {
                     .map(passwordEncoder::encode)
                     .ifPresent(user::setPassword);
 
-            // Obtener el rol enviado en userDom
-            RolesEntity rolEntity = rolService.getByname(userDom.getRol().getName()).orElse(null);
-
-            if (rolEntity == null) {
-                // Si el rol no existe, crearlo y guardarlo en la base de datos
+            // Buscar rol existente o crearlo
+            RolesEntity rolEntity = rolesRepository.getByName(userDom.getRol().getName()).orElseGet(() -> {
                 RolesEntity newRol = new RolesEntity();
                 newRol.setName(userDom.getRol().getName());
                 newRol.setDescription(userDom.getRol().getDescription());
+                return rolesRepository.save(newRol);
+            });
 
-                // Crear un nuevo conjunto de permisos con un ID diferente
-                PermisosEntity newPermisos = new PermisosEntity();
-                if (userDom.getRol().getPermisos() != null) {
-                    BeanUtils.copyProperties(userDom.getRol().getPermisos(), newPermisos);
-                } else {
-                    // Si no se envían permisos, se crean con valores por defecto
-                    newPermisos.setEditPermisos(false);
-                    newPermisos.setVistaUsuarios(true);
-                    newPermisos.setEditUsuarios(false);
-                    newPermisos.setVistaProyectos(true);
-                    newPermisos.setEditProyectos(true);
-                    newPermisos.setVistaDisenios3d(true);
-                    newPermisos.setEditDisenios3d(true);
-                    newPermisos.setVistaMateriales(true);
-                    newPermisos.setEditMateriales(false);
-                    newPermisos.setVistaInformes(false);
-                    newPermisos.setVistaCategorias(true);
-                    newPermisos.setEditCategorias(false);
-                }
+            // Obtener permisos actuales del rol
+            PermisosEntity permisosEntity = rolEntity.getPermisos();
 
-                // Guardar los nuevos permisos en la base de datos
-                permisosRepository.save(newPermisos);
-                newRol.setPermisos(newPermisos);
+            // Si el rol es "RESTRINGIDO", no se pueden modificar los permisos
+            if ("RESTRINGIDO".equalsIgnoreCase(rolEntity.getName()) && permisosEntity != null) {
+                throw new RuntimeException("No se pueden modificar los permisos del rol RESTRINGIDO");
+            }
 
-                // Guardar el nuevo rol
-                rolEntity = rolesRepository.save(newRol);
-            } else {
-                // Si el rol ya existe, verificar si es "RESTRINGIDO" o "GLOBAL"
-                if (!rolEntity.getName().equalsIgnoreCase("RESTRINGIDO")
-                        && !rolEntity.getName().equalsIgnoreCase("GLOBAL")) {
-                    // Crear nuevos permisos específicos para este usuario
-                    PermisosEntity newPermisos = new PermisosEntity();
-                    if (userDom.getRol().getPermisos() != null) {
-                        BeanUtils.copyProperties(userDom.getRol().getPermisos(), newPermisos);
-                        permisosRepository.save(newPermisos);
-                        rolEntity.setPermisos(newPermisos);
-                        rolesRepository.save(rolEntity);
-                    }
+            // Verificar si se está intentando reutilizar un idPermiso que ya pertenece a un rol "RESTRINGIDO"
+            if (userDom.getRol().getPermisos() != null && userDom.getRol().getPermisos()
+                    .getIdPermiso() != null) {
+                Long idPermiso = userDom.getRol().getPermisos().getIdPermiso();
+
+                // Buscar si este `idPermiso` ya está vinculado a un rol "RESTRINGIDO"
+                boolean permisoRestringido = rolesRepository.existsByPermisos_IdPermisoAndNameIgnoreCase(idPermiso, "RESTRINGIDO") ||
+                        rolesRepository.existsByPermisos_IdPermisoAndNameIgnoreCase(idPermiso, "GLOBAL");
+
+                if (permisoRestringido) {
+                    throw new RuntimeException("No se puede reutilizar un idPermiso asociado al rol GLOBAL o RESTRINGIDO");
                 }
             }
+
+            // Verificar si se debe crear una nueva lista de permisos
+            if (userDom.getRol().getPermisos() != null &&
+                    (userDom.getRol().getPermisos().getIdPermiso() == null)) {
+
+                // Si `idPermiso` es nulo, se crean nuevos permisos
+                permisosEntity = new PermisosEntity();
+                BeanUtils.copyProperties(userDom.getRol().getPermisos(), permisosEntity);
+                permisosEntity = permisosRepository.save(permisosEntity);
+            } else if (permisosEntity != null) {
+                // Si `idPermiso` existe y no es "RESTRINGIDO", actualizar los valores
+                BeanUtils.copyProperties(userDom.getRol().getPermisos(), permisosEntity);
+                permisosEntity = permisosRepository.save(permisosEntity);
+            }
+
+            // Asignar los permisos al rol y guardar cambios
+            rolEntity.setPermisos(permisosEntity);
+            rolesRepository.save(rolEntity);
 
             // Asignar el nuevo rol al usuario
             user.setRol(rolEntity);

@@ -20,7 +20,7 @@ public class RolesEntity {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "id_permiso", nullable = false)
+    @JoinColumn(name = "id_permiso")
     private PermisosEntity permisos ;
 
 
