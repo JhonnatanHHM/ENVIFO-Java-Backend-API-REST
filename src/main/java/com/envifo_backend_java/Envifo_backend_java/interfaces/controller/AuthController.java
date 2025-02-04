@@ -2,10 +2,10 @@ package com.envifo_backend_java.Envifo_backend_java.interfaces.controller;
 
 import com.envifo_backend_java.Envifo_backend_java.application.service.interfaces.RolService;
 import com.envifo_backend_java.Envifo_backend_java.application.service.interfaces.UserService;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.JwtResponseDom;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.LoginDom;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.RegisterDom;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.UserDom;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.JwtResponseDto;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.LoginDto;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.RegisterDto;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.UserDto;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,13 +28,13 @@ public class AuthController {
 
 
     @PostMapping("/login") //POST
-    public ResponseEntity<JwtResponseDom> login(@RequestBody LoginDom loginDom) {
-        return ResponseEntity.ok(userService.login(loginDom));
+    public ResponseEntity<JwtResponseDto> login(@RequestBody LoginDto loginDto) {
+        return ResponseEntity.ok(userService.login(loginDto));
     }
 
     @PostMapping("/register") //POST
-    public ResponseEntity<String> register(@RequestBody RegisterDom registerDom) {
-        userService.register(registerDom);
+    public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
+        userService.register(registerDto);
 
         return new ResponseEntity<>("User register success!", HttpStatus.CREATED);
     }
@@ -44,12 +44,12 @@ public class AuthController {
 
         String token = jwtGenerator.refreshToken(authentication);
 
-        JwtResponseDom jwtRefresh = new JwtResponseDom(token);
-        return new ResponseEntity<JwtResponseDom>(jwtRefresh, HttpStatus.OK);
+        JwtResponseDto jwtRefresh = new JwtResponseDto(token);
+        return new ResponseEntity<JwtResponseDto>(jwtRefresh, HttpStatus.OK);
     }
 
     @GetMapping("/logued")
-    public ResponseEntity<UserDom> getLoguedUser(@RequestHeader HttpHeaders headers){
+    public ResponseEntity<UserDto> getLoguedUser(@RequestHeader HttpHeaders headers){
         return new ResponseEntity<>(userService.getLoguedUser(headers), HttpStatus.OK);
     }
 }

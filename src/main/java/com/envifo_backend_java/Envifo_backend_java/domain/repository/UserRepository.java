@@ -1,7 +1,5 @@
 package com.envifo_backend_java.Envifo_backend_java.domain.repository;
 
-
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.PermisosEntity;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.UsuarioEntity;
 
 import java.util.List;

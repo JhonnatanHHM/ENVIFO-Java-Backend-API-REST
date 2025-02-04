@@ -7,6 +7,4 @@ import java.util.Optional;
 
 public interface RolCrudRepository extends CrudRepository<RolesEntity, Long> {
     Optional<RolesEntity> findByName(String name);
-    // Verificar si existe un rol "RESTRINGIDO" con el idPermiso indicado
-    boolean existsByPermisos_IdPermisoAndNameIgnoreCase(Long idPermiso, String name);
 }

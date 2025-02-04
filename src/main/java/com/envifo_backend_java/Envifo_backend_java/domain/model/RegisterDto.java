@@ -1,6 +1,6 @@
 package com.envifo_backend_java.Envifo_backend_java.domain.model;
 
-public class RegisterDom {
+public class RegisterDto {
 
     //Atributos
 

@@ -1,6 +1,6 @@
 package com.envifo_backend_java.Envifo_backend_java.domain.model;
 
-public class PermissionsDom {
+public class PermissionsDto {
 
     private Long idPermiso;
 
@@ -30,7 +30,7 @@ public class PermissionsDom {
 
     // Constructores
 
-    public PermissionsDom() {
+    public PermissionsDto() {
 
     }
 

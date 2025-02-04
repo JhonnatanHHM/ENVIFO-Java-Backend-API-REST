@@ -2,7 +2,7 @@ package com.envifo_backend_java.Envifo_backend_java.domain.model;
 
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.PermisosEntity;
 
-public class RolDom {
+public class RolDto {
 
     private Long idRol;
 

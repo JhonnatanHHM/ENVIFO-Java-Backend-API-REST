@@ -1,13 +1,13 @@
 package com.envifo_backend_java.Envifo_backend_java.domain.model;
 
-public class JwtResponseDom {
+public class JwtResponseDto {
 
     private String accessToken;
-    public JwtResponseDom(String accessToken){
+    public JwtResponseDto(String accessToken){
         this.accessToken = accessToken;
     }
 
-    public JwtResponseDom(){}
+    public JwtResponseDto(){}
 
     public String getAccessToken() {
         return accessToken;

@@ -1,7 +1,7 @@
 package com.envifo_backend_java.Envifo_backend_java.interfaces.controller;
 
 import com.envifo_backend_java.Envifo_backend_java.application.service.UserServiceImple;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.UserDom;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.UserDto;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
         }
 
-        Optional<UserDom> userDom = userServiceImple.getByIdUsuario(idUsuario);
+        Optional<UserDto> userDom = userServiceImple.getByIdUsuario(idUsuario);
 
         if (userDom.isPresent()) {
             return ResponseEntity.ok(userDom.get());
@@ -44,7 +44,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
         }
 
-        List<UserDom> users = userServiceImple.getAll();
+        List<UserDto> users = userServiceImple.getAll();
         return ResponseEntity.ok(users);
     }
 
@@ -60,12 +60,12 @@ public class UserController {
 
     @PutMapping("/editUser")
     public ResponseEntity<?> editUser(@RequestHeader(value = "Authorization") String token,
-                                      @RequestBody UserDom userDom) {
+                                      @RequestBody UserDto userDto) {
         if (!validarToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
         }
         try {
-            userServiceImple.editUser(userDom);
+            userServiceImple.editUser(userDto);
             return ResponseEntity.ok("Usuario actualizado con éxito");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

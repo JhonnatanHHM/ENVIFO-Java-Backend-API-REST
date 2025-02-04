@@ -1,10 +1,9 @@
 package com.envifo_backend_java.Envifo_backend_java.application.service.interfaces;
 
-import com.envifo_backend_java.Envifo_backend_java.domain.model.JwtResponseDom;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.LoginDom;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.RegisterDom;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.UserDom;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.UsuarioEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.JwtResponseDto;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.LoginDto;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.RegisterDto;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.UserDto;
 import org.springframework.http.HttpHeaders;
 
 import java.util.List;
@@ -12,17 +11,17 @@ import java.util.Optional;
 
 public interface UserService {
 
-    Optional<UserDom> getByIdUsuario(Long idUsuario);
+    Optional<UserDto> getByIdUsuario(Long idUsuario);
 
-    public UserDom register(RegisterDom registerDto);
+    public UserDto register(RegisterDto registerDto);
 
-    void editUser(UserDom userDom);
+    void editUser(UserDto userDto);
 
-    public JwtResponseDom login(LoginDom loginDto);
+    public JwtResponseDto login(LoginDto loginDto);
 
-    UserDom getLoguedUser(HttpHeaders headers);
+    UserDto getLoguedUser(HttpHeaders headers);
 
-    List<UserDom> getAll();
+    List<UserDto> getAll();
 
     void delete(Long idUsuario);
 

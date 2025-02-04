@@ -5,7 +5,7 @@ import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.en
 
 import java.time.LocalDateTime;
 
-public class UserDom {
+public class UserDto {
 
 
 //Atributos
@@ -38,7 +38,7 @@ public class UserDom {
 
     //Constructores
 
-    public UserDom(Long idUsuario, LocalDateTime dateRecord, boolean state, String userName, String name,
+    public UserDto(Long idUsuario, LocalDateTime dateRecord, boolean state, String userName, String name,
                    String lastName, int age, String phone, String email, String password,
                    String birthDate, RolesEntity rol) {
 
@@ -57,7 +57,7 @@ public class UserDom {
 
     }
 
-    public UserDom() {
+    public UserDto() {
 
     }
 

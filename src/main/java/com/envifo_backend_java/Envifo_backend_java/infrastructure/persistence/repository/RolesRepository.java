@@ -14,6 +14,12 @@ public class RolesRepository implements RolRepository {
     @Autowired
     private RolCrudRepository rolCrudRepository;
 
+
+    @Override
+    public Optional<RolesEntity> getByIdRol(Long idRol) {
+        return rolCrudRepository.findById(idRol);
+    }
+
     @Override
     public Optional<RolesEntity> getByName(String name) {
         return rolCrudRepository.findByName(name);
@@ -25,7 +31,8 @@ public class RolesRepository implements RolRepository {
     }
 
     @Override
-    public boolean existsByPermisos_IdPermisoAndNameIgnoreCase(Long idPermiso, String name) {
-        return rolCrudRepository.existsByPermisos_IdPermisoAndNameIgnoreCase(idPermiso, name);
+    public void deleteRol(Long idRol) {
+        rolCrudRepository.deleteById(idRol);
     }
+
 }
