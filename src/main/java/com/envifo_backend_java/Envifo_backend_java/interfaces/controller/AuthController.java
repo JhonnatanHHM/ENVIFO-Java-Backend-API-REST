@@ -1,11 +1,11 @@
 package com.envifo_backend_java.Envifo_backend_java.interfaces.controller;
 
-import com.envifo_backend_java.Envifo_backend_java.application.service.interfaces.RolService;
-import com.envifo_backend_java.Envifo_backend_java.application.service.interfaces.UserService;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.JwtResponseDto;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.LoginDto;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.RegisterDto;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.UserDto;
+import com.envifo_backend_java.Envifo_backend_java.domain.service.RolService;
+import com.envifo_backend_java.Envifo_backend_java.domain.service.UserService;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.JwtResponseDto;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.LoginDto;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.RegisterDto;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.UserDto;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

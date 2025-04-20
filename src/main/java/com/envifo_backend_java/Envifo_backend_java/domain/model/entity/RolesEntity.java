@@ -1,6 +1,8 @@
-package com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity;
+package com.envifo_backend_java.Envifo_backend_java.domain.model.entity;
 
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name ="roles")
@@ -23,6 +25,8 @@ public class RolesEntity {
     @JoinColumn(name = "id_permiso")
     private PermisosEntity permisos ;
 
+    @OneToMany(mappedBy = "rol", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ClienteUsuarioRolEntity> usuarioRoles = new HashSet<>();
 
     // Getters and Setters
 
@@ -57,5 +61,13 @@ public class RolesEntity {
 
     public void setPermisos(PermisosEntity permisos) {
         this.permisos = permisos;
+    }
+
+    public Set<ClienteUsuarioRolEntity> getUsuarioRoles() {
+        return usuarioRoles;
+    }
+
+    public void setUsuarioRoles(Set<ClienteUsuarioRolEntity> usuarioRoles) {
+        this.usuarioRoles = usuarioRoles;
     }
 }

@@ -1,7 +1,7 @@
 package com.envifo_backend_java.Envifo_backend_java.interfaces.controller;
 
 import com.envifo_backend_java.Envifo_backend_java.application.service.GradeServiceImple;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.GradesDto;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.GradesDto;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -59,6 +59,38 @@ public class GradeController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
         }
         List<GradesDto> grades = gradeServiceImple.getByIdUsuario(idUsuario);
+        return ResponseEntity.ok(grades);
+    }
+
+    @GetMapping("/filter/{data}")
+    public ResponseEntity<?> getByTitleOrContent(@RequestHeader(value = "Authorization") String token,
+                                               @PathVariable String data){
+        if (token == null || !validarToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
+        }
+        List<GradesDto> grades = gradeServiceImple.searchByTitleOrContent(data);
+        return ResponseEntity.ok(grades);
+    }
+
+    @GetMapping("/filter/user/{data}/{idUsuario}")
+    public ResponseEntity<?> getGradesFilterByUser (@RequestHeader(value = "Authorization") String token,
+                                                    @PathVariable String data,
+                                                    @PathVariable Long idUsuario){
+        if (token == null || !validarToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
+        }
+        List<GradesDto> grades = gradeServiceImple.getGradesFilterByUser(data,idUsuario);
+        return ResponseEntity.ok(grades);
+    }
+
+    @GetMapping("/filter/client/{data}/{idCliente}")
+    public ResponseEntity<?> getGradesFilterByClient (@RequestHeader(value = "Authorization") String token,
+                                                    @PathVariable String data,
+                                                    @PathVariable Long idCliente){
+        if (token == null || !validarToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
+        }
+        List<GradesDto> grades = gradeServiceImple.getGradesFilterByClient(data,idCliente);
         return ResponseEntity.ok(grades);
     }
 

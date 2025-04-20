@@ -1,4 +1,4 @@
-package com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity;
+package com.envifo_backend_java.Envifo_backend_java.domain.model.entity;
 
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
@@ -6,6 +6,8 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "usuarios")
@@ -37,9 +39,10 @@ public class UsuarioEntity {
 
     private String celular;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
     @Column(name = "fecha_nacimiento")
@@ -47,32 +50,12 @@ public class UsuarioEntity {
 
     @ManyToOne
     @JoinColumn(name = "id_rol", nullable = false)
-    private RolesEntity rol ;
+    private RolesEntity rol;
 
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ClienteUsuarioRolEntity> clienteRol = new HashSet<>();
 
-
-    // Constructores
-
-
-    public UsuarioEntity(Long idUsuario, LocalDateTime fechaRegistro, boolean estado, String userName,
-                         String nombre, String apellido, int edad, String celular, String email,
-                         String password, String fechaNacimiento,
-                         RolesEntity rol) {
-
-        this.idUsuario = idUsuario;
-        this.fechaRegistro = fechaRegistro;
-        this.estado = estado;
-        this.userName = userName;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.edad = edad;
-        this.celular = celular;
-        this.email = email;
-        this.password = password;
-        this.fechaNacimiento = fechaNacimiento;
-        this.rol = rol;
-
-    }
+    // Constructor
 
     public UsuarioEntity(){
 
@@ -177,4 +160,11 @@ public class UsuarioEntity {
         this.rol = rol;
     }
 
+    public Set<ClienteUsuarioRolEntity> getClienteRol() {
+        return clienteRol;
+    }
+
+    public void setClienteRol(Set<ClienteUsuarioRolEntity> clienteRol) {
+        this.clienteRol = clienteRol;
+    }
 }

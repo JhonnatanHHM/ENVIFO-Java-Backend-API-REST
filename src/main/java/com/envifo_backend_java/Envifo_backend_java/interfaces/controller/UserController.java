@@ -1,7 +1,7 @@
 package com.envifo_backend_java.Envifo_backend_java.interfaces.controller;
 
 import com.envifo_backend_java.Envifo_backend_java.application.service.UserServiceImple;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.UserDto;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.UserDto;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

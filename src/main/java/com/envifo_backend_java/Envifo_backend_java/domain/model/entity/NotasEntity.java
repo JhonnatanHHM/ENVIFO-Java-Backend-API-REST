@@ -1,4 +1,4 @@
-package com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity;
+package com.envifo_backend_java.Envifo_backend_java.domain.model.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -30,7 +30,11 @@ public class NotasEntity {
 
     @ManyToOne
     @JoinColumn(name = "id_usuario", nullable = false)
-    private UsuarioEntity idUsuario;
+    private UsuarioEntity usuario;
+
+    @ManyToOne
+    @JoinColumn(name = "id_cliente")
+    private ClientesEntity cliente;
 
     // Getters and Setters
 
@@ -75,11 +79,19 @@ public class NotasEntity {
         this.fechaModificacion = fechaModificacion;
     }
 
-    public UsuarioEntity getIdUsuario() {
-        return idUsuario;
+    public UsuarioEntity getUsuario() {
+        return usuario;
     }
 
-    public void setIdUsuario(UsuarioEntity idUsuario) {
-        this.idUsuario = idUsuario;
+    public void setUsuario(UsuarioEntity usuario) {
+        this.usuario = usuario;
+    }
+
+    public ClientesEntity getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(ClientesEntity cliente) {
+        this.cliente = cliente;
     }
 }

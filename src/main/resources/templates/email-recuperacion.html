@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Recuperación de Contraseña</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #0275d8;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .content h2 {
+            color: #333333;
+        }
+
+        .content p {
+            font-size: 16px;
+            color: #555555;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin-top: 20px;
+            background-color: #0275d8;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #999999;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Recuperación de Contraseña</h1>
+    </div>
+    <div class="content">
+        <h2>Hola, <span th:text="${nombreUsuario}">Usuario</span> 👋</h2>
+        <p>Recibimos una solicitud para restablecer tu contraseña. Si fuiste tú, haz clic en el siguiente botón para continuar:</p>
+
+        <a th:href="${urlRecuperacion}" class="btn">Restablecer Contraseña</a>
+
+        <p>Si no realizaste esta solicitud, puedes ignorar este correo. El enlace caducará en 1 hora.</p>
+    </div>
+    <div class="footer">
+        © 2025 ENVIFO. Todos los derechos reservados.
+    </div>
+</div>
+
+</body>
+</html>

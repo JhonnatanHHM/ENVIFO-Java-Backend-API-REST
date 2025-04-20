@@ -1,9 +1,9 @@
-package com.envifo_backend_java.Envifo_backend_java.application.service.interfaces;
+package com.envifo_backend_java.Envifo_backend_java.domain.service;
 
-import com.envifo_backend_java.Envifo_backend_java.domain.model.JwtResponseDto;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.LoginDto;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.RegisterDto;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.UserDto;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.JwtResponseDto;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.LoginDto;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.RegisterDto;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.UserDto;
 import org.springframework.http.HttpHeaders;
 
 import java.util.List;

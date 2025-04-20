@@ -51,6 +51,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         authorization -> authorization
+                                .requestMatchers("/api/recuperacion/solicitar").permitAll()
+                                .requestMatchers("/api/recuperacion/validar").permitAll()
+                                .requestMatchers("/api/recuperacion/cambiar").permitAll()
                                 .requestMatchers("/api/login").permitAll()
                                 .requestMatchers("/api/register").permitAll()
                                 .requestMatchers("/admin").hasAnyAuthority("ROL_GLOBAL")

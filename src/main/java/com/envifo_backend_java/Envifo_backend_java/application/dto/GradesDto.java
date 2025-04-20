@@ -1,6 +1,6 @@
-package com.envifo_backend_java.Envifo_backend_java.domain.model;
+package com.envifo_backend_java.Envifo_backend_java.application.dto;
 
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.UsuarioEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.UsuarioEntity;
 
 
 public class GradesDto {
@@ -13,7 +13,7 @@ public class GradesDto {
 
     private String content;
 
-    private UsuarioEntity idUser;
+    private Long idUser;
 
     // Getters and Setters
 
@@ -42,11 +42,11 @@ public class GradesDto {
         this.content = content;
     }
 
-    public UsuarioEntity getIdUser() {
+    public Long getIdUser() {
         return idUser;
     }
 
-    public void setIdUser(UsuarioEntity idUser) {
+    public void setIdUser(Long idUser) {
         this.idUser = idUser;
     }
 }

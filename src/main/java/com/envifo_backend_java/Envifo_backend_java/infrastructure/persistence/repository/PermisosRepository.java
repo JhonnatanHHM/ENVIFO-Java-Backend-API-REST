@@ -1,8 +1,8 @@
 package com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository;
 
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.PermissionsRepository;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.crud.PermissionsCrudRepository;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.PermisosEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.repository.crud.PermissionsCrudRepository;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.PermisosEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

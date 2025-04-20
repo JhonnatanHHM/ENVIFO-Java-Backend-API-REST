@@ -1,8 +1,9 @@
 package com.envifo_backend_java.Envifo_backend_java.application.service;
 
-import com.envifo_backend_java.Envifo_backend_java.application.service.interfaces.GradeService;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.GradesDto;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.NotasEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.UsuarioEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.service.GradeService;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.GradesDto;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.NotasEntity;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.NotasRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class GradeServiceImple implements GradeService {
     @Override
     public List<GradesDto> searchByTitleOrContent(String data) {
         List<NotasEntity> notas = notasRepository.searchByTitleOrContent(data);
-        return notas.stream().map(this::convertToDto).collect(Collectors.toList());
+        return notas.stream().map(this::convertToDto).toList();
     }
 
     @Override
@@ -57,12 +58,24 @@ public class GradeServiceImple implements GradeService {
         return notas.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
+    @Override
+    public List<GradesDto> getGradesFilterByUser(String data, Long idUsuario) {
+        List<NotasEntity> notas = notasRepository.getGradesFilterByUser(data, idUsuario);
+        return notas.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<GradesDto> getGradesFilterByClient(String data, Long idCliente) {
+        List<NotasEntity> notas = notasRepository.getGradesFilterByClient(data, idCliente);
+        return notas.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+
     private GradesDto convertToDto(NotasEntity nota) {
         GradesDto gradesDto = new GradesDto();
         gradesDto.setIdGrade(nota.getIdNota());
         gradesDto.setTitle(nota.getTitulo());
         gradesDto.setContent(nota.getContenido());
-        gradesDto.setIdUser(nota.getIdUsuario());
+        gradesDto.setIdUser(nota.getUsuario().getIdUsuario());
         return gradesDto;
     }
 
@@ -71,6 +84,12 @@ public class GradeServiceImple implements GradeService {
         nota.setIdNota(dto.getIdGrade());
         nota.setTitulo(dto.getTitle());
         nota.setContenido(dto.getContent());
+        // Crear una instancia de UsuarioEntity con solo el ID
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setIdUsuario(dto.getIdUser());
+
+        // Asignar el usuario a la nota
+        nota.setUsuario(usuario);
         return nota;
     }
 }

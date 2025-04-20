@@ -1,7 +1,7 @@
 package com.envifo_backend_java.Envifo_backend_java.interfaces.controller;
 
 import com.envifo_backend_java.Envifo_backend_java.application.service.RolServiceImple;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.RolDto;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.RolDto;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

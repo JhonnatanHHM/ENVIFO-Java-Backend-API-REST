@@ -1,13 +1,13 @@
 package com.envifo_backend_java.Envifo_backend_java.application.service;
 
-import com.envifo_backend_java.Envifo_backend_java.application.service.interfaces.UserService;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.*;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.*;
+import com.envifo_backend_java.Envifo_backend_java.domain.service.UserService;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.ConflictException;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.JwtAuthenticationException;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.NotFoundException;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.PermisosEntity;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.RolesEntity;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.UsuarioEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.PermisosEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.RolesEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.UsuarioEntity;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.PermisosRepository;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.RolesRepository;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.UsuarioRepository;

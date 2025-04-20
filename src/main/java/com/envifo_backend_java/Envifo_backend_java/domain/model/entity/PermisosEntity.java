@@ -1,36 +1,55 @@
-package com.envifo_backend_java.Envifo_backend_java.domain.model;
+package com.envifo_backend_java.Envifo_backend_java.domain.model.entity;
 
-public class PermissionsDto {
+import jakarta.persistence.*;
 
+@Entity
+@Table(name ="permisos")
+public class PermisosEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_permiso")
     private Long idPermiso;
 
+    @Column(name = "edit_permisos")
     private boolean editPermisos;
 
+    @Column(name = "vista_usuarios")
     private boolean vistaUsuarios;
 
+    @Column(name = "edit_usuarios")
     private boolean editUsuarios;
 
+    @Column(name = "vista_proyectos")
     private boolean vistaProyectos;
 
+    @Column(name = "edit_proyectos")
     private boolean editProyectos;
 
+    @Column(name = "vista_disenios_3d")
     private boolean vistaDisenios3d;
 
+    @Column(name = "edit_disenios_3d")
     private boolean editDisenios3d;
 
+    @Column(name = "vista_materiales")
     private boolean vistaMateriales;
 
+    @Column(name = "edit_materiales")
     private boolean editMateriales;
 
+    @Column(name = "vista_informes")
     private boolean vistaInformes;
 
+    @Column(name = "vista_categorias")
     private boolean vistaCategorias;
 
+    @Column(name = "edit_categorias")
     private boolean editCategorias;
 
     // Constructores
 
-    public PermissionsDto() {
+    public PermisosEntity() {
 
     }
 

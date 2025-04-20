@@ -1,10 +1,10 @@
 package com.envifo_backend_java.Envifo_backend_java.application.service;
 
-import com.envifo_backend_java.Envifo_backend_java.application.service.interfaces.PermissionsService;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.PermissionsDto;
+import com.envifo_backend_java.Envifo_backend_java.domain.service.PermissionsService;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.PermissionsDto;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.PermissionsRepository;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.NotFoundException;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.PermisosEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.PermisosEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 
 

@@ -1,7 +1,7 @@
-package com.envifo_backend_java.Envifo_backend_java.application.service.interfaces;
+package com.envifo_backend_java.Envifo_backend_java.domain.service;
 
-import com.envifo_backend_java.Envifo_backend_java.domain.model.GradesDto;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.NotasEntity;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.GradesDto;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -21,4 +21,8 @@ public interface GradeService {
     Optional<GradesDto> getByIdGrade(Long idGrade);
 
     List<GradesDto> getByIdUsuario(Long idUsuario);
+
+    List<GradesDto> getGradesFilterByUser(String data, Long idUsuario);
+
+    List<GradesDto> getGradesFilterByClient(String data, Long idCliente);
 }

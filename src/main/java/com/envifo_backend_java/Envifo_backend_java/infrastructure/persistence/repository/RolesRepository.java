@@ -1,8 +1,8 @@
 package com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository;
 
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.RolRepository;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.crud.RolCrudRepository;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.RolesEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.repository.crud.RolCrudRepository;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.RolesEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

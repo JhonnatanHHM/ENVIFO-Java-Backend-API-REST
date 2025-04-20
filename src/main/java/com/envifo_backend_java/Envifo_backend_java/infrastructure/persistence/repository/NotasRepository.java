@@ -1,8 +1,8 @@
 package com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository;
 
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.GradesRepository;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.crud.GradesCrudRepository;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.NotasEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.repository.crud.GradesCrudRepository;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.NotasEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -42,7 +42,17 @@ public class NotasRepository implements GradesRepository {
 
     @Override
     public List<NotasEntity> getByIdUsuario(Long idUsuario) {
-        return gradesCrudRepository.findByIdUsuario_IdUsuario(idUsuario);
+        return gradesCrudRepository.findByUsuario_IdUsuario(idUsuario);
+    }
+
+    @Override
+    public List<NotasEntity> getGradesFilterByUser(String data, Long idUsuario) {
+        return gradesCrudRepository.buscarNotasFiltradasPorUsuario(data, idUsuario);
+    }
+
+    @Override
+    public List<NotasEntity> getGradesFilterByClient(String data, Long idCliente) {
+        return gradesCrudRepository.buscarNotasFiltradasPorCliente(data, idCliente);
     }
 
 }

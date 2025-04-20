@@ -1,6 +1,6 @@
-package com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.crud;
+package com.envifo_backend_java.Envifo_backend_java.domain.repository.crud;
 
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.RolesEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.RolesEntity;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

@@ -1,12 +1,12 @@
 package com.envifo_backend_java.Envifo_backend_java.application.service;
 
 
-import com.envifo_backend_java.Envifo_backend_java.application.service.interfaces.RolService;
-import com.envifo_backend_java.Envifo_backend_java.domain.model.RolDto;
+import com.envifo_backend_java.Envifo_backend_java.domain.service.RolService;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.RolDto;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.RolRepository;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.NotFoundException;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.PermisosEntity;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.RolesEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.PermisosEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.RolesEntity;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.PermisosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

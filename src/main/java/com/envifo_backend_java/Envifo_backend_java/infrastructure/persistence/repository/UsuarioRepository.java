@@ -1,8 +1,8 @@
 package com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository;
 
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.UserRepository;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.crud.UserCrudRepository;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.entity.UsuarioEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.repository.crud.UserCrudRepository;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.UsuarioEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
