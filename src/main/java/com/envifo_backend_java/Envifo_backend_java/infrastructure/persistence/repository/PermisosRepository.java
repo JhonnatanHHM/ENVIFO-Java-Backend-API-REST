@@ -11,20 +11,25 @@ import java.util.Optional;
 @Repository
 public class PermisosRepository implements PermissionsRepository {
 
-    @Autowired
+
     private PermissionsCrudRepository permissionsCrudRepository;
 
-    @Override
-    public Optional<PermisosEntity> getById(Long idPermiso) {
-        return permissionsCrudRepository.findById(idPermiso);
+    @Autowired
+    public PermisosRepository(PermissionsCrudRepository permissionsCrudRepository) {
+        this.permissionsCrudRepository = permissionsCrudRepository;
     }
 
     @Override
     public PermisosEntity save(PermisosEntity permisos) {
-        return permissionsCrudRepository.save(permisos);
+        return permissionsCrudRepository.saveAndFlush(permisos);
     }
 
     public Optional<PermisosEntity> findByIdPermiso(Long idPermiso) {
         return  permissionsCrudRepository.findById(idPermiso);
+    }
+
+    @Override
+    public void deleteByIdPermiso(Long idPermiso) {
+        permissionsCrudRepository.deleteById(idPermiso);
     }
 }

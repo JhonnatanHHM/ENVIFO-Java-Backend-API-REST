@@ -1,5 +1,6 @@
 package com.envifo_backend_java.Envifo_backend_java.application.service;
 
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.ClientesEntity;
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.UsuarioEntity;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.GradeService;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.GradesDto;
@@ -59,6 +60,12 @@ public class GradeServiceImple implements GradeService {
     }
 
     @Override
+    public List<GradesDto> getByIdCustomer(Long idCliente) {
+        List<NotasEntity> notas = notasRepository.getByIdCliente(idCliente);
+        return notas.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+
+    @Override
     public List<GradesDto> getGradesFilterByUser(String data, Long idUsuario) {
         List<NotasEntity> notas = notasRepository.getGradesFilterByUser(data, idUsuario);
         return notas.stream().map(this::convertToDto).collect(Collectors.toList());
@@ -76,6 +83,7 @@ public class GradeServiceImple implements GradeService {
         gradesDto.setTitle(nota.getTitulo());
         gradesDto.setContent(nota.getContenido());
         gradesDto.setIdUser(nota.getUsuario().getIdUsuario());
+        gradesDto.setIdCustomer(nota.getCliente().getIdCliente());
         return gradesDto;
     }
 
@@ -87,7 +95,9 @@ public class GradeServiceImple implements GradeService {
         // Crear una instancia de UsuarioEntity con solo el ID
         UsuarioEntity usuario = new UsuarioEntity();
         usuario.setIdUsuario(dto.getIdUser());
-
+        // Crear una instancia de ClientesEntity con solo el ID
+        ClientesEntity cliente = new ClientesEntity();
+        cliente.setIdCliente(dto.getIdCustomer());
         // Asignar el usuario a la nota
         nota.setUsuario(usuario);
         return nota;

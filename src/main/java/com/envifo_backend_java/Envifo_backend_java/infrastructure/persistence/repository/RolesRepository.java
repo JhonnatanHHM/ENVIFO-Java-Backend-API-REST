@@ -11,9 +11,12 @@ import java.util.Optional;
 @Repository
 public class RolesRepository implements RolRepository {
 
-    @Autowired
     private RolCrudRepository rolCrudRepository;
 
+    @Autowired
+    public RolesRepository(RolCrudRepository rolCrudRepository) {
+        this.rolCrudRepository = rolCrudRepository;
+    }
 
     @Override
     public Optional<RolesEntity> getByIdRol(Long idRol) {
@@ -27,7 +30,7 @@ public class RolesRepository implements RolRepository {
 
     @Override
     public RolesEntity save(RolesEntity rol) {
-        return rolCrudRepository.save(rol);
+        return rolCrudRepository.saveAndFlush(rol);
     }
 
     @Override

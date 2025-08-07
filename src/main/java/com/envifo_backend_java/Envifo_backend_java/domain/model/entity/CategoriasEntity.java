@@ -3,7 +3,6 @@ package com.envifo_backend_java.Envifo_backend_java.domain.model.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "categorias")
@@ -14,17 +13,18 @@ public class CategoriasEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_categoria")
-    private Integer id;
+    private Long idCategoria;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 50)
     private String nombre;
 
-    @Column(columnDefinition = "text")
-    private String descripcion;
+    @Column(length = 50)
+    private String seccion;
 
-    @Column(name = "fecha_creacion")
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
+    @Column(nullable = false)
     private Boolean estado;
 
     @ManyToOne
@@ -33,17 +33,28 @@ public class CategoriasEntity {
 
     // Constructor
 
+
+    public CategoriasEntity(Long idCategoria, String nombre, String seccion, LocalDateTime fechaCreacion, Boolean estado, ClientesEntity cliente) {
+        this.idCategoria = idCategoria;
+        this.nombre = nombre;
+        this.seccion = seccion;
+        this.fechaCreacion = fechaCreacion;
+        this.estado = estado;
+        this.cliente = cliente;
+    }
+
     public CategoriasEntity() {
     }
 
     // Getters y Setters
 
-    public Integer getId() {
-        return id;
+
+    public Long getIdCategoria() {
+        return idCategoria;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setIdCategoria(Long idCategoria) {
+        this.idCategoria = idCategoria;
     }
 
     public String getNombre() {
@@ -54,12 +65,12 @@ public class CategoriasEntity {
         this.nombre = nombre;
     }
 
-    public String getDescripcion() {
-        return descripcion;
+    public String getSeccion() {
+        return seccion;
     }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setSeccion(String seccion) {
+        this.seccion = seccion;
     }
 
     public LocalDateTime getFechaCreacion() {

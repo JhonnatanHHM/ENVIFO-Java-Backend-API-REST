@@ -22,6 +22,8 @@ public interface GradeService {
 
     List<GradesDto> getByIdUsuario(Long idUsuario);
 
+    List<GradesDto> getByIdCustomer(Long idCliente);
+
     List<GradesDto> getGradesFilterByUser(String data, Long idUsuario);
 
     List<GradesDto> getGradesFilterByClient(String data, Long idCliente);

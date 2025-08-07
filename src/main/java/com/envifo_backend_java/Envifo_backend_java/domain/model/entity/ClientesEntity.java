@@ -1,5 +1,6 @@
 package com.envifo_backend_java.Envifo_backend_java.domain.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -17,11 +18,14 @@ public class ClientesEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_cliente")
     private Long idCliente;
-    
+
+    @Column(nullable = false)
     private String nombre;
 
+    @Column(nullable = false)
     private String direccion;
 
+    @Column(nullable = false)
     private String telefono;
 
     @Column(unique = true, nullable = false)
@@ -34,18 +38,33 @@ public class ClientesEntity {
 
     private boolean estado;
 
-    @ManyToOne
-    @JoinColumn(name = "id_rol", nullable = false)
-    private RolesEntity rol;
-
     @CreationTimestamp
     @Column(name = "fecha_registro", updatable = false, nullable = false)
     private LocalDateTime fechaRegistro;
 
+    @ManyToOne
+    @JoinColumn(name = "id_rol", nullable = false)
+    private RolesEntity rol;
+
+    @JsonIgnore
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ClienteUsuarioRolEntity> usuarioRoles = new HashSet<>();
 
     // Constructor
+
+    public ClientesEntity(Long idCliente, String nombre, String direccion, String telefono, String email, String password, String url, boolean estado, LocalDateTime fechaRegistro, RolesEntity rol, Set<ClienteUsuarioRolEntity> usuarioRoles) {
+        this.idCliente = idCliente;
+        this.nombre = nombre;
+        this.direccion = direccion;
+        this.telefono = telefono;
+        this.email = email;
+        this.password = password;
+        this.url = url;
+        this.estado = estado;
+        this.fechaRegistro = fechaRegistro;
+        this.rol = rol;
+        this.usuarioRoles = usuarioRoles;
+    }
 
     public ClientesEntity() {
     }
@@ -139,4 +158,5 @@ public class ClientesEntity {
     public void setUsuarioRoles(Set<ClienteUsuarioRolEntity> usuarioRoles) {
         this.usuarioRoles = usuarioRoles;
     }
+
 }

@@ -19,6 +19,8 @@ public interface GradesRepository {
 
     List<NotasEntity> getByIdUsuario(Long idUsuario);
 
+    List<NotasEntity> getByIdCliente(Long idCliente);
+
     List<NotasEntity> getGradesFilterByUser(String data, Long idUsuario);
 
     List<NotasEntity> getGradesFilterByClient(String data, Long idCliente);

@@ -1,8 +1,5 @@
 package com.envifo_backend_java.Envifo_backend_java.application.dto;
 
-import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.UsuarioEntity;
-
-
 public class GradesDto {
 
     //Atributos
@@ -14,6 +11,8 @@ public class GradesDto {
     private String content;
 
     private Long idUser;
+
+    private Long idCustomer;
 
     // Getters and Setters
 
@@ -47,6 +46,15 @@ public class GradesDto {
     }
 
     public void setIdUser(Long idUser) {
+
         this.idUser = idUser;
+    }
+
+    public Long getIdCustomer() {
+        return idCustomer;
+    }
+
+    public void setIdCustomer(Long idCustomer) {
+        this.idCustomer = idCustomer;
     }
 }

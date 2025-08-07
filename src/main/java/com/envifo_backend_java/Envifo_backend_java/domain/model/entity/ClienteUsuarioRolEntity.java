@@ -25,6 +25,7 @@ public class ClienteUsuarioRolEntity {
     @JoinColumn(name = "id_rol")
     private RolesEntity rol;
 
+
     // Getters, Setters
 
 

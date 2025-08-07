@@ -6,17 +6,72 @@ import com.envifo_backend_java.Envifo_backend_java.domain.repository.Permissions
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.NotFoundException;
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.PermisosEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 
 import java.util.Optional;
 
+@Service
 public class PermissionsServiceImple implements PermissionsService {
 
-    @Autowired
+
     private PermissionsRepository permissionsRepository;
 
+    @Autowired
+    public PermissionsServiceImple(PermissionsRepository permissionsRepository) {
+        this.permissionsRepository = permissionsRepository;
+    }
+
     @Override
-    public Optional<PermissionsDto> getById(Long idPermiso) {
+    public PermisosEntity savePermission(PermissionsDto permissionsDto) {
+        // Crear permisos predeterminados
+        PermisosEntity permisos = new PermisosEntity();
+        permisos.setEditPermisos(permissionsDto.isEditPermisos());
+        permisos.setVistaUsuarios(permissionsDto.isVistaUsuarios());
+        permisos.setEditUsuarios(permissionsDto.isEditUsuarios());
+        permisos.setVistaProyectos(permissionsDto.isVistaProyectos());
+        permisos.setEditProyectos(permissionsDto.isEditProyectos());
+        permisos.setVistaDisenios3d(permissionsDto.isEditPermisos());
+        permisos.setEditDisenios3d(permissionsDto.isEditDisenios3d());
+        permisos.setVistaMateriales(permissionsDto.isVistaMateriales());
+        permisos.setEditMateriales(permissionsDto.isEditMateriales());
+        permisos.setVistaInformes(permissionsDto.isEditPermisos());
+        permisos.setVistaCategorias(permissionsDto.isEditPermisos());
+        permisos.setEditCategorias(permissionsDto.isEditCategorias());
+
+        // Guardar permisos en la base de datos
+        return permissionsRepository.save(permisos);
+    }
+
+    @Override
+    public PermisosEntity editPermissions(PermissionsDto permisosEditados) {
+
+        if (permisosEditados.getIdPermiso() == 3 || permisosEditados.getIdPermiso() == 16) {
+            throw new RuntimeException("No se pueden realizar cambios a los permisos GLOBALES o RESTRINGIDOS predeterminados");
+        }
+
+        // editar permisos predeterminados
+        PermisosEntity permisos = new PermisosEntity();
+        permisos.setIdPermiso(permisosEditados.getIdPermiso());
+        permisos.setEditPermisos(permisosEditados.isEditPermisos());
+        permisos.setVistaUsuarios(permisosEditados.isVistaUsuarios());
+        permisos.setEditUsuarios(permisosEditados.isEditUsuarios());
+        permisos.setVistaProyectos(permisosEditados.isVistaProyectos());
+        permisos.setEditProyectos(permisosEditados.isEditProyectos());
+        permisos.setVistaDisenios3d(permisosEditados.isEditPermisos());
+        permisos.setEditDisenios3d(permisosEditados.isEditDisenios3d());
+        permisos.setVistaMateriales(permisosEditados.isVistaMateriales());
+        permisos.setEditMateriales(permisosEditados.isEditMateriales());
+        permisos.setVistaInformes(permisosEditados.isEditPermisos());
+        permisos.setVistaCategorias(permisosEditados.isEditPermisos());
+        permisos.setEditCategorias(permisosEditados.isEditCategorias());
+
+        // Guardar permisos en la base de datos
+        return permissionsRepository.save(permisos);
+    }
+
+    @Override
+    public Optional<PermissionsDto> getByIdPermiso(Long idPermiso) {
 
         PermisosEntity permisos = permissionsRepository.findByIdPermiso(idPermiso)
                 .orElseThrow(() -> new NotFoundException("Permisos no encontrados!"));
@@ -37,5 +92,10 @@ public class PermissionsServiceImple implements PermissionsService {
         permissionsDto.setEditCategorias(permissionsDto.isEditCategorias());
 
         return Optional.of(permissionsDto);
+    }
+
+    @Override
+    public void deleteByIdPermiso(Long idPermiso) {
+        permissionsRepository.deleteByIdPermiso(idPermiso);
     }
 }

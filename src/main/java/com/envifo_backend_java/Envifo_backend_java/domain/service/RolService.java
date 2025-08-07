@@ -7,7 +7,8 @@ import java.util.Optional;
 public interface RolService {
 
     Optional<RolDto> getByIdRol(Long idRol);
-    public Optional<RolDto> getByname(String name);
-    public RolDto editRol(RolDto rolDto);
-    public RolDto createRol(RolDto rolDto);
+    Optional<RolDto> getByname(String name);
+    RolDto editRol(RolDto rolDto);
+    RolDto createRol(RolDto rolDto);
+    void deleteByIdRol(Long idRol);
 }

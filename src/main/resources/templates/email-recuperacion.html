@@ -22,7 +22,7 @@
         }
 
         .header {
-            background-color: #0275d8;
+            background-color: #ff6600;
             color: #ffffff;
             text-align: center;
             padding: 20px;
@@ -68,11 +68,12 @@
     </div>
     <div class="content">
         <h2>Hola, <span th:text="${nombreUsuario}">Usuario</span> 👋</h2>
-        <p>Recibimos una solicitud para restablecer tu contraseña. Si fuiste tú, haz clic en el siguiente botón para continuar:</p>
+        <p>Recibimos una solicitud para restablecer tu contraseña. Si fuiste tú, copia el siguiente token en el campo de verificación para cambiar tu contraseña:</p>
 
-        <a th:href="${urlRecuperacion}" class="btn">Restablecer Contraseña</a>
+        <span th:text="${urlRecuperacion}" style="display:inline-block;font-size: 20px;font-weight: bold;padding:10px 20px;background-color:#ff6600;color:white;text-decoration:none;border-radius:5px;">Token</span>
 
-        <p>Si no realizaste esta solicitud, puedes ignorar este correo. El enlace caducará en 1 hora.</p>
+
+        <p>Si no realizaste esta solicitud, puedes ignorar este correo. El token caducará en 15 minutos.</p>
     </div>
     <div class="footer">
         © 2025 ENVIFO. Todos los derechos reservados.

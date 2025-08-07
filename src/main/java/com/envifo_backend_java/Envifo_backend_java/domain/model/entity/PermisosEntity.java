@@ -49,6 +49,23 @@ public class PermisosEntity {
 
     // Constructores
 
+
+    public PermisosEntity(Long idPermiso, boolean editPermisos, boolean vistaUsuarios, boolean editUsuarios, boolean vistaProyectos, boolean editProyectos, boolean vistaDisenios3d, boolean editDisenios3d, boolean vistaMateriales, boolean editMateriales, boolean vistaInformes, boolean vistaCategorias, boolean editCategorias) {
+        this.idPermiso = idPermiso;
+        this.editPermisos = editPermisos;
+        this.vistaUsuarios = vistaUsuarios;
+        this.editUsuarios = editUsuarios;
+        this.vistaProyectos = vistaProyectos;
+        this.editProyectos = editProyectos;
+        this.vistaDisenios3d = vistaDisenios3d;
+        this.editDisenios3d = editDisenios3d;
+        this.vistaMateriales = vistaMateriales;
+        this.editMateriales = editMateriales;
+        this.vistaInformes = vistaInformes;
+        this.vistaCategorias = vistaCategorias;
+        this.editCategorias = editCategorias;
+    }
+
     public PermisosEntity() {
 
     }

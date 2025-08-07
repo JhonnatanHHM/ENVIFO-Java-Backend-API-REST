@@ -1,6 +1,8 @@
 package com.envifo_backend_java.Envifo_backend_java.application.service;
 
 import com.envifo_backend_java.Envifo_backend_java.application.dto.*;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.AlmacenamientoEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.service.StorageService;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.UserService;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.ConflictException;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.JwtAuthenticationException;
@@ -8,66 +10,142 @@ import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.Not
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.PermisosEntity;
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.RolesEntity;
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.UsuarioEntity;
+import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.AlmacenamientoRepository;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.PermisosRepository;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.RolesRepository;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.UsuarioRepository;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtGenerator;
-import org.springframework.http.HttpHeaders;
+import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.CustomUserDetails;
+import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtUtils;
+import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtTokenFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 @Service
 public class UserServiceImple implements UserService {
-    @Autowired
+
+    private StorageService storageService;
+
     private UsuarioRepository usuarioRepository;
-    @Autowired
+
     private RolServiceImple rolService;
-    @Autowired
+
     private RolesRepository rolesRepository;
-    @Autowired
+
     private PermisosRepository permisosRepository;
-    @Autowired
+
     private AuthenticationManager authenticationManager;
-    @Autowired
-    private JwtGenerator jwtGenerator;
-    @Autowired
+
+    private JwtTokenFactory jwtTokenFactory;
+
     private PasswordEncoder passwordEncoder;
+
+    private AlmacenamientoRepository almacenamientoRepository;
+
+    @Autowired
+    public UserServiceImple(
+            AlmacenamientoRepository almacenamientoRepository,
+            StorageService storageService,
+            UsuarioRepository usuarioRepository,
+            RolServiceImple rolService,
+            RolesRepository rolesRepository,
+            PermisosRepository permisosRepository,
+            AuthenticationManager authenticationManager,
+            JwtTokenFactory jwtTokenFactory,
+            PasswordEncoder passwordEncoder
+    ) {
+        this.usuarioRepository = usuarioRepository;
+        this.rolService = rolService;
+        this.rolesRepository = rolesRepository;
+        this.permisosRepository = permisosRepository;
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenFactory = jwtTokenFactory;
+        this.passwordEncoder = passwordEncoder;
+        this.storageService = storageService;
+        this.almacenamientoRepository = almacenamientoRepository;
+    }
+
+
+    @Override
+    public Optional<UserCompleteDto> getUserWithImages(Long idUsuario) {
+        // Buscar el usuario
+        Optional<UsuarioEntity> usuarioOpt = usuarioRepository.getByIdUsuario(idUsuario);
+        if (usuarioOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        UsuarioEntity usuario = usuarioOpt.get();
+
+        // Buscar la imagen (solo una) asociada al usuario
+        Optional<AlmacenamientoEntity> imagenOpt = almacenamientoRepository
+                .findByIdEntidadAndTipoEntidad(idUsuario, "usuario");
+
+        Optional<StorageDto> imagenDto = imagenOpt.map(imagen -> {
+            StorageDto storageDto = new StorageDto();
+            storageDto.setIdFile(imagen.getIdArchivo());
+            storageDto.setNameFile(imagen.getNombreArchivo());
+            storageDto.setIdEntity(imagen.getIdEntidad());
+
+            try {
+                String url = storageService.getPresignedUrl(imagen.getIdArchivo());
+                storageDto.setKeyR2(url);
+            } catch (Exception e) {
+                storageDto.setKeyR2("Error al generar URL");
+            }
+
+            return storageDto;
+        });
+
+        // Convertir rol
+        RolDto rolDto = null;
+        if (usuario.getRol() != null) {
+            rolDto = convertToDto(usuario.getRol());
+        }
+
+        // Armar el DTO completo
+        UserCompleteDto dto = new UserCompleteDto();
+        dto.setIdUsuario(usuario.getIdUsuario());
+        dto.setDateRecord(usuario.getFechaRegistro());
+        dto.setState(usuario.isEstado());
+        dto.setUserName(Optional.ofNullable(usuario.getUserName()).orElse(""));
+        dto.setFirstName(usuario.getPrimerNombre());
+        dto.setMiddleName(Optional.ofNullable(usuario.getSegundoNombre()).orElse(""));
+        dto.setFirstSurname(usuario.getPrimerApellido());
+        dto.setSecondSurname(Optional.ofNullable(usuario.getSegundoApellido()).orElse(""));
+        dto.setAge(Optional.ofNullable(usuario.getEdad()).orElse(""));
+        dto.setPhone(Optional.ofNullable(usuario.getCelular()).orElse(""));
+        dto.setEmail(usuario.getEmail());
+        dto.setPassword(""); // Nunca retornar contraseña
+        dto.setRol(rolDto);
+        dto.setImages(imagenDto);
+
+        return Optional.of(dto);
+    }
+
+
+    @Override
+    public boolean existsById(Long idUsuario) {
+        return usuarioRepository.existsById(idUsuario);
+    }
 
     @Override
     public Optional<UserDto> getByIdUsuario(Long idUsuario) {
-        // Obtener el usuario desde la base de datos
         UsuarioEntity user = usuarioRepository.getByIdUsuario(idUsuario)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado!"));
 
-        UserDto userDto = new UserDto();
-        userDto.setIdUsuario(user.getIdUsuario());
-        userDto.setDateRecord(user.getFechaRegistro());
-        userDto.setState(user.isEstado());
-        userDto.setUserName(user.getUserName());
-        userDto.setName(user.getNombre());
-        userDto.setLastName(user.getApellido());
-        userDto.setAge(user.getEdad());
-        userDto.setPhone(user.getCelular());
-        userDto.setEmail(user.getEmail());
-        userDto.setPassword("");  // No devolver la contraseña por seguridad
-        userDto.setBirthDate(user.getFechaNacimiento());
-        userDto.setRol(user.getRol());
-
-        return Optional.of(userDto);
+        return Optional.of(convertToDto(user));
     }
-
 
     @Override
     public UserDto register(RegisterDto registerDto) {
@@ -75,110 +153,51 @@ public class UserServiceImple implements UserService {
             throw new ConflictException("El usuario ya existe!");
         }
 
-        // Convertir RegisterDto a UsuarioEntity
         UsuarioEntity user = new UsuarioEntity();
-        user.setEstado(registerDto.isState());
-        user.setUserName(registerDto.getUserName());
-        user.setNombre(registerDto.getName());
-        user.setApellido(registerDto.getLastName());
-        user.setEdad(registerDto.getAge());
-        user.setCelular(registerDto.getPhone());
+        user.setEstado(true);
+        user.setUserName("");
+        user.setPrimerNombre(registerDto.getFirstName());
+        user.setSegundoNombre("");
+        user.setPrimerApellido(registerDto.getFirstSurname());
+        user.setSegundoApellido("");
+        user.setEdad("");
+        user.setCelular("");
         user.setEmail(registerDto.getEmail());
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
-        user.setFechaNacimiento(registerDto.getBirthDate());
 
-        // Verificar si el rol "RESTRINGIDO" ya existe, y si no, crearlo
+
         RolesEntity rol = rolesRepository.getByName("RESTRINGIDO").orElseGet(() -> {
-
             RolesEntity rolEntity = new RolesEntity();
             rolEntity.setName("RESTRINGIDO");
             rolEntity.setDescription("Usuario general");
 
-            // Crear permisos predeterminados
-            PermisosEntity permisos = new PermisosEntity();
-            permisos.setEditPermisos(false);
-            permisos.setVistaUsuarios(true);
-            permisos.setEditUsuarios(false);
-            permisos.setVistaProyectos(true);
-            permisos.setEditProyectos(true);
-            permisos.setVistaDisenios3d(true);
-            permisos.setEditDisenios3d(true);
-            permisos.setVistaMateriales(true);
-            permisos.setEditMateriales(false);
-            permisos.setVistaInformes(false);
-            permisos.setVistaCategorias(true);
-            permisos.setEditCategorias(false);
-
-            // Guardar permisos en la base de datos
+            PermisosEntity permisos = crearPermisosPorDefecto();
             PermisosEntity savedPermisos = permisosRepository.save(permisos);
 
-            // Asignar permisos al rol
             rolEntity.setPermisos(savedPermisos);
-
-            // Guardar el nuevo rol en la base de datos
             return rolesRepository.save(rolEntity);
         });
 
-        // Asignar el rol al usuario
         user.setRol(rol);
-
-        // Guardar el usuario
         usuarioRepository.save(user);
 
-        // Convertir UsuarioEntity a UserDto antes de retornarlo
-        UserDto userDto = new UserDto();
-        userDto.setState(user.isEstado());
-        userDto.setUserName(user.getUserName());
-        userDto.setName(user.getNombre());
-        userDto.setLastName(user.getApellido());
-        userDto.setAge(user.getEdad());
-        userDto.setPhone(user.getCelular());
-        userDto.setEmail(user.getEmail());
-        userDto.setPassword(user.getPassword());
-        userDto.setBirthDate(user.getFechaNacimiento());
-
-        // Convertir RolDto a RolesEntity
-        RolesEntity rolesEntity = new RolesEntity();
-        rolesEntity.setIdRol(rol.getIdRol());
-        rolesEntity.setName(rol.getName());
-        rolesEntity.setDescription(rol.getDescription());
-        rolesEntity.setPermisos(rol.getPermisos());
-
-        // Convertir PermissionsDto a PermisosEntity
-        PermisosEntity permisosEntity = new PermisosEntity();
-        permisosEntity.setEditPermisos(rol.getPermisos().isEditPermisos());
-        permisosEntity.setVistaUsuarios(rol.getPermisos().isVistaUsuarios());
-        permisosEntity.setEditUsuarios(rol.getPermisos().isEditUsuarios());
-        permisosEntity.setVistaProyectos(rol.getPermisos().isVistaProyectos());
-        permisosEntity.setEditProyectos(rol.getPermisos().isEditProyectos());
-        permisosEntity.setVistaDisenios3d(rol.getPermisos().isVistaDisenios3d());
-        permisosEntity.setEditDisenios3d(rol.getPermisos().isEditDisenios3d());
-        permisosEntity.setVistaMateriales(rol.getPermisos().isVistaMateriales());
-        permisosEntity.setEditMateriales(rol.getPermisos().isEditMateriales());
-        permisosEntity.setVistaInformes(rol.getPermisos().isVistaInformes());
-        permisosEntity.setVistaCategorias(rol.getPermisos().isVistaCategorias());
-        permisosEntity.setEditCategorias(rol.getPermisos().isEditCategorias());
-
-        // Asignar permisos al rol
-        rolesEntity.setPermisos(permisosEntity);
-        userDto.setRol(rolesEntity);
-
-        return userDto;
+        return convertToDto(user);
     }
 
     @Override
-    public void editUser(UserDto userDto) {
+    public UserCompleteDto editUser(UserDto userDto, MultipartFile file) {
         try {
             UsuarioEntity user = usuarioRepository.getByIdUsuario(userDto.getIdUsuario())
                     .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
             Optional.ofNullable(userDto.getUserName()).ifPresent(user::setUserName);
-            Optional.ofNullable(userDto.getName()).ifPresent(user::setNombre);
-            Optional.ofNullable(userDto.getLastName()).ifPresent(user::setApellido);
+            Optional.ofNullable(userDto.getFirstName()).ifPresent(user::setPrimerNombre);
+            Optional.ofNullable(userDto.getMiddleName()).ifPresent(user::setSegundoNombre);
+            Optional.ofNullable(userDto.getFirstSurname()).ifPresent(user::setPrimerApellido);
+            Optional.ofNullable(userDto.getSecondSurname()).ifPresent(user::setSegundoApellido);
             Optional.ofNullable(userDto.getPhone()).ifPresent(user::setCelular);
             Optional.ofNullable(userDto.getEmail()).ifPresent(user::setEmail);
-            Optional.ofNullable(userDto.getBirthDate()).ifPresent(user::setFechaNacimiento);
-            Optional.ofNullable(userDto.getAge()).filter(age -> age > 0).ifPresent(user::setEdad);
+            Optional.ofNullable(userDto.getAge()).ifPresent(user::setEdad);
             Optional.ofNullable(userDto.isState()).filter(state -> state != user.isEstado()).ifPresent(user::setEstado);
 
             Optional.ofNullable(userDto.getPassword())
@@ -186,18 +205,30 @@ public class UserServiceImple implements UserService {
                     .map(passwordEncoder::encode)
                     .ifPresent(user::setPassword);
 
-            if (userDto.getRol() != null) {
-
-                RolDto newRol = convertToDto(userDto.getRol());
-                RolDto rolDto = rolService.createRol(newRol);// Método de conversión
-                RolesEntity rolesEntity = convertToEntity(rolDto);
-
-                user.setRol(rolesEntity);
-            }
+            Optional.ofNullable(userDto.getRol()).ifPresent(user::setRol);
 
             usuarioRepository.save(user);
+
+            // Procesar imagen si se envía
+            if (file != null && !file.isEmpty()) {
+                Optional<AlmacenamientoEntity> optionalImagen =
+                        almacenamientoRepository.findByIdEntidadAndTipoEntidad(user.getIdUsuario(), "usuario");
+
+                if (optionalImagen.isPresent()) {
+                    storageService.updateFile(optionalImagen.get().getIdArchivo(), file);
+                } else {
+                    StorageDto dto = new StorageDto();
+                    dto.setIdEntity(user.getIdUsuario());
+
+                    storageService.saveFile(file, dto, "usuario", "imagenes");
+                }
+            }
+
+            return getUserWithImages(user.getIdUsuario())
+                    .orElseThrow(() -> new NotFoundException("No se pudo obtener el usuario actualizado"));
+
         } catch (NotFoundException e) {
-            throw e;  // Relanzar la excepción específica si el usuario no se encuentra
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Error al actualizar el usuario: " + e.getMessage(), e);
         }
@@ -215,83 +246,137 @@ public class UserServiceImple implements UserService {
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String token = jwtGenerator.generateToken(authentication);
+
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            String token = jwtTokenFactory.generateTokenFromDetails(userDetails);
+
             return new JwtResponseDto(token);
         } catch (AuthenticationException e) {
             throw new JwtAuthenticationException("Credenciales inválidas");
         }
     }
 
+
     @Override
-    public UserDto getLoguedUser(HttpHeaders headers) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public List<UserDto> getAll() {
+        List<UsuarioEntity> usuarios = usuarioRepository.getAll();
+        return usuarios.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
 
-        String email = ((User) authentication.getPrincipal()).getUsername();
+    @Override
+    public void deleteUser(Long idUsuario) throws IOException {
 
-        UsuarioEntity user = usuarioRepository.getByEmail(email)
-                .orElseThrow(()-> new NotFoundException("Usuario no encontrado"));
+        Optional<UsuarioEntity> userOpt = usuarioRepository.getByIdUsuario(idUsuario);
+
+        if (!userOpt.isPresent()) {
+            throw new NotFoundException("Usuario no encontrado por ID: " + idUsuario);
+        }
+
+        // Intentar eliminar la imagen asociada, pero no detener el proceso si falla
+        try {
+            storageService.deleteFileByEntity(idUsuario, "usuario");
+        } catch (Exception e) {
+            // Puedes registrar el error si lo deseas, pero no interrumpir la ejecución
+            System.err.println("No se pudo eliminar la imagen asociada al usuario: " + e.getMessage());
+        }
+
+        UsuarioEntity user = userOpt.get();
+
+        // Inhabilitar el usuario aunque haya fallado la eliminación de la imagen
+        user.setEstado(false);
+
+        usuarioRepository.save(user);
+    }
+
+
+    private UserDto convertToDto(UsuarioEntity user) {
         UserDto userDto = new UserDto();
         userDto.setIdUsuario(user.getIdUsuario());
         userDto.setDateRecord(user.getFechaRegistro());
         userDto.setState(user.isEstado());
         userDto.setUserName(user.getUserName());
-        userDto.setName(user.getNombre());
-        userDto.setLastName(user.getApellido());
+        userDto.setFirstName(user.getPrimerNombre());
+        userDto.setMiddleName(user.getSegundoNombre());
+        userDto.setFirstSurname(user.getPrimerApellido());
+        userDto.setSecondSurname(user.getSegundoApellido());
         userDto.setAge(user.getEdad());
         userDto.setPhone(user.getCelular());
         userDto.setEmail(user.getEmail());
-        userDto.setBirthDate(user.getFechaNacimiento());
+        userDto.setPassword("");
         userDto.setRol(user.getRol());
         return userDto;
     }
 
-    @Override
-    public List<UserDto> getAll() {
-        // Obtener la lista de entidades desde el repositorio
-        List<UsuarioEntity> usuarios = usuarioRepository.getAll();
-
-        // Convertir UsuarioEntity a UserDto
-        return usuarios.stream().map(user -> {
-            UserDto userDto = new UserDto();
-            userDto.setIdUsuario(user.getIdUsuario());
-            userDto.setDateRecord(user.getFechaRegistro());
-            userDto.setState(user.isEstado());
-            userDto.setUserName(user.getUserName());
-            userDto.setName(user.getNombre());
-            userDto.setLastName(user.getApellido());
-            userDto.setAge(user.getEdad());
-            userDto.setPhone(user.getCelular());
-            userDto.setEmail(user.getEmail());
-            userDto.setPassword(""); // No devolver la contraseña por seguridad
-            userDto.setBirthDate(user.getFechaNacimiento());
-            userDto.setRol(user.getRol());
-
-            return userDto;
-        }).collect(Collectors.toList());
-    }
-
-    @Override
-    public void delete(Long idUsuario) {
-        usuarioRepository.delete(idUsuario);
-    }
-
-
-    private RolDto convertToDto(RolesEntity entity) {
-        RolDto dto = new RolDto();
-        dto.setIdRol(entity.getIdRol());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-        dto.setPermisos(entity.getPermisos());
-        return dto;
+    private RolDto convertToDto(RolesEntity rol) {
+        RolDto rolDto = new RolDto();
+        rolDto.setIdRol(rol.getIdRol());
+        rolDto.setName(rol.getName());
+        rolDto.setDescription(rol.getDescription());
+        rolDto.setPermisos(convertToPermissionsDto(rol.getPermisos()));
+        return rolDto;
     }
 
     private RolesEntity convertToEntity(RolDto rolDto) {
-        RolesEntity entity = new RolesEntity();
-        entity.setIdRol(rolDto.getIdRol());
-        entity.setName(rolDto.getName());
-        entity.setDescription(rolDto.getDescription());
-        return entity;
+        RolesEntity rolesEntity = new RolesEntity();
+        rolesEntity.setIdRol(rolDto.getIdRol());
+        rolesEntity.setName(rolDto.getName());
+        rolesEntity.setDescription(rolDto.getDescription());
+        rolesEntity.setPermisos(convertToPermisosEntity(rolDto.getPermisos()));
+        return rolesEntity;
     }
 
+    private PermisosEntity crearPermisosPorDefecto() {
+        PermisosEntity permisos = new PermisosEntity();
+        permisos.setEditPermisos(false);
+        permisos.setVistaUsuarios(true);
+        permisos.setEditUsuarios(false);
+        permisos.setVistaProyectos(true);
+        permisos.setEditProyectos(true);
+        permisos.setVistaDisenios3d(true);
+        permisos.setEditDisenios3d(true);
+        permisos.setVistaMateriales(true);
+        permisos.setEditMateriales(false);
+        permisos.setVistaInformes(false);
+        permisos.setVistaCategorias(true);
+        permisos.setEditCategorias(false);
+        return permisos;
+    }
 
+    private PermissionsDto convertToPermissionsDto (PermisosEntity permisos) {
+        PermissionsDto dto = new PermissionsDto();
+        dto.setIdPermiso(permisos.getIdPermiso());
+        dto.setEditPermisos(permisos.isEditPermisos());
+        dto.setVistaUsuarios(permisos.isVistaUsuarios());
+        dto.setEditUsuarios(permisos.isEditUsuarios());
+        dto.setVistaProyectos(permisos.isVistaProyectos());
+        dto.setEditProyectos(permisos.isEditProyectos());
+        dto.setVistaDisenios3d(permisos.isEditPermisos());
+        dto.setEditDisenios3d(permisos.isEditDisenios3d());
+        dto.setVistaMateriales(permisos.isVistaMateriales());
+        dto.setEditMateriales(permisos.isEditMateriales());
+        dto.setVistaInformes(permisos.isEditPermisos());
+        dto.setVistaCategorias(permisos.isEditPermisos());
+        dto.setEditCategorias(permisos.isEditCategorias());
+
+        return dto;
+    }
+
+    private PermisosEntity convertToPermisosEntity(PermissionsDto dto) {
+        PermisosEntity permisos = new PermisosEntity();
+        permisos.setEditPermisos(dto.isEditPermisos());
+        permisos.setVistaUsuarios(dto.isVistaUsuarios());
+        permisos.setEditUsuarios(dto.isEditUsuarios());
+        permisos.setVistaProyectos(dto.isVistaProyectos());
+        permisos.setEditProyectos(dto.isEditProyectos());
+        permisos.setVistaDisenios3d(dto.isVistaDisenios3d());
+        permisos.setEditDisenios3d(dto.isEditDisenios3d());
+        permisos.setVistaMateriales(dto.isVistaMateriales());
+        permisos.setEditMateriales(dto.isEditMateriales());
+        permisos.setVistaInformes(dto.isVistaInformes());
+        permisos.setVistaCategorias(dto.isVistaCategorias());
+        permisos.setEditCategorias(dto.isEditCategorias());
+
+        return permisos;
+    }
 }
+

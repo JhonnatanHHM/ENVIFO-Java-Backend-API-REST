@@ -5,7 +5,7 @@ import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.PermisosE
 import java.util.Optional;
 
 public interface PermissionsRepository {
-    Optional<PermisosEntity> getById(Long idPermiso);
     PermisosEntity save(PermisosEntity permisos);
     Optional<PermisosEntity> findByIdPermiso(Long idPermiso);
+    void deleteByIdPermiso (Long idPermiso);
 }

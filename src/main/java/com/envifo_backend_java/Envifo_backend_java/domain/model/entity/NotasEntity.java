@@ -1,6 +1,8 @@
 package com.envifo_backend_java.Envifo_backend_java.domain.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jdk.security.jarsigner.JarSigner;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -36,7 +38,22 @@ public class NotasEntity {
     @JoinColumn(name = "id_cliente")
     private ClientesEntity cliente;
 
-    // Getters and Setters
+    // Constructor
+
+    public NotasEntity(Long idNota, String titulo, String contenido, LocalDateTime fechaCreacion, LocalDateTime fechaModificacion, UsuarioEntity usuario, ClientesEntity cliente) {
+        this.idNota = idNota;
+        this.titulo = titulo;
+        this.contenido = contenido;
+        this.fechaCreacion = fechaCreacion;
+        this.fechaModificacion = fechaModificacion;
+        this.usuario = usuario;
+        this.cliente = cliente;
+    }
+
+    public NotasEntity() {
+    }
+
+// Getters and Setters
 
 
     public Long getIdNota() {

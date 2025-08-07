@@ -1,12 +1,13 @@
 package com.envifo_backend_java.Envifo_backend_java.infrastructure.config;
 
 
-import com.envifo_backend_java.Envifo_backend_java.application.service.UserDetailsServiceImpl;
+import com.envifo_backend_java.Envifo_backend_java.application.service.CustomUserDetailsService;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtAuthEntryPoint;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,13 +20,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsServiceImpl;
+    private CustomUserDetailsService customUserDetailsService;
+
     @Autowired
     private JwtAuthEntryPoint jwtAuthEntryPoint;
 
@@ -40,25 +44,47 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsServiceImpl);
+        authenticationProvider.setUserDetailsService(customUserDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:5173")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
+            }
+        };
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        authorization -> authorization
-                                .requestMatchers("/api/recuperacion/solicitar").permitAll()
-                                .requestMatchers("/api/recuperacion/validar").permitAll()
-                                .requestMatchers("/api/recuperacion/cambiar").permitAll()
-                                .requestMatchers("/api/login").permitAll()
-                                .requestMatchers("/api/register").permitAll()
-                                .requestMatchers("/admin").hasAnyAuthority("ROL_GLOBAL")
-                                .requestMatchers("/user").hasAnyAuthority("ROL_RESTRINGIDO")
-                                .anyRequest().authenticated()
+                .authorizeHttpRequests(authorization -> authorization
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ⬅️ Permitir preflight CORS
+                        .requestMatchers("/api/recuperacion/solicitar").permitAll()
+                        .requestMatchers("/api/recuperacion/validar").permitAll()
+                        .requestMatchers("/api/recuperacion/cambiar").permitAll()
+                        .requestMatchers("/api/login").permitAll()
+                        .requestMatchers("/api/registerUser").permitAll()
+                        .requestMatchers("/api/registerCustomer").permitAll()
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/documentacion-api/**"
+                        ).permitAll()
+                        .requestMatchers("/verificacion/token").authenticated()
+                        .requestMatchers("/verificacion/admin").hasAuthority("ROL_GLOBAL")
+                        .requestMatchers("/verificacion/user").hasAuthority("ROL_RESTRINGIDO")
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -67,6 +93,7 @@ public class SecurityConfig {
                 .headers(AbstractHttpConfigurer::disable)
                 .build();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();

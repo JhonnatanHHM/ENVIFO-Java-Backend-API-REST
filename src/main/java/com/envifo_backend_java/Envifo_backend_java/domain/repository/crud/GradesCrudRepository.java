@@ -25,4 +25,6 @@ public interface GradesCrudRepository extends JpaRepository<NotasEntity, Long> {
     List<NotasEntity> buscarNotasFiltradasPorCliente(@Param("data") String data, @Param("idCliente") Long idCliente);
 
     List<NotasEntity> findByUsuario_IdUsuario(Long idUsuario);
+
+    List<NotasEntity> findByClienteIdCliente(Long idCliente);
 }

@@ -46,6 +46,11 @@ public class NotasRepository implements GradesRepository {
     }
 
     @Override
+    public List<NotasEntity> getByIdCliente(Long idCliente) {
+        return gradesCrudRepository.findByClienteIdCliente(idCliente);
+    }
+
+    @Override
     public List<NotasEntity> getGradesFilterByUser(String data, Long idUsuario) {
         return gradesCrudRepository.buscarNotasFiltradasPorUsuario(data, idUsuario);
     }

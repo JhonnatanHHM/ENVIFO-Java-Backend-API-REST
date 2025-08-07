@@ -1,6 +1,7 @@
 package com.envifo_backend_java.Envifo_backend_java.application.service;
 
 
+import com.envifo_backend_java.Envifo_backend_java.application.dto.PermissionsDto;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.RolService;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.RolDto;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.RolRepository;
@@ -17,11 +18,16 @@ import java.util.Optional;
 @Service
 public class RolServiceImple implements RolService {
 
-    @Autowired
-    private PermisosRepository permisosRepository;
+
+    private PermissionsServiceImple permissionsServiceImple;
+
+    private RolRepository roleRepository;
 
     @Autowired
-    private RolRepository roleRepository;
+    public RolServiceImple(PermissionsServiceImple permissionsServiceImple, RolRepository roleRepository) {
+        this.permissionsServiceImple = permissionsServiceImple;
+        this.roleRepository = roleRepository;
+    }
 
     @Override
     public Optional<RolDto> getByIdRol(Long idRol) {
@@ -38,19 +44,28 @@ public class RolServiceImple implements RolService {
         rolDto.setIdRol(roles.getIdRol());
         rolDto.setName(roles.getName());
         rolDto.setDescription(roles.getDescription());
-        rolDto.setPermisos(roles.getPermisos());
+        rolDto.setPermisos(convertToPermissionsDto(roles.getPermisos()));
 
         return Optional.of(rolDto);
     }
 
     @Override
     public RolDto editRol(RolDto rolDto) {
+
+        if ((rolDto.getName()).equals("GLOBAL") || (rolDto.getName()).equals("RESTRINGIDO")) {
+            throw new RuntimeException("No se pueden realizar cambios a los roles GLOBALES o RESTRINGIDOS predeterminados");
+        }
+
         RolesEntity rolEntity = roleRepository.getByName(rolDto.getName())
                 .orElseGet(() -> {
                     RolesEntity newRol = new RolesEntity();
+                    newRol.setIdRol(rolDto.getIdRol());
                     newRol.setName(rolDto.getName());
                     newRol.setDescription(rolDto.getDescription());
-                    newRol.setPermisos(rolDto.getPermisos());
+
+                    permissionsServiceImple.editPermissions(rolDto.getPermisos());
+
+                    newRol.setPermisos(convertToPermisosEntity(rolDto.getPermisos()));
                     return roleRepository.save(newRol); // Guardar el nuevo rol y retornarlo
                 });
 
@@ -60,38 +75,40 @@ public class RolServiceImple implements RolService {
 
     @Override
     public RolDto createRol(RolDto rolDto) {
-        RolesEntity rolEntity = roleRepository.getByName(rolDto.getName())
-                .orElseGet(() -> {
-                    RolesEntity newRol = new RolesEntity();
-                    newRol.setName(rolDto.getName());
-                    newRol.setDescription(rolDto.getDescription());
+        // Restricción de nombres no modificables
+        if ("RESTRINGIDO".equalsIgnoreCase(rolDto.getName())) {
+            throw new RuntimeException("El rol 'RESTRINGIDO' no es modificable");
+        }
 
-                    // Crear permisos predeterminados
-                    PermisosEntity permisos = new PermisosEntity();
-                    permisos.setEditPermisos(false);
-                    permisos.setVistaUsuarios(true);
-                    permisos.setEditUsuarios(false);
-                    permisos.setVistaProyectos(true);
-                    permisos.setEditProyectos(true);
-                    permisos.setVistaDisenios3d(true);
-                    permisos.setEditDisenios3d(true);
-                    permisos.setVistaMateriales(true);
-                    permisos.setEditMateriales(false);
-                    permisos.setVistaInformes(false);
-                    permisos.setVistaCategorias(true);
-                    permisos.setEditCategorias(false);
+        if ("GLOBAL".equalsIgnoreCase(rolDto.getName())) {
+            throw new RuntimeException("El rol 'GLOBAL' no es modificable");
+        }
 
-                    // Guardar permisos en la base de datos
-                    PermisosEntity savedPermisos = permisosRepository.save(permisos);
+        // Validación: evitar duplicidad por nombre
+        if (roleRepository.getByName(rolDto.getName()).isPresent()) {
+            throw new RuntimeException("Ya existe un rol con el nombre '" + rolDto.getName() + "'");
+        }
 
-                    newRol.setPermisos(savedPermisos);
+        // Crear nuevo rol
+        RolesEntity newRol = new RolesEntity();
+        newRol.setName(rolDto.getName());
+        newRol.setDescription(rolDto.getDescription());
 
-                    return roleRepository.save(newRol); // Guardar el nuevo rol y retornarlo
-                });
-        
-        return convertToDto(rolEntity);
+        // Guardar permisos y asignarlos
+        PermisosEntity permisos = permissionsServiceImple.savePermission(rolDto.getPermisos());
+        newRol.setPermisos(permisos);
+
+        // Guardar rol
+        RolesEntity savedRol = roleRepository.save(newRol);
+
+        return convertToDto(savedRol);
     }
 
+
+    @Override
+    public void deleteByIdRol(Long idRol) {
+        roleRepository.deleteRol(idRol);
+    }
 
 
     private RolDto convertToDto(RolesEntity rol) {
@@ -99,8 +116,46 @@ public class RolServiceImple implements RolService {
         dto.setIdRol(rol.getIdRol());
         dto.setName(rol.getName());
         dto.setDescription(rol.getDescription());
+        dto.setPermisos(convertToPermissionsDto(rol.getPermisos()));
         return dto;
     }
 
+    private PermissionsDto convertToPermissionsDto (PermisosEntity permisos) {
+        PermissionsDto dto = new PermissionsDto();
+        dto.setIdPermiso(permisos.getIdPermiso());
+        dto.setEditPermisos(permisos.isEditPermisos());
+        dto.setVistaUsuarios(permisos.isVistaUsuarios());
+        dto.setEditUsuarios(permisos.isEditUsuarios());
+        dto.setVistaProyectos(permisos.isVistaProyectos());
+        dto.setEditProyectos(permisos.isEditProyectos());
+        dto.setVistaDisenios3d(permisos.isEditPermisos());
+        dto.setEditDisenios3d(permisos.isEditDisenios3d());
+        dto.setVistaMateriales(permisos.isVistaMateriales());
+        dto.setEditMateriales(permisos.isEditMateriales());
+        dto.setVistaInformes(permisos.isEditPermisos());
+        dto.setVistaCategorias(permisos.isEditPermisos());
+        dto.setEditCategorias(permisos.isEditCategorias());
+
+        return dto;
+    }
+
+    private PermisosEntity convertToPermisosEntity(PermissionsDto dto) {
+        PermisosEntity permisos = new PermisosEntity();
+        permisos.setIdPermiso(dto.getIdPermiso());
+        permisos.setEditPermisos(dto.isEditPermisos());
+        permisos.setVistaUsuarios(dto.isVistaUsuarios());
+        permisos.setEditUsuarios(dto.isEditUsuarios());
+        permisos.setVistaProyectos(dto.isVistaProyectos());
+        permisos.setEditProyectos(dto.isEditProyectos());
+        permisos.setVistaDisenios3d(dto.isVistaDisenios3d());
+        permisos.setEditDisenios3d(dto.isEditDisenios3d());
+        permisos.setVistaMateriales(dto.isVistaMateriales());
+        permisos.setEditMateriales(dto.isEditMateriales());
+        permisos.setVistaInformes(dto.isVistaInformes());
+        permisos.setVistaCategorias(dto.isVistaCategorias());
+        permisos.setEditCategorias(dto.isEditCategorias());
+
+        return permisos;
+    }
 
 }

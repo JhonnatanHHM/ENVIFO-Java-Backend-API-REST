@@ -10,7 +10,7 @@ public class RolDto {
 
     private String description;
 
-    private PermisosEntity permisos ;
+    private PermissionsDto permisos ;
 
     // Getters and Setters
 
@@ -39,11 +39,11 @@ public class RolDto {
         this.description = description;
     }
 
-    public PermisosEntity getPermisos() {
+    public PermissionsDto getPermisos() {
         return permisos;
     }
 
-    public void setPermisos(PermisosEntity permisos) {
+    public void setPermisos(PermissionsDto permisos) {
         this.permisos = permisos;
     }
 }

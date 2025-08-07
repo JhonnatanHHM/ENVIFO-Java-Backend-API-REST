@@ -2,6 +2,7 @@ package com.envifo_backend_java.Envifo_backend_java.application.dto;
 
 
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.RolesEntity;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
@@ -9,7 +10,6 @@ public class UserDto {
 
 
 //Atributos
-
 
     private Long idUsuario;
 
@@ -19,11 +19,15 @@ public class UserDto {
 
     private String userName;
 
-    private String name;
+    private String firstName;
 
-    private String lastName;
+    private String middleName;
 
-    private int age;
+    private String firstSurname;
+
+    private String secondSurname;
+
+    private String age;
 
     private String phone;
 
@@ -31,34 +35,28 @@ public class UserDto {
 
     private String password;
 
-    private String birthDate;
-
     private RolesEntity rol;
 
 
     //Constructores
 
-    public UserDto(Long idUsuario, LocalDateTime dateRecord, boolean state, String userName, String name,
-                   String lastName, int age, String phone, String email, String password,
-                   String birthDate, RolesEntity rol) {
-
+    public UserDto(Long idUsuario, LocalDateTime dateRecord, boolean state, String userName, String firstName, String middleName, String firstSurname, String secondSurname, String age, String phone, String email, String password, RolesEntity rol) {
         this.idUsuario = idUsuario;
         this.dateRecord = dateRecord;
         this.state = state;
         this.userName = userName;
-        this.name = name;
-        this.lastName = lastName;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.firstSurname = firstSurname;
+        this.secondSurname = secondSurname;
         this.age = age;
         this.phone = phone;
         this.email = email;
         this.password = password;
-        this.birthDate = birthDate;
         this.rol = rol;
-
     }
 
     public UserDto() {
-
     }
 
     // Getters and Setters
@@ -96,27 +94,43 @@ public class UserDto {
         this.userName = userName;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getMiddleName() {
+        return middleName;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
     }
 
-    public int getAge() {
+    public String getFirstSurname() {
+        return firstSurname;
+    }
+
+    public void setFirstSurname(String firstSurname) {
+        this.firstSurname = firstSurname;
+    }
+
+    public String getSecondSurname() {
+        return secondSurname;
+    }
+
+    public void setSecondSurname(String secondSurname) {
+        this.secondSurname = secondSurname;
+    }
+
+    public String getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(String age) {
         this.age = age;
     }
 
@@ -142,14 +156,6 @@ public class UserDto {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(String birthDate) {
-        this.birthDate = birthDate;
     }
 
     public RolesEntity getRol() {

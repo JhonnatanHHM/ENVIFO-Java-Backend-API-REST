@@ -1,5 +1,6 @@
 package com.envifo_backend_java.Envifo_backend_java.domain.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,8 +26,22 @@ public class RolesEntity {
     @JoinColumn(name = "id_permiso")
     private PermisosEntity permisos ;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "rol", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ClienteUsuarioRolEntity> usuarioRoles = new HashSet<>();
+
+    // Constructor
+
+    public RolesEntity(Long idRol, String name, String description, PermisosEntity permisos, Set<ClienteUsuarioRolEntity> usuarioRoles) {
+        this.idRol = idRol;
+        this.name = name;
+        this.description = description;
+        this.permisos = permisos;
+        this.usuarioRoles = usuarioRoles;
+    }
+
+    public RolesEntity() {
+    }
 
     // Getters and Setters
 
@@ -70,4 +85,5 @@ public class RolesEntity {
     public void setUsuarioRoles(Set<ClienteUsuarioRolEntity> usuarioRoles) {
         this.usuarioRoles = usuarioRoles;
     }
+
 }

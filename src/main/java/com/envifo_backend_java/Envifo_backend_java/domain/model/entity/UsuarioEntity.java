@@ -1,5 +1,7 @@
 package com.envifo_backend_java.Envifo_backend_java.domain.model.entity;
 
+import com.envifo_backend_java.Envifo_backend_java.application.dto.UserCompleteDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -8,6 +10,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
+
 
 @Entity
 @Table(name = "usuarios")
@@ -28,14 +32,22 @@ public class UsuarioEntity {
 
     private boolean estado;
 
-    @Column(name = "user_name")
+    @Column(name = "user_name", length = 100)
     private String userName;
 
-    private String nombre;
+    @Column(name = "primer_nombre", length = 50, nullable = false)
+    private String primerNombre;
 
-    private String apellido;
+    @Column(name = "segundo_nombre", length = 50)
+    private String segundoNombre;
 
-    private int edad;
+    @Column(name = "primer_apellido", length = 50, nullable = false)
+    private String primerApellido;
+
+    @Column(name = "segundo_apellido", length = 50)
+    private String segundoApellido;
+
+    private String edad;
 
     private String celular;
 
@@ -45,23 +57,37 @@ public class UsuarioEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "fecha_nacimiento")
-    private String fechaNacimiento;
-
     @ManyToOne
     @JoinColumn(name = "id_rol", nullable = false)
     private RolesEntity rol;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ClienteUsuarioRolEntity> clienteRol = new HashSet<>();
+    private Set<ClienteUsuarioRolEntity> clienteRoles = new HashSet<>();
 
     // Constructor
 
-    public UsuarioEntity(){
-
+    public UsuarioEntity(Long idUsuario, LocalDateTime fechaRegistro, boolean estado, String userName, String primerNombre, String segundoNombre, String primerApellido, String segundoApellido, String edad, String celular, String email, String password, RolesEntity rol, Set<ClienteUsuarioRolEntity> clienteRoles) {
+        this.idUsuario = idUsuario;
+        this.fechaRegistro = fechaRegistro;
+        this.estado = estado;
+        this.userName = userName;
+        this.primerNombre = primerNombre;
+        this.segundoNombre = segundoNombre;
+        this.primerApellido = primerApellido;
+        this.segundoApellido = segundoApellido;
+        this.edad = edad;
+        this.celular = celular;
+        this.email = email;
+        this.password = password;
+        this.rol = rol;
+        this.clienteRoles = clienteRoles;
     }
 
-    // Getters and Setters
+    public UsuarioEntity() {
+    }
+
+// Getters and Setters
 
 
     public Long getIdUsuario() {
@@ -96,27 +122,43 @@ public class UsuarioEntity {
         this.userName = userName;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getPrimerNombre() {
+        return primerNombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setPrimerNombre(String primerNombre) {
+        this.primerNombre = primerNombre;
     }
 
-    public String getApellido() {
-        return apellido;
+    public String getSegundoNombre() {
+        return segundoNombre;
     }
 
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
+    public void setSegundoNombre(String segundoNombre) {
+        this.segundoNombre = segundoNombre;
     }
 
-    public int getEdad() {
+    public String getPrimerApellido() {
+        return primerApellido;
+    }
+
+    public void setPrimerApellido(String primerApellido) {
+        this.primerApellido = primerApellido;
+    }
+
+    public String getSegundoApellido() {
+        return segundoApellido;
+    }
+
+    public void setSegundoApellido(String segundoApellido) {
+        this.segundoApellido = segundoApellido;
+    }
+
+    public String getEdad() {
         return edad;
     }
 
-    public void setEdad(int edad) {
+    public void setEdad(String edad) {
         this.edad = edad;
     }
 
@@ -144,13 +186,7 @@ public class UsuarioEntity {
         this.password = password;
     }
 
-    public String getFechaNacimiento() {
-        return fechaNacimiento;
-    }
 
-    public void setFechaNacimiento(String fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
 
     public RolesEntity getRol() {
         return rol;
@@ -160,11 +196,11 @@ public class UsuarioEntity {
         this.rol = rol;
     }
 
-    public Set<ClienteUsuarioRolEntity> getClienteRol() {
-        return clienteRol;
+    public Set<ClienteUsuarioRolEntity> getClienteRoles() {
+        return clienteRoles;
     }
 
-    public void setClienteRol(Set<ClienteUsuarioRolEntity> clienteRol) {
-        this.clienteRol = clienteRol;
+    public void setClienteRoles(Set<ClienteUsuarioRolEntity> clienteRoles) {
+        this.clienteRoles = clienteRoles;
     }
 }

@@ -1,5 +1,6 @@
 package com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository;
 
+import com.envifo_backend_java.Envifo_backend_java.application.dto.UserCompleteDto;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.UserRepository;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.crud.UserCrudRepository;
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.UsuarioEntity;
@@ -12,8 +13,18 @@ import java.util.Optional;
 @Repository
 public class UsuarioRepository implements UserRepository {
 
-    @Autowired
+
     private UserCrudRepository userCrudRepository;
+
+    @Autowired
+    public UsuarioRepository(UserCrudRepository userCrudRepository) {
+        this.userCrudRepository = userCrudRepository;
+    }
+
+    @Override
+    public boolean existsById(Long idUsuario) {
+        return userCrudRepository.existsById(idUsuario);
+    }
 
     @Override
     public Optional<UsuarioEntity> getByEmail(String email) {
@@ -38,7 +49,7 @@ public class UsuarioRepository implements UserRepository {
 
     @Override
     public UsuarioEntity save(UsuarioEntity usuario) {
-        return userCrudRepository.save(usuario);
+        return userCrudRepository.saveAndFlush(usuario);
     }
 
     @Override
