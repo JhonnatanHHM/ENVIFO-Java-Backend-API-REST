@@ -48,19 +48,17 @@ public class MaterialsServiceImpl implements MaterialsService {
         material.setDescripcionMate(materialDto.getDescripcionMate());
         material.setAlto(materialDto.getHeight());
         material.setAncho(materialDto.getWidth());
-        material.setProfundidad(materialDto.getDepth());
         material.setEstado(materialDto.isStatus());
-        material.setMetadata(materialDto.getMetadata());
 
         CategoriasEntity categoria = categoriesRepository.getCategoryById(materialDto.getIdCategoria())
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
         material.setCategoria(categoria);
 
         if (materialDto.getIdTextura() != null) {
-            TexturasEntity textura = texturesRepository.getByIdTexture(materialDto.getIdTextura())
-                    .orElseThrow(() -> new RuntimeException("Textura no encontrada"));
-            material.setTextura(textura);
+            texturesRepository.getByIdTexture(materialDto.getIdTextura())
+                    .ifPresent(material::setTextura);
         }
+
 
         //ObjetosEntity objectSaved =
         MaterialesEntity materialSaved = materialsRepository.saveMaterial(material);
@@ -96,9 +94,7 @@ public class MaterialsServiceImpl implements MaterialsService {
         existingMaterial.setDescripcionMate(materialDto.getDescripcionMate());
         existingMaterial.setAlto(materialDto.getHeight());
         existingMaterial.setAncho(materialDto.getWidth());
-        existingMaterial.setProfundidad(materialDto.getDepth());
         existingMaterial.setEstado(materialDto.isStatus());
-        existingMaterial.setMetadata(materialDto.getMetadata());
 
         // Actualizar categoría
         CategoriasEntity categoria = categoriesRepository.getCategoryById(materialDto.getIdCategoria())
@@ -107,9 +103,8 @@ public class MaterialsServiceImpl implements MaterialsService {
 
         // Actualizar textura si se proporciona
         if (materialDto.getIdTextura() != null) {
-            TexturasEntity textura = texturesRepository.getByIdTexture(materialDto.getIdTextura())
-                    .orElseThrow(() -> new RuntimeException("Textura no encontrada"));
-            existingMaterial.setTextura(textura);
+            texturesRepository.getByIdTexture(materialDto.getIdTextura())
+                    .ifPresent(existingMaterial::setTextura);
         }
 
         // Guardar cambios del material
@@ -306,9 +301,7 @@ public class MaterialsServiceImpl implements MaterialsService {
         materialDto.setDescripcionMate(material.getDescripcionMate());
         materialDto.setHeight(material.getAlto());
         materialDto.setWidth(material.getAncho());
-        materialDto.setDepth(material.getProfundidad());
         materialDto.setStatus(material.isEstado());
-        materialDto.setMetadata(material.getMetadata());
         materialDto.setIdCategoria(material.getCategoria().getIdCategoria());
 
         Optional<TextureCompleteDto> textureDto;

@@ -30,48 +30,6 @@ public class MaterialsController {
         this.materialsService = materialsService;
     }
 
-    @Operation(summary = "Guardar un nuevo material", description = "Guarda un material con sus archivos asociados (modelo 3D e imagen)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Material guardado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Error en los datos enviados o en la carga de archivos")
-    })
-    @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> saveMaterial(
-            @RequestPart("material") @Parameter(description = "DTO con los datos del material", required = true,
-                    content = @Content(schema = @Schema(implementation = MaterialDto.class)))
-            MaterialDto materialDto,
-            @RequestPart(value = "material3d", required = false) MultipartFile material3d,
-            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
-        try {
-            String result = materialsService.saveMaterial(materialDto, material3d, imagen);
-            return ResponseEntity.status(HttpStatus.CREATED).body(result);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al guardar el material: " + e.getMessage());
-        }
-    }
-
-    @Operation(summary = "Actualizar material", description = "Actualiza un material por ID con nuevos datos y archivos")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Material actualizado correctamente"),
-            @ApiResponse(responseCode = "404", description = "Material no encontrado"),
-            @ApiResponse(responseCode = "400", description = "Error en la actualización")
-    })
-    @PutMapping(value = "/update/{idMaterial}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> updateMaterial(
-            @PathVariable Long idMaterial,
-            @RequestPart("material") MaterialDto materialDto,
-            @RequestPart(value = "material3d", required = false) MultipartFile material3d,
-            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
-        try {
-            String result = materialsService.updateMaterial(idMaterial, materialDto, material3d, imagen);
-            return ResponseEntity.ok(result);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al actualizar el material: " + e.getMessage());
-        }
-    }
-
     @Operation(summary = "Obtener imagen del material", description = "Devuelve la imagen del material por su ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Material encontrado",

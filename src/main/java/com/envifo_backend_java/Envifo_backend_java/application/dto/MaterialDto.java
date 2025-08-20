@@ -9,11 +9,12 @@ public class MaterialDto {
     private String descripcionMate;
     private BigDecimal height;
     private BigDecimal width;
-    private BigDecimal depth;
     private boolean status;
-    private String metadata;
     private Long idCategoria;
     private Long idTextura;
+
+    public MaterialDto() {
+    }
 
     public Long getIdMaterial() {
         return idMaterial;
@@ -55,28 +56,12 @@ public class MaterialDto {
         this.width = width;
     }
 
-    public BigDecimal getDepth() {
-        return depth;
-    }
-
-    public void setDepth(BigDecimal depth) {
-        this.depth = depth;
-    }
-
     public boolean isStatus() {
         return status;
     }
 
     public void setStatus(boolean status) {
         this.status = status;
-    }
-
-    public String getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(String metadata) {
-        this.metadata = metadata;
     }
 
     public Long getIdCategoria() {

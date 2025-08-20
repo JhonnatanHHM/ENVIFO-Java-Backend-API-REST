@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class GradeServiceImple implements GradeService {
 
     @Autowired
-    NotasRepository notasRepository;
+    public NotasRepository notasRepository;
 
     @Override
     public List<GradesDto> searchByTitleOrContent(String data) {

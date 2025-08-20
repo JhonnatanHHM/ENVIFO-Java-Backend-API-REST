@@ -41,11 +41,7 @@ public class CustomerController {
 
     @Operation(summary = "Obtener cliente por ID")
     @GetMapping("/{idCliente}")
-    public ResponseEntity<?> getCustomer(@RequestHeader("Authorization") String token,
-                                         @PathVariable Long idCliente) {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-        }
+    public ResponseEntity<?> getCustomer(@PathVariable Long idCliente) {
 
         Optional<CustomerDto> customerOpt = customerService.getByIdCLiente(idCliente);
         return customerOpt.<ResponseEntity<?>>map(ResponseEntity::ok)
@@ -54,11 +50,8 @@ public class CustomerController {
 
     @Operation(summary = "Obtener cliente con imágenes")
     @GetMapping("/complete/{idCliente}")
-    public ResponseEntity<?> getCustomerComplete(@RequestHeader("Authorization") String token,
+    public ResponseEntity<?> getCustomerComplete(
                                                  @PathVariable Long idCliente) {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-        }
 
         Optional<CustomerCompleteDto> customerOpt = customerService.getCustomerWithImages(idCliente);
         return customerOpt.<ResponseEntity<?>>map(ResponseEntity::ok)
@@ -67,10 +60,7 @@ public class CustomerController {
 
     @Operation(summary = "Obtener todos los clientes")
     @GetMapping("/all")
-    public ResponseEntity<?> getAllCustomers(@RequestHeader("Authorization") String token) {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-        }
+    public ResponseEntity<?> getAllCustomers() {
 
         List<CustomerDto> customers = customerService.getAllCustomers();
         return ResponseEntity.ok(customers);
@@ -78,11 +68,8 @@ public class CustomerController {
 
     @Operation(summary = "Eliminar cliente")
     @DeleteMapping("/{idCliente}")
-    public ResponseEntity<?> deleteCustomer(@RequestHeader("Authorization") String token,
+    public ResponseEntity<?> deleteCustomer(
                                             @PathVariable Long idCliente) throws IOException {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-        }
 
         customerService.delete(idCliente);
         return ResponseEntity.ok("Cliente eliminado correctamente");
@@ -90,13 +77,10 @@ public class CustomerController {
 
     @Operation(summary = "Actualizar cliente con imagen")
     @PutMapping(value = "/{idCliente}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateCustomer(@RequestHeader("Authorization") String token,
+    public ResponseEntity<?> updateCustomer(
                                             @PathVariable Long idCliente,
                                             @RequestPart("customer") String customerJson,
                                             @RequestPart(value = "file", required = false) MultipartFile file) {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-        }
 
         try {
             CustomerDto customerDto = objectMapper.readValue(customerJson, CustomerDto.class);
@@ -115,12 +99,10 @@ public class CustomerController {
 
     @Operation(summary = "Subir imagen de cliente")
     @PostMapping(value = "/save/imagen/{idCliente}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> subirImagenCliente(@RequestHeader("Authorization") String token,
+    public ResponseEntity<?> subirImagenCliente(
                                                 @PathVariable Long idCliente,
                                                 @RequestParam("file") MultipartFile file) throws IOException {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-        }
+
 
         if (!customerService.existsByIdCliente(idCliente)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente no encontrado");
@@ -135,22 +117,10 @@ public class CustomerController {
 
     @Operation(summary = "Eliminar imagen de cliente")
     @DeleteMapping("/imagen/{idImagen}")
-    public ResponseEntity<?> deleteImageCliente(@RequestHeader("Authorization") String token,
-                                                @PathVariable Long idImagen) throws IOException {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-        }
+    public ResponseEntity<?> deleteImageCliente(@PathVariable Long idImagen) throws IOException {
 
         storageService.deleteFileById(idImagen);
         return ResponseEntity.ok("Imagen eliminada correctamente");
     }
 
-    private boolean validarToken(String token) {
-        try {
-            token = token.replace("Bearer ", "").trim();
-            return jwtUtils.validateToken(token);
-        } catch (Exception e) {
-            return false;
-        }
-    }
 }

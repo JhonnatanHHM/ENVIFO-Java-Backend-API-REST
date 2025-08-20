@@ -38,12 +38,8 @@ public class GradeController {
             }
     )
     @GetMapping("/{idGrade}")
-    public ResponseEntity<?> getIdGrade(@RequestHeader(value = "Authorization") String token,
+    public ResponseEntity<?> getIdGrade(
                                         @PathVariable Long idGrade) {
-        if (token == null || !validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Token inválido o no proporcionado"));
-        }
 
         Optional<GradesDto> grade = gradeServiceImple.getByIdGrade(idGrade);
 
@@ -62,78 +58,63 @@ public class GradeController {
             }
     )
     @GetMapping("/all")
-    public ResponseEntity<?> getAllGrades(@RequestHeader(value = "Authorization", required = false) String token) {
-        if (token == null || !validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
-        }
+    public ResponseEntity<?> getAllGrades() {
+
         List<GradesDto> grades = gradeServiceImple.getAllGrades();
         return ResponseEntity.ok(grades);
     }
 
     @Operation(summary = "Obtener notas por usuario")
     @GetMapping("/user/{idUsuario}")
-    public ResponseEntity<?> getGradesByUser(@RequestHeader(value = "Authorization") String token,
+    public ResponseEntity<?> getGradesByUser(
                                              @PathVariable Long idUsuario) {
-        if (token == null || !validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
-        }
+
         List<GradesDto> grades = gradeServiceImple.getByIdUsuario(idUsuario);
         return ResponseEntity.ok(grades);
     }
 
     @Operation(summary = "Obtener notas por cliente")
     @GetMapping("/customer/{idCLiente}")
-    public ResponseEntity<?> getGradesByCustomer(@RequestHeader(value = "Authorization") String token,
+    public ResponseEntity<?> getGradesByCustomer(
                                              @PathVariable Long idCliente) {
-        if (token == null || !validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
-        }
+
         List<GradesDto> grades = gradeServiceImple.getByIdCustomer(idCliente);
         return ResponseEntity.ok(grades);
     }
 
     @Operation(summary = "Buscar notas por título o contenido")
     @GetMapping("/filter/{data}")
-    public ResponseEntity<?> getByTitleOrContent(@RequestHeader(value = "Authorization") String token,
+    public ResponseEntity<?> getByTitleOrContent(
                                                  @PathVariable String data) {
-        if (token == null || !validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
-        }
+
         List<GradesDto> grades = gradeServiceImple.searchByTitleOrContent(data);
         return ResponseEntity.ok(grades);
     }
 
     @Operation(summary = "Buscar notas por título/contenido filtradas por usuario")
     @GetMapping("/filter/user/{data}/{idUsuario}")
-    public ResponseEntity<?> getGradesFilterByUser(@RequestHeader(value = "Authorization") String token,
+    public ResponseEntity<?> getGradesFilterByUser(
                                                    @PathVariable String data,
                                                    @PathVariable Long idUsuario) {
-        if (token == null || !validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
-        }
+
         List<GradesDto> grades = gradeServiceImple.getGradesFilterByUser(data, idUsuario);
         return ResponseEntity.ok(grades);
     }
 
     @Operation(summary = "Buscar notas por título/contenido filtradas por cliente")
     @GetMapping("/filter/client/{data}/{idCliente}")
-    public ResponseEntity<?> getGradesFilterByClient(@RequestHeader(value = "Authorization") String token,
+    public ResponseEntity<?> getGradesFilterByClient(
                                                      @PathVariable String data,
                                                      @PathVariable Long idCliente) {
-        if (token == null || !validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
-        }
+
         List<GradesDto> grades = gradeServiceImple.getGradesFilterByClient(data, idCliente);
         return ResponseEntity.ok(grades);
     }
 
     @Operation(summary = "Editar nota")
     @PutMapping("/editGrade")
-    public ResponseEntity<?> editGrade(@RequestHeader(value = "Authorization") String token,
+    public ResponseEntity<?> editGrade(
                                        @RequestBody GradesDto gradeDto) {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
-        }
 
         try {
             gradeServiceImple.editGrade(gradeDto);
@@ -148,32 +129,19 @@ public class GradeController {
 
     @Operation(summary = "Guardar nueva nota")
     @PostMapping("/save")
-    public ResponseEntity<?> saveGrade(@RequestHeader(value = "Authorization") String token,
+    public ResponseEntity<?> saveGrade(
                                        @RequestBody GradesDto grade) {
-        if (token == null || !validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
-        }
+
         GradesDto savedGrade = gradeServiceImple.save(grade);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedGrade);
     }
 
     @Operation(summary = "Eliminar nota por ID")
     @DeleteMapping("/{idGrade}")
-    public ResponseEntity<?> deleteGrade(@RequestHeader(value = "Authorization") String token,
+    public ResponseEntity<?> deleteGrade(
                                          @PathVariable Long idGrade) {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-        }
         gradeServiceImple.delete(idGrade);
         return ResponseEntity.ok("Nota eliminada con éxito");
     }
 
-    private boolean validarToken(String token) {
-        try {
-            token = token.replace("Bearer ", "").trim();
-            return jwtUtils.validateToken(token);
-        } catch (Exception e) {
-            return false;
-        }
-    }
 }
