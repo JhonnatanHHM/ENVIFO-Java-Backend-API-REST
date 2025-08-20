@@ -32,13 +32,7 @@ public class MaterialesEntity {
     private BigDecimal ancho;
 
     @Column(nullable = false)
-    private BigDecimal profundidad;
-
-    @Column(nullable = false)
     private boolean estado;
-
-    @Column(columnDefinition = "jsonb")
-    private String metadata;
 
     @ManyToOne
     @JoinColumn(name = "id_categoria", nullable = false)
@@ -60,15 +54,13 @@ public class MaterialesEntity {
     // Constructores
 
 
-    public MaterialesEntity(Long idMaterial, String nombre, String descripcionMate, BigDecimal alto, BigDecimal ancho, BigDecimal profundidad, boolean estado, String metadata, CategoriasEntity categoria, TexturasEntity textura, List<ClientesEntity> clientes) {
+    public MaterialesEntity(Long idMaterial, String nombre, String descripcionMate, BigDecimal alto, BigDecimal ancho, boolean estado, CategoriasEntity categoria, TexturasEntity textura, List<ClientesEntity> clientes) {
         this.idMaterial = idMaterial;
         this.nombre = nombre;
         this.descripcionMate = descripcionMate;
         this.alto = alto;
         this.ancho = ancho;
-        this.profundidad = profundidad;
         this.estado = estado;
-        this.metadata = metadata;
         this.categoria = categoria;
         this.textura = textura;
         this.clientes = clientes;
@@ -120,28 +112,12 @@ public class MaterialesEntity {
         this.ancho = ancho;
     }
 
-    public BigDecimal getProfundidad() {
-        return profundidad;
-    }
-
-    public void setProfundidad(BigDecimal profundidad) {
-        this.profundidad = profundidad;
-    }
-
     public boolean isEstado() {
         return estado;
     }
 
     public void setEstado(boolean estado) {
         this.estado = estado;
-    }
-
-    public String getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(String metadata) {
-        this.metadata = metadata;
     }
 
     public CategoriasEntity getCategoria() {

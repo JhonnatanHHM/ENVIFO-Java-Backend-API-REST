@@ -14,6 +14,17 @@ public class GradesDto {
 
     private Long idCustomer;
 
+    public GradesDto(Long idGrade, String title, String content, Long idUser, Long idCustomer) {
+        this.idGrade = idGrade;
+        this.title = title;
+        this.content = content;
+        this.idUser = idUser;
+        this.idCustomer = idCustomer;
+    }
+
+    public GradesDto() {
+    }
+
     // Getters and Setters
 
 

@@ -3,6 +3,7 @@ package com.envifo_backend_java.Envifo_backend_java.interfaces.controller;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.TextureCompleteDto;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.TexturesDto;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.TexturesService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -24,11 +25,13 @@ import java.util.Optional;
 @Tag(name = "Texturas", description = "Operaciones para gestión de texturas y desplazamientos")
 public class TexturesController {
 
+    private ObjectMapper objectMapper;
     private final TexturesService texturesService;
 
     @Autowired
-    public TexturesController(TexturesService texturesService) {
+    public TexturesController(TexturesService texturesService, ObjectMapper objectMapper) {
         this.texturesService = texturesService;
+        this.objectMapper = objectMapper;
     }
 
     @Operation(summary = "Guardar una nueva textura con archivos", description = "Guarda una textura y sube archivos de textura e imagen.")
@@ -36,14 +39,16 @@ public class TexturesController {
             @ApiResponse(responseCode = "201", description = "Textura guardada correctamente"),
             @ApiResponse(responseCode = "400", description = "Error en los datos enviados o en la carga de archivos")
     })
-    @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> saveTexture(
             @RequestPart("texture") @Parameter(description = "DTO con los datos de la textura", required = true,
-                    content = @Content(schema = @Schema(implementation = TexturesDto.class)))
-            TexturesDto textureDto,
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TexturesDto.class)))
+            String textureJson,
             @RequestPart(value = "textura", required = true) MultipartFile textura,
             @RequestPart(value = "imagen", required = true) MultipartFile imagen) {
         try {
+            // Convertir JSON a DTO
+            TexturesDto textureDto = objectMapper.readValue(textureJson, TexturesDto.class);
             String result = texturesService.saveTexture(textureDto, textura, imagen);
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } catch (Exception e) {

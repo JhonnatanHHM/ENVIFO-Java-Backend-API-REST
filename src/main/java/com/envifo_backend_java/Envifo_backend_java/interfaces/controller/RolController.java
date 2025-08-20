@@ -53,13 +53,9 @@ public class RolController {
     )
     @PostMapping("/usuario/{idUsuario}/cliente/{idCliente}")
     public ResponseEntity<?> asignarRol(
-            @RequestHeader(value = "Authorization") String token,
             @PathVariable Long idUsuario,
             @PathVariable Long idCliente,
             @RequestBody RolDto rolDto) {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token inválido"));
-        }
 
         customerUserRolService.assignRolToUser(idUsuario, idCliente, rolDto);
         return ResponseEntity.ok("Rol asignado correctamente al usuario en el cliente.");
@@ -80,12 +76,8 @@ public class RolController {
     )
     @GetMapping("/usuario/{idUsuario}/cliente/{idCliente}")
     public ResponseEntity<?> obtenerRolUsuarioCliente(
-            @RequestHeader(value = "Authorization") String token,
             @PathVariable Long idUsuario,
             @PathVariable Long idCliente) {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token inválido"));
-        }
 
         Optional<UserDto> userDto = customerUserRolService.getUserRolIntoCustomer(idUsuario, idCliente);
 
@@ -107,11 +99,7 @@ public class RolController {
     )
     @GetMapping("/cliente/{idCliente}")
     public ResponseEntity<?> obtenerRolesPorCliente(
-            @RequestHeader(value = "Authorization") String token,
             @PathVariable Long idCliente) {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token inválido"));
-        }
 
         List<UserDto> lista = customerUserRolService.getRolByCustomer(idCliente);
 
@@ -131,11 +119,7 @@ public class RolController {
     )
     @DeleteMapping("/{idAsignacion}")
     public ResponseEntity<?> eliminarAsignacion(
-            @RequestHeader(value = "Authorization") String token,
             @PathVariable Long idAsignacion) {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token inválido"));
-        }
 
         customerUserRolService.deleteAssignment(idAsignacion);
         return ResponseEntity.ok("Asignación eliminada correctamente.");
@@ -151,10 +135,7 @@ public class RolController {
             }
     )
     @GetMapping("/rol/GLOBAL")
-    public ResponseEntity<?> getRolGlobal(@RequestHeader(value = "Authorization") String token) {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token inválido"));
-        }
+    public ResponseEntity<?> getRolGlobal() {
 
         return rolServiceImple.getByname("GLOBAL")
                 .map(ResponseEntity::ok)
@@ -171,10 +152,7 @@ public class RolController {
             }
     )
     @GetMapping("/rol/RESTRINGIDO")
-    public ResponseEntity<?> getRolRestringido(@RequestHeader(value = "Authorization") String token) {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token inválido"));
-        }
+    public ResponseEntity<?> getRolRestringido() {
 
         return rolServiceImple.getByname("RESTRINGIDO")
                 .map(ResponseEntity::ok)
@@ -199,15 +177,10 @@ public class RolController {
     )
     @PutMapping("/usuario/{idUsuario}/cliente/{idCliente}")
     public ResponseEntity<?> actualizarRolUsuarioCliente(
-            @RequestHeader(value = "Authorization") String token,
             @PathVariable Long idUsuario,
             @PathVariable Long idCliente,
             @RequestBody RolDto rolDto
     ) {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Token inválido o no proporcionado"));
-        }
 
         try {
             customerUserRolService.updateUserRolIntoCustomer(idUsuario, idCliente, rolDto);
@@ -221,13 +194,4 @@ public class RolController {
         }
     }
 
-
-    private boolean validarToken(String token) {
-        try {
-            token = token.replace("Bearer ", "").trim();
-            return jwtUtils.validateToken(token);
-        } catch (Exception e) {
-            return false;
-        }
-    }
 }

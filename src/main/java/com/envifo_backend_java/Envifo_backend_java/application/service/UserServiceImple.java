@@ -215,7 +215,7 @@ public class UserServiceImple implements UserService {
                         almacenamientoRepository.findByIdEntidadAndTipoEntidad(user.getIdUsuario(), "usuario");
 
                 if (optionalImagen.isPresent()) {
-                    storageService.updateFile(optionalImagen.get().getIdArchivo(), file);
+                    storageService.updateFile(optionalImagen.get().getIdArchivo(), file, "imagenes");
                 } else {
                     StorageDto dto = new StorageDto();
                     dto.setIdEntity(user.getIdUsuario());

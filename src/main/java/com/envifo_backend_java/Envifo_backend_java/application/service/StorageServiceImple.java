@@ -26,19 +26,19 @@ public class StorageServiceImple implements StorageService {
     @Override
     public StorageDto saveFile(MultipartFile file, StorageDto dto, String tipoEntidad, String folder) throws IOException {
 
-        // ✅ Validar existencia con existsBy en vez de findBy
+        // Validar existencia con existsBy en vez de findBy
         if (almacenamientoRepository.existsByIdEntidadAndTipoEntidad(dto.getIdEntity(), tipoEntidad)) {
             throw new IllegalStateException("Ya se encuentra una imagen asociada. Actualiza la imagen para reemplazarla.");
         }
 
-        String nombreOriginal = file.getOriginalFilename();
-        String fileName = UUID.randomUUID() + "-" + nombreOriginal;
+        String nombreOriginal = file.getOriginalFilename(); // ya contiene extensión
+        String fileName = UUID.randomUUID() + "-" + nombreOriginal; // conserva extensión
         String key = folder + "/" + fileName;
 
-        // 📤 Subir imagen a R2
+        // Subir imagen a R2
         storageDetailsService.uploadImage(file, key);
 
-        // 💾 Guardar en la base de datos
+        // Guardar en la base de datos
         AlmacenamientoEntity newFile = new AlmacenamientoEntity();
         newFile.setNombreArchivo(nombreOriginal);
         newFile.setLlaveR2(key);
@@ -47,7 +47,7 @@ public class StorageServiceImple implements StorageService {
 
         AlmacenamientoEntity savedFile = almacenamientoRepository.saveFile(newFile);
 
-        // 📦 Devolver DTO de respuesta
+        // Devolver DTO de respuesta
         StorageDto response = new StorageDto();
         response.setIdFile(savedFile.getIdArchivo());
         response.setNameFile(savedFile.getNombreArchivo());
@@ -59,7 +59,7 @@ public class StorageServiceImple implements StorageService {
 
 
     @Override
-    public StorageDto updateFile(Long idArchivo, MultipartFile file) throws IOException {
+    public StorageDto updateFile(Long idArchivo, MultipartFile file, String folder) throws IOException {
         AlmacenamientoEntity editFile = almacenamientoRepository.findById(idArchivo)
                 .orElseThrow(() -> new IOException("Archivo no encontrado"));
 
@@ -67,9 +67,9 @@ public class StorageServiceImple implements StorageService {
         storageDetailsService.deleteImage(editFile.getLlaveR2());
 
         // Subir nueva imagen
-        String nombreOriginal = file.getOriginalFilename();
-        String nuevoNombre = UUID.randomUUID() + "-" + nombreOriginal;
-        String nuevaLlave = "imagenes/" + nuevoNombre;
+        String nombreOriginal = file.getOriginalFilename(); // ya contiene extensión
+        String fileName = UUID.randomUUID() + "-" + nombreOriginal; // conserva extensión
+        String nuevaLlave = folder + "/" + fileName;
 
         storageDetailsService.uploadImage(file, nuevaLlave);
 

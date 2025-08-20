@@ -8,7 +8,7 @@ import java.io.IOException;
 public interface StorageService {
 
     StorageDto saveFile(MultipartFile file, StorageDto dto, String tipoEntidad, String folder) throws IOException;
-    StorageDto updateFile(Long idArchivo, MultipartFile file) throws IOException;
+    StorageDto updateFile(Long idArchivo, MultipartFile file, String folder) throws IOException;
     void deleteFileById(Long idArchivo) throws IOException;
     void deleteFileByEntity(Long idEntidad, String tipoEntidad) throws IOException;
     String getPresignedUrl(Long idArchivo) throws IOException;

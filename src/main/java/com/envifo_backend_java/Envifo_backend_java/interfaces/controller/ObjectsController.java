@@ -2,7 +2,9 @@ package com.envifo_backend_java.Envifo_backend_java.interfaces.controller;
 
 import com.envifo_backend_java.Envifo_backend_java.application.dto.ObjectCompleteDto;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.ObjectDto;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.TexturesDto;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.ObjectsService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -23,11 +25,13 @@ import java.util.Optional;
 @Tag(name = "Objetos", description = "Operaciones para la gestión de objetos 3D")
 public class ObjectsController {
 
+    private ObjectMapper objectMapper;
     private final ObjectsService objectsService;
 
     @Autowired
-    public ObjectsController(ObjectsService objectsService) {
+    public ObjectsController(ObjectsService objectsService, ObjectMapper objectMapper) {
         this.objectsService = objectsService;
+        this.objectMapper = objectMapper;
     }
 
     @Operation(summary = "Guardar un nuevo objeto 3D con archivos", description = "Guarda un objeto 3D y sube sus archivos asociados (modelo 3D e imagen).")
@@ -35,14 +39,16 @@ public class ObjectsController {
             @ApiResponse(responseCode = "201", description = "Objeto guardado correctamente"),
             @ApiResponse(responseCode = "400", description = "Error en los datos enviados o en la carga de archivos")
     })
-    @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> saveObject(
             @RequestPart("object") @Parameter(description = "DTO con los datos del objeto", required = true,
-                    content = @Content(schema = @Schema(implementation = ObjectDto.class)))
-            ObjectDto objectDto,
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ObjectDto.class)))
+            String objectJson,
             @RequestPart(value = "objeto3d", required = true) MultipartFile objeto3d,
             @RequestPart(value = "imagen", required = true) MultipartFile imagen) {
         try {
+            // Convertir JSON a DTO
+            ObjectDto objectDto = objectMapper.readValue(objectJson, ObjectDto.class);
             String result = objectsService.saveObject(objectDto, objeto3d, imagen);
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } catch (Exception e) {

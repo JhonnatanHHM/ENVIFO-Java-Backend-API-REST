@@ -182,7 +182,7 @@ public class CustomerServiceImple implements CustomerService {
                                 (customer.getIdCliente(), "cliente");
 
                 if (optionalImagen.isPresent()) {
-                    storageService.updateFile(optionalImagen.get().getIdArchivo(), file);
+                    storageService.updateFile(optionalImagen.get().getIdArchivo(), file, "imagenes");
                 } else {
                     StorageDto dto = new StorageDto();
                     dto.setIdEntity(customer.getIdCliente());

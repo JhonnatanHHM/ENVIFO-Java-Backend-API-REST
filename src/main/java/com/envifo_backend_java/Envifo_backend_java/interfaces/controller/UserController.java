@@ -53,11 +53,8 @@ public class UserController {
             }
     )
     @GetMapping("/{idUsuario}")
-    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token,
-                                     @PathVariable Long idUsuario) {
-        if (token == null || !validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
-        }
+    public ResponseEntity<?> getUser(@PathVariable Long idUsuario) {
+
         Optional<UserDto> userDom = userServiceImple.getByIdUsuario(idUsuario);
         return userDom.<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado"));
@@ -83,13 +80,9 @@ public class UserController {
     )
     @GetMapping("/complete/{idUsuario}")
     public ResponseEntity<?> getUserWithImages(
-            @RequestHeader("Authorization") String token,
             @PathVariable Long idUsuario) {
 
         try {
-            if (!validarToken(token)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-            }
 
             Optional<UserCompleteDto> userOpt = userServiceImple.getUserWithImages(idUsuario);
 
@@ -110,10 +103,8 @@ public class UserController {
             parameters = @Parameter(name = "Authorization", description = "Token Bearer", required = true)
     )
     @GetMapping("/all")
-    public ResponseEntity<?> getAll(@RequestHeader(value = "Authorization", required = false) String token) {
-        if (token == null || !validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado");
-        }
+    public ResponseEntity<?> getAll() {
+
         List<UserDto> users = userServiceImple.getAll();
         return ResponseEntity.ok(users);
     }
@@ -123,11 +114,9 @@ public class UserController {
             summary = "Eliminar usuario por ID"
     )
     @DeleteMapping("/{idUsuario}")
-    public ResponseEntity<?> delete(@RequestHeader("Authorization") String token,
+    public ResponseEntity<?> delete(
                                     @PathVariable Long idUsuario) throws IOException {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-        }
+
         userServiceImple.deleteUser(idUsuario);
         return ResponseEntity.ok("Usuario eliminado con éxito");
     }
@@ -157,15 +146,10 @@ public class UserController {
                     required = false,
                     content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE)
             )
-            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart(value = "file", required = false) MultipartFile file
 
-            @RequestHeader("Authorization") String token
     ) {
         try {
-            // Validación de token
-            if (!validarToken(token)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-            }
 
             // Convertir JSON a DTO
             UserDto userDto = objectMapper.readValue(userJson, UserDto.class);
@@ -205,7 +189,6 @@ public class UserController {
     )
     @PostMapping(value = "/save/imagen/{idUsuario}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> subirImagenUsuario(
-            @RequestHeader("Authorization") String token,
             @PathVariable Long idUsuario,
             @Parameter(description = "Archivo de imagen", required = true, content = @Content(
                     mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -213,9 +196,6 @@ public class UserController {
             ))
             @RequestParam("file") MultipartFile file) throws IOException {
 
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-        }
 
         if (!userServiceImple.existsById(idUsuario)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
@@ -234,23 +214,11 @@ public class UserController {
             summary = "Eliminar imagen de usuario"
     )
     @DeleteMapping("/imagen/{idImagen}")
-    public ResponseEntity<?> deletePictureUser(@RequestHeader("Authorization") String token,
-                                               @PathVariable Long idImagen) throws IOException {
-        if (!validarToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-        }
+    public ResponseEntity<?> deletePictureUser(@PathVariable Long idImagen) throws IOException {
 
         storageService.deleteFileById(idImagen);
 
         return ResponseEntity.ok("Imagen eliminada correctamente");
     }
 
-    private boolean validarToken(String token) {
-        try {
-            token = token.replace("Bearer ", "").trim();
-            return jwtUtils.validateToken(token);
-        } catch (Exception e) {
-            return false;
-        }
-    }
 }
