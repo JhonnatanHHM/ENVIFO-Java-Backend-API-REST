@@ -11,9 +11,7 @@ public interface MaterialsCrudRepository extends JpaRepository<MaterialesEntity,
 
     List<MaterialesEntity> findAllByCategoriaNombreAndCategoriaClienteIdCliente(String nombreCategoria, Long idCliente);
 
-    @Query("SELECT m FROM MaterialesEntity m JOIN m.clientes c WHERE c.idCliente = :idCliente")
-    List<MaterialesEntity> findMaterialByClienteId(@Param("idCliente") Long idCliente);
-
-    @Query("SELECT m FROM MaterialesEntity m WHERE m.clientes IS EMPTY")
+    @Query("SELECT m FROM MaterialesEntity m WHERE m.clienteMateriales IS EMPTY")
     List<MaterialesEntity> findMaterialsGlobales();
+
 }

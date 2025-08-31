@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "materiales")
@@ -43,18 +43,14 @@ public class MaterialesEntity {
     private TexturasEntity textura;
 
     @JsonIgnore
-    @ManyToMany
-    @JoinTable(
-            name = "clientes_materiales",
-            joinColumns = @JoinColumn(name = "id_material"),
-            inverseJoinColumns = @JoinColumn(name = "id_cliente")
-    )
-    private List<ClientesEntity> clientes = new ArrayList<>();
+    @OneToMany(mappedBy = "material", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ClienteMaterialEntity> clienteMateriales = new HashSet<>();
+
 
     // Constructores
 
 
-    public MaterialesEntity(Long idMaterial, String nombre, String descripcionMate, BigDecimal alto, BigDecimal ancho, boolean estado, CategoriasEntity categoria, TexturasEntity textura, List<ClientesEntity> clientes) {
+    public MaterialesEntity(Long idMaterial, String nombre, String descripcionMate, BigDecimal alto, BigDecimal ancho, boolean estado, CategoriasEntity categoria, TexturasEntity textura, Set<ClienteMaterialEntity> clienteMateriales) {
         this.idMaterial = idMaterial;
         this.nombre = nombre;
         this.descripcionMate = descripcionMate;
@@ -63,7 +59,7 @@ public class MaterialesEntity {
         this.estado = estado;
         this.categoria = categoria;
         this.textura = textura;
-        this.clientes = clientes;
+        this.clienteMateriales = clienteMateriales;
     }
 
     public MaterialesEntity() {
@@ -136,11 +132,11 @@ public class MaterialesEntity {
         this.textura = textura;
     }
 
-    public List<ClientesEntity> getClientes() {
-        return clientes;
+    public Set<ClienteMaterialEntity> getClienteMateriales() {
+        return clienteMateriales;
     }
 
-    public void setClientes(List<ClientesEntity> clientes) {
-        this.clientes = clientes;
+    public void setClienteMateriales(Set<ClienteMaterialEntity> clienteMateriales) {
+        this.clienteMateriales = clienteMateriales;
     }
 }

@@ -16,7 +16,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -74,6 +73,7 @@ public class MaterialMessageListener {
             materialDto.setStatus(response.getMaterial().isStatus());
             materialDto.setIdCategoria(response.getMaterial().getIdCategoria());
             materialDto.setIdTextura(response.getMaterial().getIdTextura());
+            materialDto.setIdCliente(response.getMaterial().getIdCliente());
 
             // Convertir archivos descargados a MultipartFile (implementación propia en memoria)
             MultipartFile modelFile = toMultipartFile(

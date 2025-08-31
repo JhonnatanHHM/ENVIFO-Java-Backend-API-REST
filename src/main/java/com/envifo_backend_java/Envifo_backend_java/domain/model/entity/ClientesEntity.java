@@ -50,9 +50,14 @@ public class ClientesEntity {
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ClienteUsuarioRolEntity> usuarioRoles = new HashSet<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ClienteMaterialEntity> clienteMateriales = new HashSet<>();
+
     // Constructor
 
-    public ClientesEntity(Long idCliente, String nombre, String direccion, String telefono, String email, String password, String url, boolean estado, LocalDateTime fechaRegistro, RolesEntity rol, Set<ClienteUsuarioRolEntity> usuarioRoles) {
+
+    public ClientesEntity(Long idCliente, String nombre, String direccion, String telefono, String email, String password, String url, boolean estado, LocalDateTime fechaRegistro, RolesEntity rol, Set<ClienteUsuarioRolEntity> usuarioRoles, Set<ClienteMaterialEntity> clienteMateriales) {
         this.idCliente = idCliente;
         this.nombre = nombre;
         this.direccion = direccion;
@@ -64,6 +69,7 @@ public class ClientesEntity {
         this.fechaRegistro = fechaRegistro;
         this.rol = rol;
         this.usuarioRoles = usuarioRoles;
+        this.clienteMateriales = clienteMateriales;
     }
 
     public ClientesEntity() {
@@ -159,4 +165,11 @@ public class ClientesEntity {
         this.usuarioRoles = usuarioRoles;
     }
 
+    public Set<ClienteMaterialEntity> getClienteMateriales() {
+        return clienteMateriales;
+    }
+
+    public void setClienteMateriales(Set<ClienteMaterialEntity> clienteMateriales) {
+        this.clienteMateriales = clienteMateriales;
+    }
 }

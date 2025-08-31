@@ -3,14 +3,14 @@ package com.envifo_backend_java.Envifo_backend_java.application.service;
 
 import com.envifo_backend_java.Envifo_backend_java.application.dto.*;
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.*;
-import com.envifo_backend_java.Envifo_backend_java.domain.repository.CategoriesRepository;
-import com.envifo_backend_java.Envifo_backend_java.domain.repository.MaterialsRepository;
-import com.envifo_backend_java.Envifo_backend_java.domain.repository.StorageRepository;
-import com.envifo_backend_java.Envifo_backend_java.domain.repository.TexturesRepository;
+import com.envifo_backend_java.Envifo_backend_java.domain.repository.*;
 
+import com.envifo_backend_java.Envifo_backend_java.domain.repository.crud.CustomerMaterialRepository;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.MaterialsService;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.StorageService;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.TexturesService;
+import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.NotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,59 +29,77 @@ public class MaterialsServiceImpl implements MaterialsService {
     private final TexturesRepository texturesRepository;
     private final StorageService storageService;
     private final StorageRepository storageRepository;
+    private final CustomerRepository customerRepository;
+    private final CustomerMaterialRepository customerMaterialRepository;
 
     @Autowired
-    public MaterialsServiceImpl(MaterialsRepository materialsRepository, CategoriesRepository categoriesRepository, TexturesService texturesService, TexturesRepository texturesRepository, StorageService storageService, StorageRepository storageRepository) {
+    public MaterialsServiceImpl(MaterialsRepository materialsRepository, CategoriesRepository categoriesRepository, TexturesService texturesService, TexturesRepository texturesRepository, StorageService storageService, StorageRepository storageRepository, CustomerRepository customerRepository, CustomerMaterialRepository customerMaterialRepository) {
         this.materialsRepository = materialsRepository;
         this.categoriesRepository = categoriesRepository;
         this.texturesService = texturesService;
         this.texturesRepository = texturesRepository;
         this.storageService = storageService;
         this.storageRepository = storageRepository;
+        this.customerRepository = customerRepository;
+        this.customerMaterialRepository = customerMaterialRepository;
     }
 
+    @Transactional
     @Override
     public String saveMaterial(MaterialDto materialDto, MultipartFile material3d, MultipartFile imagen) throws IOException {
-        MaterialesEntity material = new MaterialesEntity();
 
+        // Crear entidad Material
+        MaterialesEntity material = new MaterialesEntity();
         material.setNombre(materialDto.getNameMaterial());
         material.setDescripcionMate(materialDto.getDescripcionMate());
         material.setAlto(materialDto.getHeight());
         material.setAncho(materialDto.getWidth());
         material.setEstado(materialDto.isStatus());
 
+        // Asociar categoría
         CategoriasEntity categoria = categoriesRepository.getCategoryById(materialDto.getIdCategoria())
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
         material.setCategoria(categoria);
 
+        // Asociar textura si existe
         if (materialDto.getIdTextura() != null) {
             texturesRepository.getByIdTexture(materialDto.getIdTextura())
                     .ifPresent(material::setTextura);
         }
 
-
-        //ObjetosEntity objectSaved =
+        // Guardar primero el material
         MaterialesEntity materialSaved = materialsRepository.saveMaterial(material);
 
-        // Procesar objeto3d si se envía
-        if (material3d != null && !material3d.isEmpty()) {
+        // Asociar cliente si existe
+        if (materialDto.getIdCliente() != null) {
+            ClientesEntity cliente = customerRepository.getByIdCliente(materialDto.getIdCliente())
+                    .orElseThrow(() -> new NotFoundException("Cliente no encontrado!"));
 
+            ClienteMaterialEntity newCliMat = new ClienteMaterialEntity();
+            newCliMat.setCliente(cliente);
+            newCliMat.setMaterial(materialSaved);
+
+            customerMaterialRepository.saveClienteMaterial(newCliMat);
+        }
+
+        // Procesar archivo 3D si se envía
+        if (material3d != null && !material3d.isEmpty()) {
             StorageDto dto = new StorageDto();
             dto.setIdEntity(materialSaved.getIdMaterial());
-
             storageService.saveFile(material3d, dto, "materiales3d", "3d");
         }
 
         // Procesar imagen si se envía
         if (imagen != null && !imagen.isEmpty()) {
-
             StorageDto dto = new StorageDto();
             dto.setIdEntity(materialSaved.getIdMaterial());
-
             storageService.saveFile(imagen, dto, "materiales", "imagenes");
         }
+
         return "Material creado correctamente";
     }
+
+
 
     @Override
     public String updateMaterial(Long idMaterial, MaterialDto materialDto, MultipartFile material3d, MultipartFile imagen) throws IOException {
@@ -110,46 +128,56 @@ public class MaterialsServiceImpl implements MaterialsService {
         // Guardar cambios del material
         MaterialesEntity updatedMaterial = materialsRepository.saveMaterial(existingMaterial);
 
+        // Asociar cliente si existe (igual que en saveMaterial)
+        if (materialDto.getIdCliente() != null) {
+            ClientesEntity cliente = customerRepository.getByIdCliente(materialDto.getIdCliente())
+                    .orElseThrow(() -> new NotFoundException("Cliente no encontrado!"));
+
+            // Si ya existe relación, opcionalmente eliminarla o actualizarla
+            customerMaterialRepository.deleteByMaterialId(updatedMaterial.getIdMaterial());
+
+            ClienteMaterialEntity newCliMat = new ClienteMaterialEntity();
+            newCliMat.setCliente(cliente);
+            newCliMat.setMaterial(updatedMaterial);
+
+            customerMaterialRepository.saveClienteMaterial(newCliMat);
+        }
+
         // Reemplazar archivo 3D si se proporciona
         if (material3d != null && !material3d.isEmpty()) {
-            Optional<AlmacenamientoEntity> existingFile =
-                    storageRepository.findByIdEntidadAndTipoEntidad(idMaterial, "materiales3d");
-
-            existingFile.ifPresent(file -> {
-                try {
-                    storageService.deleteFileById(file.getIdArchivo());
-                } catch (IOException e) {
-                    System.err.println("Error al eliminar archivo 3D anterior: " + e.getMessage());
-                }
-            });
+            storageRepository.findByIdEntidadAndTipoEntidad(idMaterial, "materiales3d")
+                    .ifPresent(file -> {
+                        try {
+                            storageService.deleteFileById(file.getIdArchivo());
+                        } catch (IOException e) {
+                            System.err.println("Error al eliminar archivo 3D anterior: " + e.getMessage());
+                        }
+                    });
 
             StorageDto dto = new StorageDto();
             dto.setIdEntity(updatedMaterial.getIdMaterial());
-
             storageService.saveFile(material3d, dto, "materiales3d", "3d");
         }
 
         // Reemplazar imagen si se proporciona
         if (imagen != null && !imagen.isEmpty()) {
-            Optional<AlmacenamientoEntity> existingImage =
-                    storageRepository.findByIdEntidadAndTipoEntidad(idMaterial, "materiales");
-
-            existingImage.ifPresent(image -> {
-                try {
-                    storageService.deleteFileById(image.getIdArchivo());
-                } catch (IOException e) {
-                    System.err.println("Error al eliminar imagen anterior: " + e.getMessage());
-                }
-            });
+            storageRepository.findByIdEntidadAndTipoEntidad(idMaterial, "materiales")
+                    .ifPresent(image -> {
+                        try {
+                            storageService.deleteFileById(image.getIdArchivo());
+                        } catch (IOException e) {
+                            System.err.println("Error al eliminar imagen anterior: " + e.getMessage());
+                        }
+                    });
 
             StorageDto dto = new StorageDto();
             dto.setIdEntity(updatedMaterial.getIdMaterial());
-
             storageService.saveFile(imagen, dto, "materiales", "imagenes");
         }
 
         return "Material actualizado correctamente";
     }
+
 
 
     @Override
@@ -202,7 +230,7 @@ public class MaterialsServiceImpl implements MaterialsService {
     public List<MaterialCompleteDto> getByClienteId(Long idCliente) {
 
         List<MaterialesEntity> materiales =
-                materialsRepository.getMaterialByClienteId(idCliente);
+                customerMaterialRepository.getMaterialByCliente(idCliente);
 
         return materiales.stream()
                 .map(material -> {
@@ -304,15 +332,24 @@ public class MaterialsServiceImpl implements MaterialsService {
         materialDto.setStatus(material.isEstado());
         materialDto.setIdCategoria(material.getCategoria().getIdCategoria());
 
-        Optional<TextureCompleteDto> textureDto;
+        TextureCompleteDto textureDto = null;
 
-        if (!texture3d) {
-            textureDto = texturesService.getTextureByIdTexture(material.getTextura().getIdTextura());
-        } else {
-            textureDto = texturesService.getDisplacementByIdTexture(material.getTextura().getIdTextura());
+        if (material.getTextura() != null) {
+            Optional<TextureCompleteDto> optTexture;
+            if (!texture3d) {
+                optTexture = texturesService.getTextureByIdTexture(material.getTextura().getIdTextura());
+            } else {
+                optTexture = texturesService.getDisplacementByIdTexture(material.getTextura().getIdTextura());
+            }
+
+            // Asignar si está presente
+            if (optTexture.isPresent()) {
+                textureDto = optTexture.get();
+            }
         }
 
-        materialDto.setTexture(textureDto.get());
+        // Asignar al DTO (puede ser null si no hay textura)
+        materialDto.setTexture(textureDto);
         materialDto.setMaterial(convertToStorageDto(imagen));
 
         return materialDto;

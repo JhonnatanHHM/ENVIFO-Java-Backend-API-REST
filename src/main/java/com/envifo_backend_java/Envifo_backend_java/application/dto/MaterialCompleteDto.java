@@ -10,9 +10,7 @@ public class MaterialCompleteDto {
     private String descripcionMate;
     private BigDecimal height;
     private BigDecimal width;
-    private BigDecimal depth;
     private boolean status;
-    private String metadata;
     private Long idCategoria;
     private TextureCompleteDto texture;
     private Optional<StorageDto> material;
@@ -60,28 +58,12 @@ public class MaterialCompleteDto {
         this.width = width;
     }
 
-    public BigDecimal getDepth() {
-        return depth;
-    }
-
-    public void setDepth(BigDecimal depth) {
-        this.depth = depth;
-    }
-
     public boolean isStatus() {
         return status;
     }
 
     public void setStatus(boolean status) {
         this.status = status;
-    }
-
-    public String getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(String metadata) {
-        this.metadata = metadata;
     }
 
     public Long getIdCategoria() {

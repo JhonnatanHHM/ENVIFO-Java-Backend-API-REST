@@ -161,8 +161,6 @@ CREATE TABLE public.materiales (
     ancho numeric NOT NULL,
     estado boolean DEFAULT true NOT NULL,
     id_textura bigint,
-    metadata jsonb,
-    profundidad numeric NOT NULL,
     descripcion_mate character varying(300)
 );
 

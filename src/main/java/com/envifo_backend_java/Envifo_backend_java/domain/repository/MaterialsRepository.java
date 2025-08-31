@@ -10,7 +10,6 @@ public interface MaterialsRepository {
     Optional<MaterialesEntity> getByIdMaterial(Long idMaterial);
     List<MaterialesEntity> getMaterialByNameAndSectionCategory(String nameCategory, Long idCliente);
     List<MaterialesEntity> getObjectsByIdsMaterials(List<Long> idsMaterials);
-    List<MaterialesEntity> getMaterialByClienteId(Long idCliente);
     List<MaterialesEntity> findMaterialsGlobales();
     MaterialesEntity saveMaterial (MaterialesEntity material);
     void deleteMaterial (Long idMaterial);

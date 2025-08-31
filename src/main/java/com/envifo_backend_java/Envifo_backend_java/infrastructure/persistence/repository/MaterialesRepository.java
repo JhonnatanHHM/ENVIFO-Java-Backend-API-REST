@@ -35,11 +35,6 @@ public class MaterialesRepository implements MaterialsRepository {
     }
 
     @Override
-    public List<MaterialesEntity> getMaterialByClienteId(Long idCliente) {
-        return materialsCrudRepository.findMaterialByClienteId(idCliente);
-    }
-
-    @Override
     public List<MaterialesEntity> findMaterialsGlobales() {
         return materialsCrudRepository.findMaterialsGlobales();
     }

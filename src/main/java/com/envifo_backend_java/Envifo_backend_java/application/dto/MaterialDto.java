@@ -12,6 +12,7 @@ public class MaterialDto {
     private boolean status;
     private Long idCategoria;
     private Long idTextura;
+    private Long idCliente;
 
     public MaterialDto() {
     }
@@ -78,5 +79,13 @@ public class MaterialDto {
 
     public void setIdTextura(Long idTextura) {
         this.idTextura = idTextura;
+    }
+
+    public Long getIdCliente() {
+        return idCliente;
+    }
+
+    public void setIdCliente(Long idCliente) {
+        this.idCliente = idCliente;
     }
 }
