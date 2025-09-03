@@ -38,14 +38,22 @@ public class CategoriesServiceImple implements CategoriesService {
         categoria.setEstado(true);
         categoria.setFechaCreacion(LocalDateTime.now());
 
-        Optional<ClientesEntity> cliente = Optional.ofNullable(clientesRepository.getByIdCliente(dto.getIdCliente())
-                .orElseThrow(() -> new NotFoundException("Cliente no encontrado! con ID: " + dto.getIdCliente())));
-        categoria.setCliente(cliente.get());
+        if (dto.getIdCliente() != null) {
+            ClientesEntity cliente = clientesRepository.getByIdCliente(dto.getIdCliente())
+                    .orElseThrow(() -> new NotFoundException(
+                            "Cliente no encontrado! con ID: " + dto.getIdCliente()
+                    ));
+            categoria.setCliente(cliente);
+        } else {
+            // Cliente nulo -> categoría global
+            categoria.setCliente(null);
+        }
 
         CategoriasEntity category = categoriesRepository.saveCategory(categoria);
 
         return convertToCategoriesDto(category);
     }
+
 
     @Override
     public CategoriesDto updateCategory(CategoriesDto dto) {

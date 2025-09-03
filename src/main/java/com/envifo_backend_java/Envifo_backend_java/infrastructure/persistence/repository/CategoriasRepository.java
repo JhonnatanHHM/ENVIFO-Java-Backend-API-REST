@@ -27,7 +27,7 @@ public class CategoriasRepository implements CategoriesRepository {
 
     @Override
     public List<CategoriasEntity> getAllBySeccionIn(String seccion) {
-        return categoriesCrudRepository.findAllBySeccionIn(seccion);
+        return categoriesCrudRepository.findAllBySeccion(seccion);
     }
 
     @Override

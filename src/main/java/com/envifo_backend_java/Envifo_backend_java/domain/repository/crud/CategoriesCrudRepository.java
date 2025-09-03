@@ -12,9 +12,9 @@ public interface CategoriesCrudRepository extends JpaRepository<CategoriasEntity
 
     List<CategoriasEntity> findAllByClienteIdCliente(Long idCliente);
 
-    List<CategoriasEntity> findAllBySeccionIn(String seccion);
+    List<CategoriasEntity> findAllBySeccion(String seccion);
 
-    @Query("SELECT c FROM CategoriasEntity c WHERE c.id_cliente IS EMPTY")
+    @Query("SELECT c FROM CategoriasEntity c WHERE c.cliente IS NULL")
     List<CategoriasEntity> findCategoriesGlobales();
 
 }
