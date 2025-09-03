@@ -30,23 +30,19 @@ public class ObjetosEntity {
     @Column(nullable = false)
     private boolean estado;
 
-    @Column(columnDefinition = "jsonb")
-    private String metadata;
-
     @ManyToOne
     @JoinColumn(name = "id_categoria", nullable = false)
     private CategoriasEntity categoria;
 
     // Constructores
 
-    public ObjetosEntity(Long idObjeto, String nombreObjeto, BigDecimal alto, BigDecimal ancho, BigDecimal profundidad, boolean estado, String metadata, CategoriasEntity categoria) {
+    public ObjetosEntity(Long idObjeto, String nombreObjeto, BigDecimal alto, BigDecimal ancho, BigDecimal profundidad, boolean estado, CategoriasEntity categoria) {
         this.idObjeto = idObjeto;
         this.nombreObjeto = nombreObjeto;
         this.alto = alto;
         this.ancho = ancho;
         this.profundidad = profundidad;
         this.estado = estado;
-        this.metadata = metadata;
         this.categoria = categoria;
     }
 
@@ -101,14 +97,6 @@ public class ObjetosEntity {
 
     public void setEstado(boolean estado) {
         this.estado = estado;
-    }
-
-    public String getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(String metadata) {
-        this.metadata = metadata;
     }
 
     public CategoriasEntity getCategoria() {

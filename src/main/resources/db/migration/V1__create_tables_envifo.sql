@@ -1,5 +1,5 @@
 
-ALTER DATABASE envifo_db OWNER TO envifoclient;
+ALTER DATABASE envifo_db_ck5t OWNER TO envifoclient;
 
 CREATE FUNCTION public.actualizar_fecha_modificacion() RETURNS trigger
     LANGUAGE plpgsql
@@ -209,8 +209,7 @@ CREATE TABLE public.objetos (
     alto numeric NOT NULL,
     ancho numeric NOT NULL,
     profundidad numeric NOT NULL,
-    estado boolean DEFAULT true NOT NULL,
-    metadata jsonb
+    estado boolean DEFAULT true NOT NULL
 );
 
 ALTER TABLE public.objetos OWNER TO envifoclient;

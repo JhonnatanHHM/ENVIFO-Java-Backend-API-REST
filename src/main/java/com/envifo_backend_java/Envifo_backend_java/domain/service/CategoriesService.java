@@ -13,9 +13,11 @@ public interface CategoriesService {
 
     Optional<CategoriesDto> getCategoryById(Long idCategoria);
 
-    List<CategoriesDto> getCategoriesByName();
+    List<CategoriesDto> getCategoriesBySection(String section) ;
 
     List<CategoriesDto> getCategoriesByIdCliente(Long idCliente);
+
+    List<CategoriesDto> getCategoriesGlobals();
 
     void deleteByIdCategory(Long idCategoria);
 }

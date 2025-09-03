@@ -8,8 +8,9 @@ import java.util.Optional;
 
 public interface CategoriesRepository {
     CategoriasEntity saveCategory(CategoriasEntity category);
-    List<CategoriasEntity> getCategoriesByName(List<String> names);
+    List<CategoriasEntity> getAllBySeccionIn(String seccion);
     List<CategoriasEntity> getCategoriesByIdCliente(Long idCustomer);
+    List<CategoriasEntity> getCategoriesGlobals();
     Optional<CategoriasEntity> getCategoryById(Long idCategory);
     void deleteByIdCategory (Long idCategory);
 }

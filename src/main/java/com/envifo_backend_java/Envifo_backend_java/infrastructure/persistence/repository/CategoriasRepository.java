@@ -26,13 +26,18 @@ public class CategoriasRepository implements CategoriesRepository {
     }
 
     @Override
-    public List<CategoriasEntity> getCategoriesByName(List<String> names) {
-        return categoriesCrudRepository.findAllByNombreIn(names);
+    public List<CategoriasEntity> getAllBySeccionIn(String seccion) {
+        return categoriesCrudRepository.findAllBySeccionIn(seccion);
     }
 
     @Override
     public List<CategoriasEntity> getCategoriesByIdCliente(Long idCustomer) {
         return categoriesCrudRepository.findAllByClienteIdCliente(idCustomer);
+    }
+
+    @Override
+    public List<CategoriasEntity> getCategoriesGlobals() {
+        return categoriesCrudRepository.findCategoriesGlobales();
     }
 
     @Override

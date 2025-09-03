@@ -47,7 +47,6 @@ public class ObjectsServiceImpl implements ObjectsService {
         newObject.setAncho(objectDto.getWidth());
         newObject.setProfundidad(objectDto.getDepth());
         newObject.setEstado(objectDto.isStatus());
-        newObject.setMetadata(objectDto.getMetadata());
 
         CategoriasEntity category = categoriesRepository.getCategoryById(objectDto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
@@ -188,7 +187,6 @@ public class ObjectsServiceImpl implements ObjectsService {
         objectDto.setWidth(object.getAncho());
         objectDto.setDepth(object.getProfundidad());
         objectDto.setStatus(object.isEstado());
-        objectDto.setMetadata(object.getMetadata());
         objectDto.setObject(convertToStorageDto(imagen));
 
         return objectDto;

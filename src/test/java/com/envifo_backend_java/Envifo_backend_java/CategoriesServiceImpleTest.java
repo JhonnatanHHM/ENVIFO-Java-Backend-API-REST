@@ -6,6 +6,7 @@ import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.Categoria
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.ClientesEntity;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.CategoriesRepository;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.NotFoundException;
+import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.ClientesRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -23,12 +24,15 @@ class CategoriesServiceImpleTest {
     @Mock
     private CategoriesRepository categoriesRepository;
 
+    @Mock
+    private ClientesRepository clientesRepository;
+
     @InjectMocks
     private CategoriesServiceImple categoriesService;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this); // inicializa los mocks
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -39,15 +43,17 @@ class CategoriesServiceImpleTest {
         dto.setSection("Interiores");
         dto.setIdCliente(1L);
 
+        ClientesEntity cliente = new ClientesEntity();
+        cliente.setIdCliente(1L);
+
         CategoriasEntity savedEntity = new CategoriasEntity();
         savedEntity.setIdCategoria(10L);
         savedEntity.setNombre("Madera");
         savedEntity.setSeccion("Interiores");
         savedEntity.setEstado(true);
-        ClientesEntity cliente = new ClientesEntity();
-        cliente.setIdCliente(1L);
         savedEntity.setCliente(cliente);
 
+        when(clientesRepository.getByIdCliente(1L)).thenReturn(Optional.of(cliente));
         when(categoriesRepository.saveCategory(any(CategoriasEntity.class))).thenReturn(savedEntity);
 
         // Act
@@ -57,6 +63,8 @@ class CategoriesServiceImpleTest {
         assertNotNull(result);
         assertEquals(10L, result.getIdCategoria());
         assertEquals("Madera", result.getNombre());
+        assertEquals(1L, result.getIdCliente());
+        verify(clientesRepository, times(1)).getByIdCliente(1L);
         verify(categoriesRepository, times(1)).saveCategory(any(CategoriasEntity.class));
     }
 
@@ -104,6 +112,57 @@ class CategoriesServiceImpleTest {
         assertThrows(NotFoundException.class, () -> categoriesService.updateCategory(dto));
         verify(categoriesRepository, times(1)).getCategoryById(99L);
     }
+
+    @Test
+    void testGetCategoriesBySection() {
+        // Arrange
+        ClientesEntity cliente = new ClientesEntity();
+        cliente.setIdCliente(7L);
+
+        CategoriasEntity entity = new CategoriasEntity();
+        entity.setIdCategoria(50L);
+        entity.setNombre("Vidrio");
+        entity.setSeccion("Interiores");
+        entity.setEstado(true);
+        entity.setCliente(cliente);
+
+        when(categoriesRepository.getAllBySeccionIn("Interiores")).thenReturn(List.of(entity));
+
+        // Act
+        List<CategoriesDto> result = categoriesService.getCategoriesBySection("Interiores");
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals("Vidrio", result.get(0).getNombre());
+        assertEquals("Interiores", result.get(0).getSection());
+        verify(categoriesRepository, times(1)).getAllBySeccionIn("Interiores");
+    }
+
+    @Test
+    void testGetCategoriesGlobals() {
+        // Arrange
+        ClientesEntity cliente = new ClientesEntity();
+        cliente.setIdCliente(8L);
+
+        CategoriasEntity entity = new CategoriasEntity();
+        entity.setIdCategoria(60L);
+        entity.setNombre("Global");
+        entity.setSeccion("Todos");
+        entity.setEstado(true);
+        entity.setCliente(cliente);
+
+        when(categoriesRepository.getCategoriesGlobals()).thenReturn(List.of(entity));
+
+        // Act
+        List<CategoriesDto> result = categoriesService.getCategoriesGlobals();
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals("Global", result.get(0).getNombre());
+        assertEquals("Todos", result.get(0).getSection());
+        verify(categoriesRepository, times(1)).getCategoriesGlobals();
+    }
+
 
     @Test
     void testGetCategoryById() {

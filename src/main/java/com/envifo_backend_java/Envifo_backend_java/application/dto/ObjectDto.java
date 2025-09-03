@@ -10,7 +10,6 @@ public class ObjectDto {
     private BigDecimal width;
     private BigDecimal depth;
     private boolean status;
-    private String metadata;
     private Long categoryId;
 
     // Getters and Setters
@@ -62,14 +61,6 @@ public class ObjectDto {
 
     public void setStatus(boolean status) {
         this.status = status;
-    }
-
-    public String getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(String metadata) {
-        this.metadata = metadata;
     }
 
     public Long getCategoryId() {

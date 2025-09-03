@@ -80,15 +80,15 @@ public class CategoriesController {
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @Operation(summary = "Obtener categorías por nombre fijo", description = "Devuelve categorías con nombres predeterminados como Piedra, Mármol, Madera.")
+    @Operation(summary = "Obtener categorías por sección", description = "Devuelve categorías en secciones especificas, por ejemplo texturas, objetos, materiales.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Categorías encontradas",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = CategoriesDto.class))),
             @ApiResponse(responseCode = "204", description = "No se encontraron categorías", content = @Content)
     })
-    @GetMapping("/names")
-    public ResponseEntity<List<CategoriesDto>> getCategoriesByNames() {
-        List<CategoriesDto> categories = categoriesService.getCategoriesByName();
+    @GetMapping("/section/{section}")
+    public ResponseEntity<List<CategoriesDto>> getCategoriesByNames(@PathVariable String section) {
+        List<CategoriesDto> categories = categoriesService.getCategoriesBySection(section);
         if (categories.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -105,6 +105,21 @@ public class CategoriesController {
     public ResponseEntity<List<CategoriesDto>> getCategoriesByIdCliente(
             @Parameter(description = "ID del cliente") @PathVariable Long idCustomer) {
         List<CategoriesDto> categories = categoriesService.getCategoriesByIdCliente(idCustomer);
+        if (categories.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(categories);
+    }
+
+    @Operation(summary = "Obtener categorías globales", description = "Devuelve categorías globales registradas en la aplicación.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Categorías encontradas",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CategoriesDto.class))),
+            @ApiResponse(responseCode = "204", description = "No se encontraron categorías", content = @Content)
+    })
+    @GetMapping("/globals")
+    public ResponseEntity<List<CategoriesDto>> getCategoriesGlobals() {
+        List<CategoriesDto> categories = categoriesService.getCategoriesGlobals();
         if (categories.isEmpty()) {
             return ResponseEntity.noContent().build();
         }

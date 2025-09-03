@@ -56,7 +56,6 @@ class ObjectsServiceImplTest {
         objectDto.setWidth(BigDecimal.valueOf(30));
         objectDto.setDepth(BigDecimal.valueOf(40));
         objectDto.setStatus(true);
-        objectDto.setMetadata("madera-roble");
         objectDto.setCategoryId(1L);
 
         objetoEntity = new ObjetosEntity();
@@ -66,7 +65,6 @@ class ObjectsServiceImplTest {
         objetoEntity.setAncho(BigDecimal.valueOf(30));
         objetoEntity.setProfundidad(BigDecimal.valueOf(40));
         objetoEntity.setEstado(true);
-        objetoEntity.setMetadata("madera-roble");
         objetoEntity.setCategoria(categoria);
 
         almacenamiento = new AlmacenamientoEntity();

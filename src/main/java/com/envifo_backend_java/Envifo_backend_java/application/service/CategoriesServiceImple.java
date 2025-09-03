@@ -6,7 +6,9 @@ import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.ClientesE
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.CategoriesRepository;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.NotFoundException;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.CategoriesService;
+import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.ClientesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,9 +22,12 @@ public class CategoriesServiceImple implements CategoriesService {
 
     private final CategoriesRepository categoriesRepository;
 
+    private final ClientesRepository clientesRepository;
+
     @Autowired
-    public CategoriesServiceImple(CategoriesRepository categoriesRepository) {
+    public CategoriesServiceImple(CategoriesRepository categoriesRepository, ClientesRepository clientesRepository) {
         this.categoriesRepository = categoriesRepository;
+        this.clientesRepository = clientesRepository;
     }
 
     @Override
@@ -33,10 +38,9 @@ public class CategoriesServiceImple implements CategoriesService {
         categoria.setEstado(true);
         categoria.setFechaCreacion(LocalDateTime.now());
 
-        // Asociar cliente (suponiendo que solo tenga el idCliente desde el front)
-        ClientesEntity cliente = new ClientesEntity();
-        cliente.setIdCliente(dto.getIdCliente());
-        categoria.setCliente(cliente);
+        Optional<ClientesEntity> cliente = Optional.ofNullable(clientesRepository.getByIdCliente(dto.getIdCliente())
+                .orElseThrow(() -> new NotFoundException("Cliente no encontrado! con ID: " + dto.getIdCliente())));
+        categoria.setCliente(cliente.get());
 
         CategoriasEntity category = categoriesRepository.saveCategory(categoria);
 
@@ -80,15 +84,23 @@ public class CategoriesServiceImple implements CategoriesService {
     }
 
     @Override
-    public List<CategoriesDto> getCategoriesByName() {
+    public List<CategoriesDto> getCategoriesBySection(String section) {
 
-        List<String> nombres = new ArrayList<>();
+        return categoriesRepository.getAllBySeccionIn(section).stream()
+                .map(c -> new CategoriesDto(
+                        c.getIdCategoria(),
+                        c.getNombre(),
+                        c.getSeccion(),
+                        c.getEstado(),
+                        c.getCliente() != null ? c.getCliente().getIdCliente() : null
+                ))
+                .collect(Collectors.toList());
+    }
 
-        nombres.add("Piedra");
-        nombres.add("Mármol");
-        nombres.add("Madera");
+    @Override
+    public List<CategoriesDto> getCategoriesGlobals() {
 
-        return categoriesRepository.getCategoriesByName(nombres).stream()
+        return categoriesRepository.getCategoriesGlobals().stream()
                 .map(c -> new CategoriesDto(
                         c.getIdCategoria(),
                         c.getNombre(),
