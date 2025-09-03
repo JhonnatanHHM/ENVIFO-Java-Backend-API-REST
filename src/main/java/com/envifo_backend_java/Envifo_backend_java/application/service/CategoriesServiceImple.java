@@ -137,14 +137,16 @@ public class CategoriesServiceImple implements CategoriesService {
         categoriesRepository.deleteByIdCategory(idCategoria);
     }
 
-    private CategoriesDto convertToCategoriesDto (CategoriasEntity category) {
+    private CategoriesDto convertToCategoriesDto(CategoriasEntity category) {
         CategoriesDto categoriesDto = new CategoriesDto();
         categoriesDto.setIdCategoria(category.getIdCategoria());
         categoriesDto.setNombre(category.getNombre());
         categoriesDto.setSection(category.getSeccion());
         categoriesDto.setEstado(category.getEstado());
-        categoriesDto.setIdCliente(category.getCliente().getIdCliente());
-
+        categoriesDto.setIdCliente(
+                category.getCliente() != null ? category.getCliente().getIdCliente() : null
+        );
         return categoriesDto;
     }
+
 }
