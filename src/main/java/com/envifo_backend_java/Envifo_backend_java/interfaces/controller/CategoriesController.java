@@ -3,6 +3,7 @@ package com.envifo_backend_java.Envifo_backend_java.interfaces.controller;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.CategoriesDto;
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.CategoriasEntity;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.CategoriesService;
+import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.NotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -37,15 +38,19 @@ public class CategoriesController {
             @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos", content = @Content)
     })
     @PostMapping("/save")
-    public ResponseEntity<CategoriesDto> createCategory(
-            @RequestBody CategoriesDto dto) {
+    public ResponseEntity<CategoriesDto> createCategory(@RequestBody CategoriesDto dto) {
         try {
             CategoriesDto savedCategory = categoriesService.saveCategory(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
-        } catch (Exception e) {
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
     @Operation(summary = "Actualizar una categoría", description = "Modifica los datos de una categoría existente.")
     @ApiResponses(value = {
