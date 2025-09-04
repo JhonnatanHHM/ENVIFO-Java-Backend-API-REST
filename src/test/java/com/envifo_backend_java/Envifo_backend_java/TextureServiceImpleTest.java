@@ -129,11 +129,20 @@ class TextureServiceImpleTest {
             return tex;
         });
 
-        String result = textureService.saveTexture(dto, multipartFile, multipartFile);
+        MultipartFile multipartFile = mock(MultipartFile.class);
+        when(multipartFile.isEmpty()).thenReturn(false);
 
-        assertEquals("Textura creada correctamente", result);
+        TexturesDto result = textureService.saveTexture(dto, multipartFile, multipartFile);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getIdTexture());
+        assertEquals("Marmol", result.getNameTexture());
+        assertEquals("Textura de marmol", result.getDescription());
+        assertEquals(5L, result.getIdCategory());
+
         verify(storageService, times(2)).saveFile(any(), any(), anyString(), anyString());
     }
+
 
     @Test
     void deleteTexture_ShouldCallDeleteAndRepositoryMethods() throws IOException {

@@ -40,7 +40,7 @@ public class TexturesController {
             @ApiResponse(responseCode = "400", description = "Error en los datos enviados o en la carga de archivos")
     })
     @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> saveTexture(
+    public ResponseEntity<?> saveTexture(
             @RequestPart("texture") @Parameter(description = "DTO con los datos de la textura", required = true,
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TexturesDto.class)))
             String textureJson,
@@ -49,7 +49,7 @@ public class TexturesController {
         try {
             // Convertir JSON a DTO
             TexturesDto textureDto = objectMapper.readValue(textureJson, TexturesDto.class);
-            String result = texturesService.saveTexture(textureDto, textura, imagen);
+            TexturesDto result = texturesService.saveTexture(textureDto, textura, imagen);
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error al guardar la textura: " + e.getMessage());

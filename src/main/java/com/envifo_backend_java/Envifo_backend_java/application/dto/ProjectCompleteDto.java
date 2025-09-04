@@ -14,7 +14,6 @@ public class ProjectCompleteDto {
     private boolean status;
     private Long userId;
     private Long clientId;
-    private SceneCompleteDto scene;
     private Designs3dDto design;
     private List<MaterialCompleteDto> materials;
     private List<ObjectCompleteDto> objects;
@@ -85,14 +84,6 @@ public class ProjectCompleteDto {
 
     public void setClientId(Long clientId) {
         this.clientId = clientId;
-    }
-
-    public SceneCompleteDto getScene() {
-        return scene;
-    }
-
-    public void setScene(SceneCompleteDto scene) {
-        this.scene = scene;
     }
 
     public Designs3dDto getDesign() {

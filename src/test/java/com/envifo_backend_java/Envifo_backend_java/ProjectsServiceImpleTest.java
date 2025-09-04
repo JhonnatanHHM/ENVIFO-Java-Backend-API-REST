@@ -38,8 +38,6 @@ class ProjectsServiceImpleTest {
     @Mock
     private ClientesRepository clientesRepository;
     @Mock
-    private EscenasRepository escenasRepository;
-    @Mock
     private StorageRepository storageRepository;
     @Mock
     private MultipartFile mockFile;
@@ -50,7 +48,6 @@ class ProjectsServiceImpleTest {
     private ProyectosEntity proyecto;
     private UsuarioEntity usuario;
     private ClientesEntity cliente;
-    private EscenariosEntity escenario;
     private Disenios3dEntity disenio;
     private AlmacenamientoEntity almacenamiento;
 
@@ -64,10 +61,6 @@ class ProjectsServiceImpleTest {
         cliente = new ClientesEntity();
         cliente.setIdCliente(2L);
 
-        escenario = new EscenariosEntity();
-        escenario.setIdEscenario(3L);
-        escenario.setNombreEscenario("Escenario Test");
-
         disenio = new Disenios3dEntity();
         disenio.setIdDisenio(4L);
         disenio.setMateriales("[1,2]");
@@ -80,7 +73,6 @@ class ProjectsServiceImpleTest {
         proyecto.setEstado(true);
         proyecto.setUsuario(usuario);
         proyecto.setCliente(cliente);
-        proyecto.setEscenario(escenario);
         proyecto.setDisenio(disenio);
 
         almacenamiento = new AlmacenamientoEntity();
@@ -128,7 +120,6 @@ class ProjectsServiceImpleTest {
 
         when(usuarioRepository.getByIdUsuario(1L)).thenReturn(Optional.of(usuario));
         when(clientesRepository.getByIdCliente(2L)).thenReturn(Optional.of(cliente));
-        when(escenasRepository.getByIdScene(3L)).thenReturn(Optional.of(escenario));
         when(designs3dService.saveDesign(any())).thenReturn(disenio);
         when(projectsRepository.saveProject(any())).thenReturn(proyecto);
         when(mockFile.isEmpty()).thenReturn(false);
@@ -153,7 +144,6 @@ class ProjectsServiceImpleTest {
 
         when(projectsRepository.getByIdProject(100L)).thenReturn(Optional.of(proyecto));
         when(usuarioRepository.getByIdUsuario(1L)).thenReturn(Optional.of(usuario));
-        when(escenasRepository.getByIdScene(3L)).thenReturn(Optional.of(escenario));
         when(designs3dService.updateDesign(any())).thenReturn(disenio);
         when(projectsRepository.saveProject(any())).thenReturn(proyecto);
         when(mockFile.isEmpty()).thenReturn(true);

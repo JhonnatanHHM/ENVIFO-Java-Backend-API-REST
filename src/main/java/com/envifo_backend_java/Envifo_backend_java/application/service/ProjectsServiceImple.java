@@ -27,11 +27,10 @@ public class ProjectsServiceImple implements ProjectsService {
     private Designs3dServiceImpl designs3dService;
     private UsuarioRepository usuarioRepository;
     private ClientesRepository clientesRepository;
-    private EscenasRepository escenasRepository;
     private StorageRepository storageRepository;
 
     @Autowired
-    public ProjectsServiceImple(ProjectsRepository projectsRepository, MaterialsServiceImpl materialsService, ObjectsServiceImpl objectsService, StorageService storageService, Designs3dServiceImpl designs3dService, UsuarioRepository usuarioRepository, ClientesRepository clientesRepository, EscenasRepository escenasRepository, StorageRepository storageRepository) {
+    public ProjectsServiceImple(ProjectsRepository projectsRepository, MaterialsServiceImpl materialsService, ObjectsServiceImpl objectsService, StorageService storageService, Designs3dServiceImpl designs3dService, UsuarioRepository usuarioRepository, ClientesRepository clientesRepository, StorageRepository storageRepository) {
         this.projectsRepository = projectsRepository;
         this.materialsService = materialsService;
         this.objectsService = objectsService;
@@ -39,7 +38,6 @@ public class ProjectsServiceImple implements ProjectsService {
         this.designs3dService = designs3dService;
         this.usuarioRepository = usuarioRepository;
         this.clientesRepository = clientesRepository;
-        this.escenasRepository = escenasRepository;
         this.storageRepository = storageRepository;
     }
 
@@ -67,15 +65,6 @@ public class ProjectsServiceImple implements ProjectsService {
 
         if (proyecto.getCliente() != null) {
             dto.setClientId(proyecto.getCliente().getIdCliente());
-        }
-
-        // Escenario
-        if (proyecto.getEscenario() != null) {
-            SceneCompleteDto sceneDto = new SceneCompleteDto();
-            sceneDto.setIdScene(proyecto.getEscenario().getIdEscenario());
-            sceneDto.setSceneName(proyecto.getEscenario().getNombreEscenario());
-            sceneDto.setDescription(proyecto.getEscenario().getDescripcion());
-            dto.setScene(sceneDto);
         }
 
         // Diseño
@@ -224,11 +213,6 @@ public class ProjectsServiceImple implements ProjectsService {
 
         newProject.setCliente(cliente.get());
 
-        EscenariosEntity escenario = escenasRepository.getByIdScene(projectDto.getScenarioId())
-                .orElseThrow(() -> new RuntimeException("Escenario no encontrado"));
-
-        newProject.setEscenario(escenario);
-
         Disenios3dEntity disenio = designs3dService.saveDesign(projectDto.getDesign3d());
 
         newProject.setDisenio(disenio);
@@ -265,10 +249,6 @@ public class ProjectsServiceImple implements ProjectsService {
         } else {
             existingProject.setCliente(null);
         }
-
-        EscenariosEntity escenario = escenasRepository.getByIdScene(projectDto.getScenarioId())
-                .orElseThrow(() -> new RuntimeException("Escenario no encontrado"));
-        existingProject.setEscenario(escenario);
 
         if (projectDto.getDesign3d() != null) {
             Disenios3dEntity disenio = designs3dService.updateDesign(projectDto.getDesign3d());

@@ -69,7 +69,7 @@ public class TextureServiceImple implements TexturesService {
     }
 
     @Override
-    public String saveTexture(TexturesDto texture, MultipartFile textura, MultipartFile imagen) throws IOException {
+    public TexturesDto saveTexture(TexturesDto texture, MultipartFile textura, MultipartFile imagen) throws IOException {
 
         TexturasEntity newTexture = new TexturasEntity();
         newTexture.setNombreTextura(texture.getNameTexture());
@@ -100,7 +100,13 @@ public class TextureServiceImple implements TexturesService {
             storageService.saveFile(imagen, dto, "texturas", "imagenes");
         }
 
-        return "Textura creada correctamente";
+        TexturesDto textureDtoSaved = new TexturesDto();
+        textureDtoSaved.setIdTexture(textureSaved.getIdTextura());
+        textureDtoSaved.setNameTexture(textureSaved.getNombreTextura());
+        textureDtoSaved.setDescription(textureSaved.getDescripcion());
+        textureDtoSaved.setIdCategory(textureSaved.getCategoria().getIdCategoria());
+
+        return textureDtoSaved;
     }
 
     @Override

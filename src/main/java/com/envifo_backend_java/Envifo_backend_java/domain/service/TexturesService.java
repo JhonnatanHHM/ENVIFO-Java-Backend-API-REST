@@ -12,6 +12,6 @@ public interface TexturesService {
     Optional<TextureCompleteDto> getDisplacementByIdTexture(Long idTexture);
     Optional<TextureCompleteDto> getTextureByIdTexture(Long idTexture);
     List<TextureCompleteDto> getByNameAndSectionCategory(String nameCategory, String section);
-    String saveTexture (TexturesDto texture, MultipartFile textura, MultipartFile imagen) throws IOException;
+    TexturesDto saveTexture (TexturesDto texture, MultipartFile textura, MultipartFile imagen) throws IOException;
     void deleteTexture (Long idTexture) throws IOException;
 }

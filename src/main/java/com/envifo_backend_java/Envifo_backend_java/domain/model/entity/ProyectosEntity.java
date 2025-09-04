@@ -42,16 +42,12 @@ public class ProyectosEntity {
     private ClientesEntity cliente;
 
     @ManyToOne
-    @JoinColumn(name = "id_escenario", nullable = false)
-    private EscenariosEntity escenario;
-
-    @ManyToOne
     @JoinColumn(name = "id_disenio", nullable = false)
     private Disenios3dEntity disenio;
 
     // Constructor
 
-    public ProyectosEntity(Long idProyecto, String nombreProyecto, String descripcion, LocalDateTime fechaCreacion, LocalDateTime fechaModificacion, boolean estado, UsuarioEntity usuario, ClientesEntity cliente, EscenariosEntity escenario, Disenios3dEntity disenio) {
+    public ProyectosEntity(Long idProyecto, String nombreProyecto, String descripcion, LocalDateTime fechaCreacion, LocalDateTime fechaModificacion, boolean estado, UsuarioEntity usuario, ClientesEntity cliente, Disenios3dEntity disenio) {
         this.idProyecto = idProyecto;
         this.nombreProyecto = nombreProyecto;
         this.descripcion = descripcion;
@@ -60,7 +56,6 @@ public class ProyectosEntity {
         this.estado = estado;
         this.usuario = usuario;
         this.cliente = cliente;
-        this.escenario = escenario;
         this.disenio = disenio;
     }
 
@@ -132,14 +127,6 @@ public class ProyectosEntity {
 
     public void setNombreProyecto(String nombreProyecto) {
         this.nombreProyecto = nombreProyecto;
-    }
-
-    public EscenariosEntity getEscenario() {
-        return escenario;
-    }
-
-    public void setEscenario(EscenariosEntity escenario) {
-        this.escenario = escenario;
     }
 
     public Disenios3dEntity getDisenio() {
