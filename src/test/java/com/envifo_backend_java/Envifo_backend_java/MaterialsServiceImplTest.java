@@ -7,6 +7,7 @@ import com.envifo_backend_java.Envifo_backend_java.domain.repository.CategoriesR
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.MaterialsRepository;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.StorageRepository;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.TexturesRepository;
+import com.envifo_backend_java.Envifo_backend_java.domain.repository.crud.CustomerMaterialRepository;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.StorageService;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.TexturesService;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +38,7 @@ class MaterialsServiceImplTest {
     private StorageRepository storageRepository;
     @Mock
     private MultipartFile mockFile;
+
 
     @InjectMocks
     private MaterialsServiceImpl materialsService;
@@ -160,6 +162,32 @@ class MaterialsServiceImplTest {
 
         assertTrue(result.isPresent());
         assertEquals(100L, result.get().getIdMaterial());
+    }
+
+    @Test
+    void testGetLastMaterialByCustomer_success() throws IOException {
+        when(materialsRepository.getLastMaterialByCustomer(1L)).thenReturn(materialEntity);
+        when(storageRepository.findByIdEntidadAndTipoEntidad(100L, "materiales"))
+                .thenReturn(Optional.of(almacenamiento));
+        when(texturesService.getTextureByIdTexture(1L))
+                .thenReturn(Optional.of(new TextureCompleteDto()));
+        when(storageService.getPresignedUrl(500L)).thenReturn("url");
+
+        Optional<MaterialCompleteDto> result = materialsService.getLastMaterialByCustomer(1L);
+
+        assertTrue(result.isPresent());  // ahora sí debería ser true
+        assertEquals("Madera", result.get().getNameMaterial());
+    }
+
+
+    @Test
+    void testGetLastMaterialByCustomer_notFound() {
+        // Simular repo devolviendo null
+        when(materialsRepository.getLastMaterialByCustomer(99L)).thenReturn(null);
+
+        Optional<MaterialCompleteDto> result = materialsService.getLastMaterialByCustomer(99L);
+
+        assertFalse(result.isPresent());
     }
 
     @Test

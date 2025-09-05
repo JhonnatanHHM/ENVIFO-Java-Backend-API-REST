@@ -178,17 +178,45 @@ public class MaterialsServiceImpl implements MaterialsService {
         return "Material actualizado correctamente";
     }
 
-
-
     @Override
     public Optional<MaterialCompleteDto> getByIdMaterial(Long idMaterial) {
-        return getMaterialDto(idMaterial, "materiales",false);
+
+        Optional<MaterialesEntity> matrialOpt = materialsRepository.getByIdMaterial(idMaterial);
+
+        if (matrialOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        MaterialesEntity material = matrialOpt.get();
+
+        return getMaterialDto(material, "materiales",false);
+    }
+
+    @Override
+    public Optional<MaterialCompleteDto> getLastMaterialByCustomer(Long idCustomer) {
+
+        MaterialesEntity material = materialsRepository.getLastMaterialByCustomer(idCustomer);
+
+        if (material == null) {
+            return Optional.empty();
+        }
+
+        return getMaterialDto(material, "materiales",false);
     }
 
     //3d
     @Override
     public Optional<MaterialCompleteDto> getMaterial3dByIdMaterial(Long idMaterial) {
-        return getMaterialDto(idMaterial, "materiales3d",true);
+
+        Optional<MaterialesEntity> matrialOpt = materialsRepository.getByIdMaterial(idMaterial);
+
+        if (matrialOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        MaterialesEntity material = matrialOpt.get();
+
+        return getMaterialDto(material, "materiales3d",true);
     }
 
     @Override
@@ -300,14 +328,7 @@ public class MaterialsServiceImpl implements MaterialsService {
         materialOpt.ifPresent(material -> materialsRepository.deleteMaterial(material.getIdMaterial()));
     }
 
-    private Optional<MaterialCompleteDto> getMaterialDto(Long idMaterial, String entity, boolean texture3d) {
-        Optional<MaterialesEntity> matrialOpt = materialsRepository.getByIdMaterial(idMaterial);
-
-        if (matrialOpt.isEmpty()) {
-            return Optional.empty();
-        }
-
-        MaterialesEntity material = matrialOpt.get();
+    private Optional<MaterialCompleteDto> getMaterialDto(MaterialesEntity material, String entity, boolean texture3d) {
 
         Optional<AlmacenamientoEntity> imageOpt =
                 storageRepository.findByIdEntidadAndTipoEntidad(material.getIdMaterial(), entity);

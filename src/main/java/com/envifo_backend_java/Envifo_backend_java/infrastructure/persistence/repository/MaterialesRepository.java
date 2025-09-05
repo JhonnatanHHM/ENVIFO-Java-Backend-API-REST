@@ -2,6 +2,7 @@ package com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.r
 
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.MaterialesEntity;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.MaterialsRepository;
+import com.envifo_backend_java.Envifo_backend_java.domain.repository.crud.CustomerMaterialCrudRepository;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.crud.MaterialsCrudRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -14,9 +15,12 @@ public class MaterialesRepository implements MaterialsRepository {
 
     private MaterialsCrudRepository materialsCrudRepository;
 
+    private CustomerMaterialCrudRepository customerMaterialCrudRepository;
+
     @Autowired
-    public MaterialesRepository(MaterialsCrudRepository materialsCrudRepository) {
+    public MaterialesRepository(MaterialsCrudRepository materialsCrudRepository, CustomerMaterialCrudRepository customerMaterialCrudRepository) {
         this.materialsCrudRepository = materialsCrudRepository;
+        this.customerMaterialCrudRepository = customerMaterialCrudRepository;
     }
 
     @Override
@@ -37,6 +41,11 @@ public class MaterialesRepository implements MaterialsRepository {
     @Override
     public List<MaterialesEntity> findMaterialsGlobales() {
         return materialsCrudRepository.findMaterialsGlobales();
+    }
+
+    @Override
+    public MaterialesEntity getLastMaterialByCustomer(Long idCustomer) {
+        return customerMaterialCrudRepository.findUltimoMaterialByCliente(idCustomer);
     }
 
     @Override

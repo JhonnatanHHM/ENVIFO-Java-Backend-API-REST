@@ -30,15 +30,28 @@ public class MaterialsController {
         this.materialsService = materialsService;
     }
 
-    @Operation(summary = "Obtener imagen del material", description = "Devuelve la imagen del material por su ID")
+    @Operation(summary = "Obtener material por ID", description = "Devuelve un material completo por su ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Material encontrado",
                     content = @Content(schema = @Schema(implementation = MaterialCompleteDto.class))),
             @ApiResponse(responseCode = "404", description = "Material no encontrado")
     })
-    @GetMapping("/image/{idMaterial}")
-    public ResponseEntity<MaterialCompleteDto> getImageByIdMaterial(@PathVariable Long idMaterial) {
+    @GetMapping("/{idMaterial}")
+    public ResponseEntity<MaterialCompleteDto> getByIdMaterial(@PathVariable Long idMaterial) {
         Optional<MaterialCompleteDto> materialOpt = materialsService.getByIdMaterial(idMaterial);
+        return materialOpt.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Obtener el último material por cliente", description = "Devuelve un el ultimo material completo creado por un cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Material encontrado",
+                    content = @Content(schema = @Schema(implementation = MaterialCompleteDto.class))),
+            @ApiResponse(responseCode = "404", description = "Material no encontrado")
+    })
+    @GetMapping("/last/{idCustomer}")
+    public ResponseEntity<MaterialCompleteDto> getLastMaterialByCustomer(@PathVariable Long idCustomer) {
+        Optional<MaterialCompleteDto> materialOpt = materialsService.getLastMaterialByCustomer(idCustomer);
         return materialOpt.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

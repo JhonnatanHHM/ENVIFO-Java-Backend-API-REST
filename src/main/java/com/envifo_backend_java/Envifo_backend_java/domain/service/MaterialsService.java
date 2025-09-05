@@ -2,6 +2,7 @@ package com.envifo_backend_java.Envifo_backend_java.domain.service;
 
 import com.envifo_backend_java.Envifo_backend_java.application.dto.MaterialCompleteDto;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.MaterialDto;
+import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.MaterialesEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -14,6 +15,8 @@ public interface MaterialsService {
     String updateMaterial(Long idMaterial, MaterialDto materialDto, MultipartFile material3d, MultipartFile imagen) throws IOException;
 
     Optional<MaterialCompleteDto> getByIdMaterial(Long idMaterial);
+
+    Optional<MaterialCompleteDto> getLastMaterialByCustomer(Long idCustomer);
 
     //3d
     Optional<MaterialCompleteDto> getMaterial3dByIdMaterial(Long idMaterial);

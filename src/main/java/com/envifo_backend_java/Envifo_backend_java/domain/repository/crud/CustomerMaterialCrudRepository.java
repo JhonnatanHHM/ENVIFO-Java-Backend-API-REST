@@ -20,4 +20,10 @@ public interface CustomerMaterialCrudRepository extends JpaRepository<ClienteMat
     @Transactional
     @Query("DELETE FROM ClienteMaterialEntity cm WHERE cm.material.idMaterial = :idMaterial")
     void deleteByMaterialId(Long idMaterial);
+
+    @Query("SELECT cm.material FROM ClienteMaterialEntity cm " +
+            "WHERE cm.cliente.idCliente = :idCliente " +
+            "ORDER BY cm.fechaRegistro DESC LIMIT 1")
+    MaterialesEntity findUltimoMaterialByCliente(@Param("idCliente") Long idCliente);
+
 }

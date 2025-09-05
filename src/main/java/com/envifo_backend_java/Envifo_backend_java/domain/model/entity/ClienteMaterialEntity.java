@@ -2,6 +2,8 @@ package com.envifo_backend_java.Envifo_backend_java.domain.model.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "clientes_materiales")
 public class ClienteMaterialEntity {
@@ -18,6 +20,14 @@ public class ClienteMaterialEntity {
     @ManyToOne
     @JoinColumn(name = "id_material", nullable = false)
     private MaterialesEntity material;
+
+    @Column(name = "fecha_registro", nullable = false, updatable = false)
+    private LocalDateTime fechaRegistro;
+
+    @PrePersist
+    protected void onCreate() {
+        this.fechaRegistro = LocalDateTime.now();
+    }
 
     public ClienteMaterialEntity(Long idCliMat, ClientesEntity cliente, MaterialesEntity material) {
         this.idCliMat = idCliMat;
@@ -50,5 +60,13 @@ public class ClienteMaterialEntity {
 
     public void setMaterial(MaterialesEntity material) {
         this.material = material;
+    }
+
+    public LocalDateTime getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(LocalDateTime fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
     }
 }

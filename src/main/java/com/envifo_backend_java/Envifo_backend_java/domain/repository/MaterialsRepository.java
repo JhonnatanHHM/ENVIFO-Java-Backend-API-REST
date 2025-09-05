@@ -11,6 +11,7 @@ public interface MaterialsRepository {
     List<MaterialesEntity> getMaterialByNameAndSectionCategory(String nameCategory, Long idCliente);
     List<MaterialesEntity> getObjectsByIdsMaterials(List<Long> idsMaterials);
     List<MaterialesEntity> findMaterialsGlobales();
+    MaterialesEntity getLastMaterialByCustomer(Long idCustomer);
     MaterialesEntity saveMaterial (MaterialesEntity material);
     void deleteMaterial (Long idMaterial);
 }
