@@ -87,7 +87,6 @@ public class RolController {
     @Operation(
             summary = "Obtener todos los roles asignados a un cliente",
             parameters = {
-                    @Parameter(name = "Authorization", description = "Token JWT Bearer", required = true),
                     @Parameter(name = "idCliente", description = "ID del cliente", required = true)
             },
             responses = {
