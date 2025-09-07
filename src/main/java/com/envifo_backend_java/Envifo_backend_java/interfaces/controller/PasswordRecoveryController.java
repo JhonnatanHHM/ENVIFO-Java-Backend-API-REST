@@ -38,9 +38,6 @@ public class PasswordRecoveryController {
     @Operation(
             summary = "Validar token de recuperación",
             description = "Verifica si el token de recuperación es válido y no ha expirado",
-            parameters = {
-                    @Parameter(name = "token", description = "Token de recuperación", required = true)
-            },
             responses = {
                     @ApiResponse(responseCode = "200", description = "Token válido o inválido")
             }
@@ -55,7 +52,6 @@ public class PasswordRecoveryController {
             summary = "Cambiar contraseña",
             description = "Permite cambiar la contraseña de un usuario usando el token de recuperación",
             parameters = {
-                    @Parameter(name = "token", description = "Token de recuperación", required = true),
                     @Parameter(name = "nuevaPassword", description = "Nueva contraseña", required = true)
             },
             responses = {

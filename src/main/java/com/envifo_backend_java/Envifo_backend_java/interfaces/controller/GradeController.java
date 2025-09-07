@@ -28,7 +28,6 @@ public class GradeController {
     @Operation(summary = "Obtener nota por ID",
             description = "Devuelve una nota según su ID",
             parameters = {
-                    @Parameter(name = "Authorization", description = "Token JWT", required = true),
                     @Parameter(name = "idGrade", description = "ID de la nota", required = true)
             },
             responses = {

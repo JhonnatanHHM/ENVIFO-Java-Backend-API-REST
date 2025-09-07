@@ -48,7 +48,6 @@ public class UserController {
     @Operation(
             summary = "Obtener usuario por ID",
             parameters = {
-                    @Parameter(name = "Authorization", description = "Token Bearer", required = true),
                     @Parameter(name = "idUsuario", description = "ID del usuario", required = true)
             }
     )
@@ -64,7 +63,6 @@ public class UserController {
             summary = "Obtener usuario completo con imágenes",
             description = "Devuelve los datos completos de un usuario incluyendo sus imágenes y rol.",
             parameters = {
-                    @Parameter(name = "Authorization", description = "Token Bearer", required = true),
                     @Parameter(name = "idUsuario", description = "ID del usuario", required = true)
             },
             responses = {
@@ -99,8 +97,7 @@ public class UserController {
 
 
     @Operation(
-            summary = "Obtener todos los usuarios",
-            parameters = @Parameter(name = "Authorization", description = "Token Bearer", required = true)
+            summary = "Obtener todos los usuarios"
     )
     @GetMapping("/all")
     public ResponseEntity<?> getAll() {
@@ -173,7 +170,6 @@ public class UserController {
             summary = "Subir imagen para usuario",
             description = "Sube una imagen asociada a un usuario determinado.",
             parameters = {
-                    @Parameter(name = "Authorization", description = "Token Bearer", required = true),
                     @Parameter(name = "idUsuario", description = "ID del usuario", required = true)
             },
             responses = {

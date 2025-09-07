@@ -41,7 +41,6 @@ public class RolController {
             summary = "Asignar rol a usuario en cliente",
             description = "Asigna un nuevo rol a un usuario en el contexto de un cliente.",
             parameters = {
-                    @Parameter(name = "Authorization", description = "Token JWT Bearer", required = true),
                     @Parameter(name = "idUsuario", description = "ID del usuario", required = true),
                     @Parameter(name = "idCliente", description = "ID del cliente", required = true)
             },
@@ -64,7 +63,6 @@ public class RolController {
     @Operation(
             summary = "Obtener rol del usuario en cliente",
             parameters = {
-                    @Parameter(name = "Authorization", description = "Token JWT Bearer", required = true),
                     @Parameter(name = "idUsuario", description = "ID del usuario", required = true),
                     @Parameter(name = "idCliente", description = "ID del cliente", required = true)
             },
@@ -109,7 +107,6 @@ public class RolController {
     @Operation(
             summary = "Eliminar una asignación de rol",
             parameters = {
-                    @Parameter(name = "Authorization", description = "Token JWT Bearer", required = true),
                     @Parameter(name = "idAsignacion", description = "ID de la asignación a eliminar", required = true)
             },
             responses = {
@@ -127,7 +124,6 @@ public class RolController {
 
     @Operation(
             summary = "Obtener el rol GLOBAL",
-            parameters = @Parameter(name = "Authorization", description = "Token JWT Bearer", required = true),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Rol GLOBAL encontrado"),
                     @ApiResponse(responseCode = "401", description = "Token inválido"),
@@ -144,7 +140,6 @@ public class RolController {
 
     @Operation(
             summary = "Obtener el rol RESTRINGIDO",
-            parameters = @Parameter(name = "Authorization", description = "Token JWT Bearer", required = true),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Rol RESTRINGIDO encontrado"),
                     @ApiResponse(responseCode = "401", description = "Token inválido"),
@@ -164,7 +159,6 @@ public class RolController {
             summary = "Actualizar el rol de un usuario en un cliente",
             description = "Permite actualizar el rol que un usuario tiene asignado dentro de un cliente.",
             parameters = {
-                    @Parameter(name = "Authorization", description = "Token JWT Bearer", required = true),
                     @Parameter(name = "idUsuario", description = "ID del usuario", required = true),
                     @Parameter(name = "idCliente", description = "ID del cliente", required = true)
             },
