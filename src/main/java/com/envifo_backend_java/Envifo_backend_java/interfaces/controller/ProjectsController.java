@@ -1,9 +1,11 @@
 package com.envifo_backend_java.Envifo_backend_java.interfaces.controller;
 
+import com.envifo_backend_java.Envifo_backend_java.application.dto.ObjectDto;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.ProjectCompleteDto;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.ProjectDto;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.ProjectFilteredDto;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.ProjectsService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -25,10 +27,12 @@ import java.util.Optional;
 public class ProjectsController {
 
     private final ProjectsService projectsService;
+    private ObjectMapper objectMapper;
 
     @Autowired
-    public ProjectsController(ProjectsService projectsService) {
+    public ProjectsController(ProjectsService projectsService, ObjectMapper objectMapper) {
         this.projectsService = projectsService;
+        this.objectMapper = objectMapper;
     }
 
     @Operation(summary = "Guardar un nuevo proyecto", description = "Guarda un proyecto con su imagen asociada")
@@ -36,13 +40,15 @@ public class ProjectsController {
             @ApiResponse(responseCode = "201", description = "Proyecto guardado correctamente"),
             @ApiResponse(responseCode = "400", description = "Error al guardar el proyecto")
     })
-    @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> saveProject(
             @RequestPart("project") @Parameter(description = "DTO con los datos del proyecto", required = true,
-                    content = @Content(schema = @Schema(implementation = ProjectDto.class)))
-            ProjectDto projectDto,
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProjectDto.class)))
+            String projectJson,
             @RequestPart(value = "image", required = false) MultipartFile image) {
         try {
+            // Convertir JSON a DTO
+            ProjectDto projectDto = objectMapper.readValue(projectJson, ProjectDto.class);
             String result = projectsService.saveProject(projectDto, image);
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } catch (IOException e) {
@@ -55,11 +61,15 @@ public class ProjectsController {
             @ApiResponse(responseCode = "200", description = "Proyecto actualizado correctamente"),
             @ApiResponse(responseCode = "400", description = "Error al actualizar el proyecto")
     })
-    @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateProject(
-            @RequestPart("project") ProjectDto projectDto,
+            @RequestPart("project") @Parameter(description = "DTO con los datos del proyecto", required = true,
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProjectDto.class)))
+            String projectJson,
             @RequestPart(value = "image", required = false) MultipartFile image) {
         try {
+            // Convertir JSON a DTO
+            ProjectDto projectDto = objectMapper.readValue(projectJson, ProjectDto.class);
             String result = projectsService.updateProject(projectDto, image);
             return ResponseEntity.ok(result);
         } catch (IOException e) {
