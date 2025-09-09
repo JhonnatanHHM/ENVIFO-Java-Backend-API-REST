@@ -34,7 +34,9 @@ class CustomerServiceImpleTest {
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private AlmacenamientoRepository almacenamientoRepository;
     @Mock private StorageService storageService;
+    @Mock private UsuarioRepository usuarioRepository;
     @Mock private MultipartFile multipartFile;
+
 
     @InjectMocks
     private CustomerServiceImple customerService;
@@ -74,6 +76,7 @@ class CustomerServiceImpleTest {
 
         assertTrue(result.isPresent());
         assertEquals("Juan", result.get().getName());
+        assertEquals("GLOBAL", result.get().getRolCustomer().getName());
     }
 
     @Test
@@ -114,10 +117,21 @@ class CustomerServiceImpleTest {
 
     // ---------- TEST: registerCustomer ----------
     @Test
-    void testRegisterCustomerConflict() {
+    void testRegisterCustomerConflictUsuario() {
         RegisterCustomerDto dto = new RegisterCustomerDto();
         dto.setEmail("test@test.com");
 
+        when(usuarioRepository.getExistsByEmail("test@test.com")).thenReturn(true);
+
+        assertThrows(ConflictException.class, () -> customerService.registerCustomer(dto));
+    }
+
+    @Test
+    void testRegisterCustomerConflictCliente() {
+        RegisterCustomerDto dto = new RegisterCustomerDto();
+        dto.setEmail("test@test.com");
+
+        when(usuarioRepository.getExistsByEmail("test@test.com")).thenReturn(false);
         when(clientesRepository.getExistsByEmail("test@test.com")).thenReturn(true);
 
         assertThrows(ConflictException.class, () -> customerService.registerCustomer(dto));

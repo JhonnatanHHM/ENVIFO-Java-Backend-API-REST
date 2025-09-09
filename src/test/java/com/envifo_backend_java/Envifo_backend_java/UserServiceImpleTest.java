@@ -4,9 +4,9 @@ import com.envifo_backend_java.Envifo_backend_java.application.dto.*;
 import com.envifo_backend_java.Envifo_backend_java.application.service.RolServiceImple;
 import com.envifo_backend_java.Envifo_backend_java.application.service.UserServiceImple;
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.*;
+import com.envifo_backend_java.Envifo_backend_java.domain.repository.CustomerRepository;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.StorageService;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.ConflictException;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.NotFoundException;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.*;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtTokenFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +25,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImpleTest {
@@ -55,6 +56,9 @@ class UserServiceImpleTest {
 
     @Mock
     private AlmacenamientoRepository almacenamientoRepository;
+
+    @Mock
+    private CustomerRepository customerRepository;
 
     @Mock
     private MultipartFile multipartFile;
@@ -108,10 +112,18 @@ class UserServiceImpleTest {
         registerDto.setFirstSurname("Usuario");
 
         when(usuarioRepository.getExistsByEmail("nuevo@email.com")).thenReturn(false);
+        when(customerRepository.getExistsByEmail("nuevo@email.com")).thenReturn(false); // 🔹 Mock agregado
         when(passwordEncoder.encode("1234")).thenReturn("encodedPassword");
+
+        // Simular que no existe el rol y se crea
         when(rolesRepository.getByName("RESTRINGIDO")).thenReturn(Optional.empty());
         when(permisosRepository.save(any(PermisosEntity.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(rolesRepository.save(any(RolesEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        RolesEntity rolEntity = new RolesEntity();
+        rolEntity.setName("RESTRINGIDO");
+        rolEntity.setDescription("Usuario general");
+        when(rolesRepository.save(any(RolesEntity.class))).thenReturn(rolEntity);
+
         when(usuarioRepository.save(any(UsuarioEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         UserDto result = userService.register(registerDto);
@@ -129,6 +141,7 @@ class UserServiceImpleTest {
 
         assertThrows(ConflictException.class, () -> userService.register(registerDto));
     }
+
 
     @Test
     void deleteUser_ShouldDisableUser() throws IOException {
