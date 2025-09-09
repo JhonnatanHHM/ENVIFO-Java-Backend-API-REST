@@ -2,6 +2,7 @@ package com.envifo_backend_java.Envifo_backend_java.application.service;
 
 import com.envifo_backend_java.Envifo_backend_java.application.dto.*;
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.AlmacenamientoEntity;
+import com.envifo_backend_java.Envifo_backend_java.domain.repository.CustomerRepository;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.StorageService;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.UserService;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.ConflictException;
@@ -53,18 +54,11 @@ public class UserServiceImple implements UserService {
 
     private AlmacenamientoRepository almacenamientoRepository;
 
+    private CustomerRepository customerRepository;
+
     @Autowired
-    public UserServiceImple(
-            AlmacenamientoRepository almacenamientoRepository,
-            StorageService storageService,
-            UsuarioRepository usuarioRepository,
-            RolServiceImple rolService,
-            RolesRepository rolesRepository,
-            PermisosRepository permisosRepository,
-            AuthenticationManager authenticationManager,
-            JwtTokenFactory jwtTokenFactory,
-            PasswordEncoder passwordEncoder
-    ) {
+    public UserServiceImple(StorageService storageService, UsuarioRepository usuarioRepository, RolServiceImple rolService, RolesRepository rolesRepository, PermisosRepository permisosRepository, AuthenticationManager authenticationManager, JwtTokenFactory jwtTokenFactory, PasswordEncoder passwordEncoder, AlmacenamientoRepository almacenamientoRepository, CustomerRepository customerRepository) {
+        this.storageService = storageService;
         this.usuarioRepository = usuarioRepository;
         this.rolService = rolService;
         this.rolesRepository = rolesRepository;
@@ -72,10 +66,9 @@ public class UserServiceImple implements UserService {
         this.authenticationManager = authenticationManager;
         this.jwtTokenFactory = jwtTokenFactory;
         this.passwordEncoder = passwordEncoder;
-        this.storageService = storageService;
         this.almacenamientoRepository = almacenamientoRepository;
+        this.customerRepository = customerRepository;
     }
-
 
     @Override
     public Optional<UserCompleteDto> getUserWithImages(Long idUsuario) {
@@ -150,7 +143,9 @@ public class UserServiceImple implements UserService {
     @Override
     public UserDto register(RegisterDto registerDto) {
         if (usuarioRepository.getExistsByEmail(registerDto.getEmail())) {
-            throw new ConflictException("El usuario ya existe!");
+            throw new ConflictException("El usuario ya existe! con el E-mail: " + registerDto.getEmail());
+        } else if (customerRepository.getExistsByEmail(registerDto.getEmail())) {
+            throw new ConflictException("El cliente ya existe! con el E-mail: " + registerDto.getEmail());
         }
 
         UsuarioEntity user = new UsuarioEntity();

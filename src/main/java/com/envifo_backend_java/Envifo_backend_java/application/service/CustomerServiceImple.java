@@ -6,10 +6,7 @@ import com.envifo_backend_java.Envifo_backend_java.domain.service.CustomerServic
 import com.envifo_backend_java.Envifo_backend_java.domain.service.StorageService;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.ConflictException;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.NotFoundException;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.AlmacenamientoRepository;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.ClientesRepository;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.PermisosRepository;
-import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.RolesRepository;
+import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.*;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,13 +32,10 @@ public class CustomerServiceImple implements CustomerService {
     private PasswordEncoder passwordEncoder;
     private AlmacenamientoRepository almacenamientoRepository;
     private StorageService storageService;
+    private UsuarioRepository usuarioRepository;
 
     @Autowired
-    public CustomerServiceImple(StorageService storageService, AlmacenamientoRepository almacenamientoRepository,
-                                ClientesRepository clientesRepository, RolServiceImple rolService,
-                                RolesRepository rolesRepository, PermisosRepository permisosRepository,
-                                AuthenticationManager authenticationManager, JwtUtils jwtUtils,
-                                PasswordEncoder passwordEncoder) {
+    public CustomerServiceImple(ClientesRepository clientesRepository, RolServiceImple rolService, RolesRepository rolesRepository, PermisosRepository permisosRepository, AuthenticationManager authenticationManager, JwtUtils jwtUtils, PasswordEncoder passwordEncoder, AlmacenamientoRepository almacenamientoRepository, StorageService storageService, UsuarioRepository usuarioRepository) {
         this.clientesRepository = clientesRepository;
         this.rolService = rolService;
         this.rolesRepository = rolesRepository;
@@ -51,6 +45,7 @@ public class CustomerServiceImple implements CustomerService {
         this.passwordEncoder = passwordEncoder;
         this.almacenamientoRepository = almacenamientoRepository;
         this.storageService = storageService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Override
@@ -72,8 +67,10 @@ public class CustomerServiceImple implements CustomerService {
 
     @Override
     public void registerCustomer(RegisterCustomerDto registerCustomerDto) {
-        if (clientesRepository.getExistsByEmail(registerCustomerDto.getEmail())) {
-            throw new ConflictException("El cliente ya existe!");
+        if (usuarioRepository.getExistsByEmail(registerCustomerDto.getEmail())) {
+            throw new ConflictException("El usuario ya existe! con el E-mail: " + registerCustomerDto.getEmail());
+        } else if (clientesRepository.getExistsByEmail(registerCustomerDto.getEmail())) {
+            throw new ConflictException("El cliente ya existe! con el E-mail: " + registerCustomerDto.getEmail());
         }
 
         ClientesEntity customer = new ClientesEntity();

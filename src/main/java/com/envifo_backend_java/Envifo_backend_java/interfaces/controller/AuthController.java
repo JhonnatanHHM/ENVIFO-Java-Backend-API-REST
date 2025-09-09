@@ -67,8 +67,15 @@ public class AuthController {
 
     @PostMapping("/registerUser")
     public ResponseEntity<?> register(@RequestBody RegisterDto registerDto) {
+        try {
         userService.register(registerDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "User register success!"));
+    } catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al registrar el cliente: " + e.getMessage());
+        }
     }
 
     @Operation(summary = "Registrar nuevo cliente")
