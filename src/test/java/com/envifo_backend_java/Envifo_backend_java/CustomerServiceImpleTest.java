@@ -1,7 +1,7 @@
 package com.envifo_backend_java.Envifo_backend_java;
 
-import com.envifo_backend_java.Envifo_backend_java.application.service.CustomerServiceImple;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.*;
+import com.envifo_backend_java.Envifo_backend_java.application.service.CustomerServiceImple;
 import com.envifo_backend_java.Envifo_backend_java.application.service.RolServiceImple;
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.*;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.StorageService;
@@ -57,7 +57,6 @@ class CustomerServiceImpleTest {
 
         PermisosEntity permisos = new PermisosEntity();
         permisos.setIdPermiso(1L);
-// ... setea lo necesario para que no sea null
 
         RolesEntity rol = new RolesEntity();
         rol.setIdRol(1L);
@@ -143,9 +142,19 @@ class CustomerServiceImpleTest {
         cliente.setIdCliente(1L);
         cliente.setNombre("Carlos");
 
-        when(clientesRepository.getAll()).thenReturn(Collections.singletonList(cliente));
+        PermisosEntity permisos = new PermisosEntity();
+        RolesEntity rol = new RolesEntity();
+        rol.setIdRol(1L);
+        rol.setName("GLOBAL");
+        rol.setPermisos(permisos);
+        cliente.setRol(rol);
 
-        List<CustomerDto> result = customerService.getAllCustomers();
+        when(clientesRepository.getAll()).thenReturn(Collections.singletonList(cliente));
+        when(almacenamientoRepository.findByIdEntidadAndTipoEntidad(1L, "cliente"))
+                .thenReturn(Optional.empty());
+
+        List<CustomerCompleteDto> result = customerService.getAllCustomers();
+
         assertEquals(1, result.size());
         assertEquals("Carlos", result.get(0).getName());
     }
