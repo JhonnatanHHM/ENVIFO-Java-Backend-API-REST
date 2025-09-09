@@ -1,18 +1,16 @@
 package com.envifo_backend_java.Envifo_backend_java.interfaces.controller;
 
 import com.envifo_backend_java.Envifo_backend_java.application.dto.MaterialCompleteDto;
-import com.envifo_backend_java.Envifo_backend_java.application.dto.MaterialDto;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.MaterialsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+
 
 import java.io.IOException;
 import java.util.List;

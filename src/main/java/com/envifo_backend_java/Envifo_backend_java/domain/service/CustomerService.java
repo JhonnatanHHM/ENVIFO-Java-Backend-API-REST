@@ -16,6 +16,6 @@ public interface CustomerService {
     Optional<CustomerDto> getByIdCLiente(Long idCliente);
     void registerCustomer(RegisterCustomerDto registerCustomerDto);
     void editCustomer(CustomerDto customerDto, MultipartFile file);
-    List<CustomerDto> getAllCustomers();
+    List<CustomerCompleteDto> getAllCustomers();
     void delete(Long idCliente) throws IOException;
 }

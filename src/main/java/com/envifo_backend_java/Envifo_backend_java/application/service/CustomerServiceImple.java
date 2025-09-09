@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,25 +27,21 @@ import java.util.stream.Collectors;
 public class CustomerServiceImple implements CustomerService {
 
     private ClientesRepository clientesRepository;
-
     private RolServiceImple rolService;
-
     private RolesRepository rolesRepository;
-
     private PermisosRepository permisosRepository;
-
     private AuthenticationManager authenticationManager;
-
     private JwtUtils jwtUtils;
-
     private PasswordEncoder passwordEncoder;
-
     private AlmacenamientoRepository almacenamientoRepository;
-
     private StorageService storageService;
 
     @Autowired
-    public CustomerServiceImple(StorageService storageService, AlmacenamientoRepository almacenamientoRepository, ClientesRepository clientesRepository, RolServiceImple rolService, RolesRepository rolesRepository, PermisosRepository permisosRepository, AuthenticationManager authenticationManager, JwtUtils jwtUtils, PasswordEncoder passwordEncoder) {
+    public CustomerServiceImple(StorageService storageService, AlmacenamientoRepository almacenamientoRepository,
+                                ClientesRepository clientesRepository, RolServiceImple rolService,
+                                RolesRepository rolesRepository, PermisosRepository permisosRepository,
+                                AuthenticationManager authenticationManager, JwtUtils jwtUtils,
+                                PasswordEncoder passwordEncoder) {
         this.clientesRepository = clientesRepository;
         this.rolService = rolService;
         this.rolesRepository = rolesRepository;
@@ -60,49 +55,7 @@ public class CustomerServiceImple implements CustomerService {
 
     @Override
     public Optional<CustomerCompleteDto> getCustomerWithImages(Long idCliente) {
-        // Obtener cliente
-        Optional<ClientesEntity> clienteOpt = clientesRepository.getByIdCliente(idCliente);
-        if (clienteOpt.isEmpty()) {
-            return Optional.empty();
-        }
-
-        ClientesEntity cliente = clienteOpt.get();
-
-        // Obtener la imagen del cliente
-        Optional<AlmacenamientoEntity> imagenOpt = almacenamientoRepository
-                .findByIdEntidadAndTipoEntidad(idCliente, "cliente");
-
-        Optional<StorageDto> imagenDto = imagenOpt.map(imagen -> {
-            StorageDto storageDto = new StorageDto();
-            storageDto.setIdFile(imagen.getIdArchivo());
-            storageDto.setNameFile(imagen.getNombreArchivo());
-            storageDto.setIdEntity(imagen.getIdEntidad());
-
-            try {
-                String url = storageService.getPresignedUrl(imagen.getIdArchivo());
-                storageDto.setKeyR2(url);
-            } catch (Exception e) {
-                storageDto.setKeyR2("Error al generar URL");
-            }
-
-            return storageDto;
-        });
-
-// Construcción del DTO
-        CustomerCompleteDto dto = new CustomerCompleteDto();
-        dto.setCustomerId(cliente.getIdCliente());
-        dto.setName(cliente.getNombre());
-        dto.setAddress(cliente.getDireccion());
-        dto.setPhone(cliente.getTelefono());
-        dto.setEmail(cliente.getEmail());
-        dto.setPassword(""); // Nunca devolver contraseña
-        dto.setUrl(Optional.ofNullable(cliente.getUrl()).orElse(""));
-        dto.setStateCustomer(cliente.isEstado());
-        dto.setRegistrationDate(cliente.getFechaRegistro());
-        dto.setRolCustomer(convertToRolDto(cliente.getRol()));
-        dto.setImages(imagenDto);
-
-        return Optional.of(dto);
+        return clientesRepository.getByIdCliente(idCliente).map(this::buildCustomerCompleteDto);
     }
 
     @Override
@@ -114,7 +67,6 @@ public class CustomerServiceImple implements CustomerService {
     public Optional<CustomerDto> getByIdCLiente(Long idCliente) {
         ClientesEntity customer = clientesRepository.getByIdCliente(idCliente)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado!"));
-
         return Optional.of(convertToDto(customer));
     }
 
@@ -147,7 +99,6 @@ public class CustomerServiceImple implements CustomerService {
 
         customer.setRol(rol);
         clientesRepository.saveCustomer(customer);
-
     }
 
     @Override
@@ -161,32 +112,28 @@ public class CustomerServiceImple implements CustomerService {
             Optional.ofNullable(customerDto.getPhone()).ifPresent(customer::setTelefono);
             Optional.ofNullable(customerDto.getEmail()).ifPresent(customer::setEmail);
             Optional.ofNullable(customerDto.getUrl()).ifPresent(customer::setUrl);
-            Optional.ofNullable(customerDto.isStateCustomer()).filter(state -> state != customer.isEstado()).ifPresent(customer::setEstado);
+            Optional.ofNullable(customerDto.isStateCustomer())
+                    .filter(state -> state != customer.isEstado())
+                    .ifPresent(customer::setEstado);
 
             Optional.ofNullable(customerDto.getPassword())
                     .filter(pass -> customer.getPassword() != null && !passwordEncoder.matches(pass, customer.getPassword()))
                     .map(passwordEncoder::encode)
                     .ifPresent(customer::setPassword);
 
-
-
             Optional.ofNullable(customerDto.getRolCustomer()).ifPresent(customer::setRol);
-
 
             clientesRepository.saveCustomer(customer);
 
-            // Procesar imagen si se envía
             if (file != null && !file.isEmpty()) {
                 Optional<AlmacenamientoEntity> optionalImagen =
-                        almacenamientoRepository.findByIdEntidadAndTipoEntidad
-                                (customer.getIdCliente(), "cliente");
+                        almacenamientoRepository.findByIdEntidadAndTipoEntidad(customer.getIdCliente(), "cliente");
 
                 if (optionalImagen.isPresent()) {
                     storageService.updateFile(optionalImagen.get().getIdArchivo(), file, "imagenes");
                 } else {
                     StorageDto dto = new StorageDto();
                     dto.setIdEntity(customer.getIdCliente());
-
                     storageService.saveFile(file, dto, "cliente", "imagenes");
                 }
             }
@@ -199,37 +146,32 @@ public class CustomerServiceImple implements CustomerService {
     }
 
     @Override
-    public List<CustomerDto> getAllCustomers() {
-        List<ClientesEntity> clientes = clientesRepository.getAll();
-        return clientes.stream().map(this::convertToCustomerDto).collect(Collectors.toList());
+    public List<CustomerCompleteDto> getAllCustomers() {
+        return clientesRepository.getAll().stream()
+                .map(this::buildCustomerCompleteDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void delete(Long idCliente) throws IOException {
-
         Optional<ClientesEntity> customerOpt = clientesRepository.getByIdCliente(idCliente);
 
         if (!customerOpt.isPresent()) {
             throw new NotFoundException("Cliente no encontrado por ID: " + idCliente);
         }
 
-        // Intentar eliminar la imagen asociada, pero no detener el proceso si falla
         try {
             storageService.deleteFileByEntity(idCliente, "cliente");
         } catch (Exception e) {
-            // Puedes registrar el error si lo deseas, pero no interrumpir la ejecución
             System.err.println("No se pudo eliminar la imagen asociada al usuario: " + e.getMessage());
         }
 
         ClientesEntity customer = customerOpt.get();
-
-        // Inhabilitar el cliente
         customer.setEstado(false);
-
         clientesRepository.saveCustomer(customer);
     }
 
-    private CustomerDto convertToCustomerDto(ClientesEntity cliente) {
+    private CustomerDto convertToDto(ClientesEntity cliente) {
         CustomerDto dto = new CustomerDto();
         dto.setCustomerId(cliente.getIdCliente());
         dto.setName(cliente.getNombre());
@@ -241,10 +183,41 @@ public class CustomerServiceImple implements CustomerService {
         dto.setStateCustomer(cliente.isEstado());
         dto.setRegistrationDate(cliente.getFechaRegistro());
         dto.setRolCustomer(cliente.getRol());
-
         return dto;
     }
 
+    private CustomerCompleteDto buildCustomerCompleteDto(ClientesEntity cliente) {
+        Optional<AlmacenamientoEntity> imagenOpt =
+                almacenamientoRepository.findByIdEntidadAndTipoEntidad(cliente.getIdCliente(), "cliente");
+
+        Optional<StorageDto> imagenDto = imagenOpt.map(imagen -> {
+            StorageDto storageDto = new StorageDto();
+            storageDto.setIdFile(imagen.getIdArchivo());
+            storageDto.setNameFile(imagen.getNombreArchivo());
+            storageDto.setIdEntity(imagen.getIdEntidad());
+            try {
+                String url = storageService.getPresignedUrl(imagen.getIdArchivo());
+                storageDto.setKeyR2(url);
+            } catch (Exception e) {
+                storageDto.setKeyR2("Error al generar URL");
+            }
+            return storageDto;
+        });
+
+        CustomerCompleteDto dto = new CustomerCompleteDto();
+        dto.setCustomerId(cliente.getIdCliente());
+        dto.setName(cliente.getNombre());
+        dto.setAddress(cliente.getDireccion());
+        dto.setPhone(cliente.getTelefono());
+        dto.setEmail(cliente.getEmail());
+        dto.setPassword("");
+        dto.setUrl(Optional.ofNullable(cliente.getUrl()).orElse(""));
+        dto.setStateCustomer(cliente.isEstado());
+        dto.setRegistrationDate(cliente.getFechaRegistro());
+        dto.setRolCustomer(convertToRolDto(cliente.getRol()));
+        dto.setImages(imagenDto);
+        return dto;
+    }
 
     private RolDto convertToRolDto(RolesEntity rol) {
         RolDto rolDto = new RolDto();
@@ -264,22 +237,6 @@ public class CustomerServiceImple implements CustomerService {
         return rolesEntity;
     }
 
-    private CustomerDto convertToDto(ClientesEntity cliente) {
-        CustomerDto dto = new CustomerDto();
-        dto.setCustomerId(cliente.getIdCliente());
-        dto.setName(cliente.getNombre());
-        dto.setAddress(cliente.getDireccion());
-        dto.setPhone(cliente.getTelefono());
-        dto.setEmail(cliente.getEmail());
-        dto.setPassword("");
-        dto.setUrl(cliente.getUrl());
-        dto.setStateCustomer(cliente.isEstado());
-        dto.setRegistrationDate(cliente.getFechaRegistro());
-        dto.setRolCustomer(cliente.getRol());
-
-        return dto;
-    }
-
     private PermisosEntity crearPermisosPorDefecto() {
         PermisosEntity permisos = new PermisosEntity();
         permisos.setEditPermisos(true);
@@ -297,7 +254,7 @@ public class CustomerServiceImple implements CustomerService {
         return permisos;
     }
 
-    private PermissionsDto convertToPermissionsDto (PermisosEntity permisos) {
+    private PermissionsDto convertToPermissionsDto(PermisosEntity permisos) {
         PermissionsDto dto = new PermissionsDto();
         dto.setEditPermisos(permisos.isEditPermisos());
         dto.setVistaUsuarios(permisos.isVistaUsuarios());
@@ -311,7 +268,6 @@ public class CustomerServiceImple implements CustomerService {
         dto.setVistaInformes(permisos.isEditPermisos());
         dto.setVistaCategorias(permisos.isEditPermisos());
         dto.setEditCategorias(permisos.isEditCategorias());
-
         return dto;
     }
 
@@ -329,8 +285,6 @@ public class CustomerServiceImple implements CustomerService {
         permisos.setVistaInformes(dto.isVistaInformes());
         permisos.setVistaCategorias(dto.isVistaCategorias());
         permisos.setEditCategorias(dto.isEditCategorias());
-
         return permisos;
     }
-
 }

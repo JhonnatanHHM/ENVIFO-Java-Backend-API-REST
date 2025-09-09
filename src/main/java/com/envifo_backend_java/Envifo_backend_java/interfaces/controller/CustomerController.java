@@ -62,7 +62,7 @@ public class CustomerController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllCustomers() {
 
-        List<CustomerDto> customers = customerService.getAllCustomers();
+        List<CustomerCompleteDto> customers = customerService.getAllCustomers();
         return ResponseEntity.ok(customers);
     }
 
