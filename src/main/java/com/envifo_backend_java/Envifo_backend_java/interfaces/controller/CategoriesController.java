@@ -136,11 +136,11 @@ public class CategoriesController {
             @ApiResponse(responseCode = "204", description = "Categoría eliminada exitosamente", content = @Content),
             @ApiResponse(responseCode = "404", description = "Categoría no encontrada", content = @Content)
     })
-    @DeleteMapping("/{idCustomer}")
+    @DeleteMapping("/{idCategory}")
     public ResponseEntity<Void> deleteCategory(
-            @Parameter(description = "ID de la categoría a eliminar") @PathVariable Long idCustomer) {
+            @Parameter(description = "ID de la categoría a eliminar") @PathVariable Long idCategory) {
         try {
-            categoriesService.deleteByIdCategory(idCustomer);
+            categoriesService.deleteByIdCategory(idCategory);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
