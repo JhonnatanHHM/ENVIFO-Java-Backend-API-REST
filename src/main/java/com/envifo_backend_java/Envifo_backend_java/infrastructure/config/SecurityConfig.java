@@ -76,6 +76,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/registerUser").permitAll()
                         .requestMatchers("/api/registerCustomer").permitAll()
                         .requestMatchers("/api/customer/all").permitAll()
+                        .requestMatchers("/api/customer/complete/{idCliente}").permitAll()
                         .requestMatchers("/api/categories/globals").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
