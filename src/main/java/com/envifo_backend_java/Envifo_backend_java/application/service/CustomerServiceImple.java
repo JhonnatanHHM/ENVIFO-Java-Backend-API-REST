@@ -110,8 +110,9 @@ public class CustomerServiceImple implements CustomerService {
             Optional.ofNullable(customerDto.getEmail()).ifPresent(customer::setEmail);
             Optional.ofNullable(customerDto.getUrl()).ifPresent(customer::setUrl);
             Optional.ofNullable(customerDto.isStateCustomer())
-                    .filter(state -> state != customer.isEstado())
+                    .filter(state -> !state.equals(customer.isEstado()))
                     .ifPresent(customer::setEstado);
+
 
             Optional.ofNullable(customerDto.getPassword())
                     .filter(pass -> customer.getPassword() != null && !passwordEncoder.matches(pass, customer.getPassword()))

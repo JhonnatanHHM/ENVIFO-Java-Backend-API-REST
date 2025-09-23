@@ -14,7 +14,7 @@ public class ClienteMaterialEntity {
     private Long idCliMat;
 
     @ManyToOne
-    @JoinColumn(name = "id_cliente", nullable = false)
+    @JoinColumn(name = "id_cliente")
     private ClientesEntity cliente;
 
     @ManyToOne
