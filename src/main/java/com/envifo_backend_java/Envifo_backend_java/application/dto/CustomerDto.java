@@ -13,7 +13,7 @@ public class CustomerDto {
     private String email;
     private String password;
     private String url;
-    private boolean stateCustomer;
+    private Boolean stateCustomer;
     private LocalDateTime registrationDate;
     private RolesEntity rolCustomer;
 
