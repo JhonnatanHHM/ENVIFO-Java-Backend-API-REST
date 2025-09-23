@@ -110,14 +110,19 @@ public class CustomerServiceImple implements CustomerService {
                 Optional.ofNullable(customerDto.getPhone()).ifPresent(customer::setTelefono);
                 Optional.ofNullable(customerDto.getEmail()).ifPresent(customer::setEmail);
                 Optional.ofNullable(customerDto.getUrl()).ifPresent(customer::setUrl);
-                Optional.ofNullable(customerDto.isStateCustomer())
-                        .filter(state -> !state.equals(customer.isEstado()))
-                        .ifPresent(customer::setEstado);
+                // Estado: solo cambiar si explícitamente viene false
+                if (customerDto.isStateCustomer() != null) {
+                    customer.setEstado(customerDto.isStateCustomer());
+                }
 
-                Optional.ofNullable(customerDto.getPassword())
-                        .filter(pass -> customer.getPassword() != null && !passwordEncoder.matches(pass, customer.getPassword()))
-                        .map(passwordEncoder::encode)
-                        .ifPresent(customer::setPassword);
+                if (customerDto.getPassword() != null && !customerDto.getPassword().isEmpty()) {
+                    // Solo actualizamos si llega una contraseña válida y distinta a la actual
+                    if (customer.getPassword() == null || !passwordEncoder.matches(customerDto.getPassword(), customer.getPassword())) {
+                        customer.setPassword(passwordEncoder.encode(customerDto.getPassword()));
+                    }
+                }
+                // Si llega null o vacío, no hacemos nada, dejando la contraseña existente
+
 
                 Optional.ofNullable(customerDto.getRolCustomer()).ifPresent(customer::setRol);
             }

@@ -80,11 +80,10 @@ public class CustomerDto {
         this.url = url;
     }
 
-    public boolean isStateCustomer() {
+    public Boolean isStateCustomer() {
         return stateCustomer;
     }
-
-    public void setStateCustomer(boolean stateCustomer) {
+    public void setStateCustomer(Boolean stateCustomer) {
         this.stateCustomer = stateCustomer;
     }
 
