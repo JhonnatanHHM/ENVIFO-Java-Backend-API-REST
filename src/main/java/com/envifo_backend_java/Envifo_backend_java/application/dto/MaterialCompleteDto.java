@@ -12,6 +12,7 @@ public class MaterialCompleteDto {
     private BigDecimal width;
     private boolean status;
     private Long idCategoria;
+    private String nameCategory;
     private TextureCompleteDto texture;
     private Optional<StorageDto> material;
 
@@ -72,6 +73,14 @@ public class MaterialCompleteDto {
 
     public void setIdCategoria(Long idCategoria) {
         this.idCategoria = idCategoria;
+    }
+
+    public String getNameCategory() {
+        return nameCategory;
+    }
+
+    public void setNameCategory(String nameCategory) {
+        this.nameCategory = nameCategory;
     }
 
     public TextureCompleteDto getTexture() {

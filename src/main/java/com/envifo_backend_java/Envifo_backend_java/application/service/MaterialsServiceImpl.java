@@ -352,6 +352,7 @@ public class MaterialsServiceImpl implements MaterialsService {
         materialDto.setWidth(material.getAncho());
         materialDto.setStatus(material.isEstado());
         materialDto.setIdCategoria(material.getCategoria().getIdCategoria());
+        materialDto.setNameCategory(material.getCategoria().getNombre());
 
         TextureCompleteDto textureDto = null;
 
