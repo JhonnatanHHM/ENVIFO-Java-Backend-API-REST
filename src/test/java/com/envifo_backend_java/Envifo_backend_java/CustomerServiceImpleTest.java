@@ -146,7 +146,7 @@ class CustomerServiceImpleTest {
         when(clientesRepository.getByIdCliente(50L)).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class,
-                () -> customerService.editCustomer(dto, null));
+                () -> customerService.editCustomer(dto, null, 50L));
     }
 
     // ---------- TEST: getAllCustomers ----------

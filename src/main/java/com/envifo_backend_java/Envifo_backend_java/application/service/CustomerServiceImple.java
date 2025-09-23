@@ -99,27 +99,29 @@ public class CustomerServiceImple implements CustomerService {
     }
 
     @Override
-    public void editCustomer(CustomerDto customerDto, MultipartFile file) {
+    public void editCustomer(CustomerDto customerDto, MultipartFile file, Long idCustomer) {
         try {
-            ClientesEntity customer = clientesRepository.getByIdCliente(customerDto.getCustomerId())
+            ClientesEntity customer = clientesRepository.getByIdCliente(idCustomer)
                     .orElseThrow(() -> new NotFoundException("Cliente no encontrado"));
 
-            Optional.ofNullable(customerDto.getName()).ifPresent(customer::setNombre);
-            Optional.ofNullable(customerDto.getAddress()).ifPresent(customer::setDireccion);
-            Optional.ofNullable(customerDto.getPhone()).ifPresent(customer::setTelefono);
-            Optional.ofNullable(customerDto.getEmail()).ifPresent(customer::setEmail);
-            Optional.ofNullable(customerDto.getUrl()).ifPresent(customer::setUrl);
-            Optional.ofNullable(customerDto.isStateCustomer())
-                    .filter(state -> !state.equals(customer.isEstado()))
-                    .ifPresent(customer::setEstado);
+            if (customerDto != null) {
+                Optional.ofNullable(customerDto.getName()).ifPresent(customer::setNombre);
+                Optional.ofNullable(customerDto.getAddress()).ifPresent(customer::setDireccion);
+                Optional.ofNullable(customerDto.getPhone()).ifPresent(customer::setTelefono);
+                Optional.ofNullable(customerDto.getEmail()).ifPresent(customer::setEmail);
+                Optional.ofNullable(customerDto.getUrl()).ifPresent(customer::setUrl);
+                Optional.ofNullable(customerDto.isStateCustomer())
+                        .filter(state -> !state.equals(customer.isEstado()))
+                        .ifPresent(customer::setEstado);
 
+                Optional.ofNullable(customerDto.getPassword())
+                        .filter(pass -> customer.getPassword() != null && !passwordEncoder.matches(pass, customer.getPassword()))
+                        .map(passwordEncoder::encode)
+                        .ifPresent(customer::setPassword);
 
-            Optional.ofNullable(customerDto.getPassword())
-                    .filter(pass -> customer.getPassword() != null && !passwordEncoder.matches(pass, customer.getPassword()))
-                    .map(passwordEncoder::encode)
-                    .ifPresent(customer::setPassword);
+                Optional.ofNullable(customerDto.getRolCustomer()).ifPresent(customer::setRol);
+            }
 
-            Optional.ofNullable(customerDto.getRolCustomer()).ifPresent(customer::setRol);
 
             clientesRepository.saveCustomer(customer);
 

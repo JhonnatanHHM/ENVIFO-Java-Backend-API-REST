@@ -2,6 +2,7 @@ package com.envifo_backend_java.Envifo_backend_java.interfaces.controller;
 
 import com.envifo_backend_java.Envifo_backend_java.application.dto.CustomerCompleteDto;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.CustomerDto;
+import com.envifo_backend_java.Envifo_backend_java.application.dto.ObjectDto;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.StorageDto;
 import com.envifo_backend_java.Envifo_backend_java.application.service.CustomerServiceImple;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.StorageService;
@@ -10,6 +11,9 @@ import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.Not
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.security.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,16 +80,17 @@ public class CustomerController {
     }
 
     @Operation(summary = "Actualizar cliente con imagen")
-    @PutMapping(value = "/{idCliente}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{idCliente}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateCustomer(
                                             @PathVariable Long idCliente,
-                                            @RequestPart("customer") String customerJson,
+                                            @RequestPart("customer") @Parameter(description = "DTO con los datos del CUSTOMER", required = false,
+                                                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CustomerDto.class)))String customerJson,
                                             @RequestPart(value = "file", required = false) MultipartFile file) {
 
         try {
             CustomerDto customerDto = objectMapper.readValue(customerJson, CustomerDto.class);
-            customerDto.setCustomerId(idCliente);
-            customerService.editCustomer(customerDto, file);
+
+            customerService.editCustomer(customerDto, file, idCliente);
             return ResponseEntity.ok("Cliente actualizado correctamente");
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
