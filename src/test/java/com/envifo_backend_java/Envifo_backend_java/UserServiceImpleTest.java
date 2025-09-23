@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-
 @ExtendWith(MockitoExtension.class)
 class UserServiceImpleTest {
 
@@ -70,7 +69,7 @@ class UserServiceImpleTest {
     private AlmacenamientoEntity almacenamiento;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         usuario = new UsuarioEntity();
         usuario.setIdUsuario(1L);
         usuario.setPrimerNombre("Juan");
@@ -82,11 +81,6 @@ class UserServiceImpleTest {
         almacenamiento.setIdArchivo(10L);
         almacenamiento.setNombreArchivo("foto.png");
         almacenamiento.setIdEntidad(1L);
-
-        lenient().when(multipartFile.getInputStream())
-                .thenReturn(new ByteArrayInputStream("data".getBytes()));
-        lenient().when(multipartFile.getOriginalFilename()).thenReturn("file.png");
-        lenient().when(multipartFile.isEmpty()).thenReturn(false);
     }
 
     @Test
@@ -112,13 +106,12 @@ class UserServiceImpleTest {
         registerDto.setFirstSurname("Usuario");
 
         when(usuarioRepository.getExistsByEmail("nuevo@email.com")).thenReturn(false);
-        when(customerRepository.getExistsByEmail("nuevo@email.com")).thenReturn(false); // 🔹 Mock agregado
+        when(customerRepository.getExistsByEmail("nuevo@email.com")).thenReturn(false);
         when(passwordEncoder.encode("1234")).thenReturn("encodedPassword");
 
-        // Simular que no existe el rol y se crea
+        // Crear rol RESTRINGIDO si no existe
         when(rolesRepository.getByName("RESTRINGIDO")).thenReturn(Optional.empty());
         when(permisosRepository.save(any(PermisosEntity.class))).thenAnswer(inv -> inv.getArgument(0));
-
         RolesEntity rolEntity = new RolesEntity();
         rolEntity.setName("RESTRINGIDO");
         rolEntity.setDescription("Usuario general");
@@ -142,7 +135,6 @@ class UserServiceImpleTest {
         assertThrows(ConflictException.class, () -> userService.register(registerDto));
     }
 
-
     @Test
     void deleteUser_ShouldDisableUser() throws IOException {
         usuario.setEstado(true);
@@ -157,19 +149,25 @@ class UserServiceImpleTest {
 
     @Test
     void editUser_ShouldUpdateUserDataAndImage() throws IOException {
+        // Preparar DTO de actualización
         UserDto userDto = new UserDto();
         userDto.setIdUsuario(1L);
         userDto.setFirstName("JuanUpdated");
+        userDto.setPassword("newPassword");
 
-        when(usuarioRepository.getByIdUsuario(1L)).thenReturn(Optional.of(usuario));
-        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
-        when(almacenamientoRepository.findByIdEntidadAndTipoEntidad(1L, "usuario"))
+        // Mocks necesarios
+        when(usuarioRepository.getByIdUsuario(anyLong())).thenReturn(Optional.of(usuario));
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(almacenamientoRepository.findByIdEntidadAndTipoEntidad(anyLong(), eq("usuario")))
                 .thenReturn(Optional.of(almacenamiento));
-        when(storageService.getPresignedUrl(10L)).thenReturn("https://example.com/file.png");
+        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
 
-        UserCompleteDto result = userService.editUser(userDto, multipartFile);
+        // Ejecutar
+        UserCompleteDto result = userService.editUser(userDto, multipartFile, 1L);
 
+        // Verificaciones
         assertEquals("JuanUpdated", result.getFirstName());
-        verify(storageService).updateFile(10L, multipartFile, "imagenes");
+        verify(usuarioRepository).save(any(UsuarioEntity.class));
+        verify(storageService).updateFile(almacenamiento.getIdArchivo(), multipartFile, "imagenes");
     }
 }

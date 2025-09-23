@@ -180,27 +180,35 @@ public class UserServiceImple implements UserService {
     }
 
     @Override
-    public UserCompleteDto editUser(UserDto userDto, MultipartFile file) {
+    public UserCompleteDto editUser(UserDto userDto, MultipartFile file, Long idUsuario) {
         try {
-            UsuarioEntity user = usuarioRepository.getByIdUsuario(userDto.getIdUsuario())
+            UsuarioEntity user = usuarioRepository.getByIdUsuario(idUsuario)
                     .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
-            Optional.ofNullable(userDto.getUserName()).ifPresent(user::setUserName);
-            Optional.ofNullable(userDto.getFirstName()).ifPresent(user::setPrimerNombre);
-            Optional.ofNullable(userDto.getMiddleName()).ifPresent(user::setSegundoNombre);
-            Optional.ofNullable(userDto.getFirstSurname()).ifPresent(user::setPrimerApellido);
-            Optional.ofNullable(userDto.getSecondSurname()).ifPresent(user::setSegundoApellido);
-            Optional.ofNullable(userDto.getPhone()).ifPresent(user::setCelular);
-            Optional.ofNullable(userDto.getEmail()).ifPresent(user::setEmail);
-            Optional.ofNullable(userDto.getAge()).ifPresent(user::setEdad);
-            Optional.ofNullable(userDto.isState()).filter(state -> state != user.isEstado()).ifPresent(user::setEstado);
+            if (userDto != null) {
+                Optional.ofNullable(userDto.getUserName()).ifPresent(user::setUserName);
+                Optional.ofNullable(userDto.getFirstName()).ifPresent(user::setPrimerNombre);
+                Optional.ofNullable(userDto.getMiddleName()).ifPresent(user::setSegundoNombre);
+                Optional.ofNullable(userDto.getFirstSurname()).ifPresent(user::setPrimerApellido);
+                Optional.ofNullable(userDto.getSecondSurname()).ifPresent(user::setSegundoApellido);
+                Optional.ofNullable(userDto.getPhone()).ifPresent(user::setCelular);
+                Optional.ofNullable(userDto.getEmail()).ifPresent(user::setEmail);
+                Optional.ofNullable(userDto.getAge()).ifPresent(user::setEdad);
 
-            Optional.ofNullable(userDto.getPassword())
-                    .filter(pass -> user.getPassword() != null && !passwordEncoder.matches(pass, user.getPassword()))
-                    .map(passwordEncoder::encode)
-                    .ifPresent(user::setPassword);
+                // Estado: solo actualizar si se envía explícitamente
+                if (userDto.getState() != null) {
+                    user.setEstado(userDto.getState());
+                }
 
-            Optional.ofNullable(userDto.getRol()).ifPresent(user::setRol);
+                // Contraseña: solo actualizar si viene no nula y no vacía
+                if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+                    if (user.getPassword() == null || !passwordEncoder.matches(userDto.getPassword(), user.getPassword())) {
+                        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+                    }
+                }
+
+                Optional.ofNullable(userDto.getRol()).ifPresent(user::setRol);
+            }
 
             usuarioRepository.save(user);
 
@@ -214,7 +222,6 @@ public class UserServiceImple implements UserService {
                 } else {
                     StorageDto dto = new StorageDto();
                     dto.setIdEntity(user.getIdUsuario());
-
                     storageService.saveFile(file, dto, "usuario", "imagenes");
                 }
             }
@@ -228,6 +235,7 @@ public class UserServiceImple implements UserService {
             throw new RuntimeException("Error al actualizar el usuario: " + e.getMessage(), e);
         }
     }
+
 
 
     @Override

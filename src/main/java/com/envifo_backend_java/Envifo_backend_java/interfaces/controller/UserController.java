@@ -133,7 +133,7 @@ public class UserController {
 
             @Parameter(
                     description = "Datos del usuario actualizado en JSON (como String)",
-                    required = true,
+                    required = false,
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserDto.class))
             )
             @RequestPart("user") String userJson,
@@ -150,10 +150,9 @@ public class UserController {
 
             // Convertir JSON a DTO
             UserDto userDto = objectMapper.readValue(userJson, UserDto.class);
-            userDto.setIdUsuario(idUsuario);
 
             // Llamar al servicio
-            UserCompleteDto updatedUser = userServiceImple.editUser(userDto, file);
+            UserCompleteDto updatedUser = userServiceImple.editUser(userDto, file, idUsuario);
             return ResponseEntity.ok(updatedUser);
 
         } catch (NotFoundException e) {

@@ -15,7 +15,7 @@ public class UserDto {
 
     private LocalDateTime dateRecord;
 
-    private boolean state;
+    private Boolean state;
 
     private String userName;
 
@@ -40,7 +40,7 @@ public class UserDto {
 
     //Constructores
 
-    public UserDto(Long idUsuario, LocalDateTime dateRecord, boolean state, String userName, String firstName, String middleName, String firstSurname, String secondSurname, String age, String phone, String email, String password, RolesEntity rol) {
+    public UserDto(Long idUsuario, LocalDateTime dateRecord, Boolean state, String userName, String firstName, String middleName, String firstSurname, String secondSurname, String age, String phone, String email, String password, RolesEntity rol) {
         this.idUsuario = idUsuario;
         this.dateRecord = dateRecord;
         this.state = state;
@@ -78,11 +78,11 @@ public class UserDto {
         this.dateRecord = dateRecord;
     }
 
-    public boolean isState() {
+    public Boolean getState() {
         return state;
     }
 
-    public void setState(boolean state) {
+    public void setState(Boolean state) {
         this.state = state;
     }
 

@@ -19,7 +19,7 @@ public interface UserService {
 
     UserDto register(RegisterDto registerDto);
 
-    UserCompleteDto editUser(UserDto userDto, MultipartFile file);
+    UserCompleteDto editUser(UserDto userDto, MultipartFile file, Long idUsuario);
 
     JwtResponseDto login(LoginDto loginDto);
 
