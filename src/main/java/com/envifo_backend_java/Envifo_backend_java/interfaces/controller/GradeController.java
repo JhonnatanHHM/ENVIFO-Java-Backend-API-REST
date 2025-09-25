@@ -73,13 +73,13 @@ public class GradeController {
     }
 
     @Operation(summary = "Obtener notas por cliente")
-    @GetMapping("/customer/{idCLiente}")
+    @GetMapping("/customer/{idCliente}")
     public ResponseEntity<?> getGradesByCustomer(
-                                             @PathVariable Long idCliente) {
-
+            @PathVariable Long idCliente) {
         List<GradesDto> grades = gradeServiceImple.getByIdCustomer(idCliente);
         return ResponseEntity.ok(grades);
     }
+
 
     @Operation(summary = "Buscar notas por título o contenido")
     @GetMapping("/filter/{data}")
