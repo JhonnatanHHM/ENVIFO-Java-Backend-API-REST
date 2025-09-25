@@ -82,8 +82,17 @@ public class GradeServiceImple implements GradeService {
         gradesDto.setIdGrade(nota.getIdNota());
         gradesDto.setTitle(nota.getTitulo());
         gradesDto.setContent(nota.getContenido());
-        gradesDto.setIdUser(nota.getUsuario().getIdUsuario());
-        gradesDto.setIdCustomer(nota.getCliente().getIdCliente());
+
+        // Validar si existe usuario
+        if (nota.getUsuario() != null) {
+            gradesDto.setIdUser(nota.getUsuario().getIdUsuario());
+        }
+
+        // Validar si existe cliente
+        if (nota.getCliente() != null) {
+            gradesDto.setIdCustomer(nota.getCliente().getIdCliente());
+        }
+
         return gradesDto;
     }
 
@@ -92,14 +101,22 @@ public class GradeServiceImple implements GradeService {
         nota.setIdNota(dto.getIdGrade());
         nota.setTitulo(dto.getTitle());
         nota.setContenido(dto.getContent());
-        // Crear una instancia de UsuarioEntity con solo el ID
-        UsuarioEntity usuario = new UsuarioEntity();
-        usuario.setIdUsuario(dto.getIdUser());
-        // Crear una instancia de ClientesEntity con solo el ID
-        ClientesEntity cliente = new ClientesEntity();
-        cliente.setIdCliente(dto.getIdCustomer());
-        // Asignar el usuario a la nota
-        nota.setUsuario(usuario);
+
+        // Solo asignar si viene un idUsuario válido
+        if (dto.getIdUser() != null) {
+            UsuarioEntity usuario = new UsuarioEntity();
+            usuario.setIdUsuario(dto.getIdUser());
+            nota.setUsuario(usuario);
+        }
+
+        // Solo asignar si viene un idCliente válido
+        if (dto.getIdCustomer() != null) {
+            ClientesEntity cliente = new ClientesEntity();
+            cliente.setIdCliente(dto.getIdCustomer());
+            nota.setCliente(cliente);
+        }
+
         return nota;
     }
+
 }

@@ -31,7 +31,7 @@ public class NotasEntity {
     private LocalDateTime fechaModificacion;
 
     @ManyToOne
-    @JoinColumn(name = "id_usuario", nullable = false)
+    @JoinColumn(name = "id_usuario")
     private UsuarioEntity usuario;
 
     @ManyToOne
