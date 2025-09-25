@@ -80,6 +80,7 @@ public class GradeServiceImple implements GradeService {
     private GradesDto convertToDto(NotasEntity nota) {
         GradesDto gradesDto = new GradesDto();
         gradesDto.setIdGrade(nota.getIdNota());
+        gradesDto.setUpdatedDate(nota.getFechaModificacion());
         gradesDto.setTitle(nota.getTitulo());
         gradesDto.setContent(nota.getContenido());
 

@@ -1,5 +1,7 @@
 package com.envifo_backend_java.Envifo_backend_java.application.dto;
 
+import java.time.LocalDateTime;
+
 public class GradesDto {
 
     //Atributos
@@ -8,15 +10,18 @@ public class GradesDto {
 
     private String title;
 
+    private LocalDateTime updatedDate;
+
     private String content;
 
     private Long idUser;
 
     private Long idCustomer;
 
-    public GradesDto(Long idGrade, String title, String content, Long idUser, Long idCustomer) {
+    public GradesDto(Long idGrade, String title, LocalDateTime updatedDate, String content, Long idUser, Long idCustomer) {
         this.idGrade = idGrade;
         this.title = title;
+        this.updatedDate = updatedDate;
         this.content = content;
         this.idUser = idUser;
         this.idCustomer = idCustomer;
@@ -50,6 +55,14 @@ public class GradesDto {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public LocalDateTime getUpdatedDate() {
+        return updatedDate;
+    }
+
+    public void setUpdatedDate(LocalDateTime updatedDate) {
+        this.updatedDate = updatedDate;
     }
 
     public Long getIdUser() {

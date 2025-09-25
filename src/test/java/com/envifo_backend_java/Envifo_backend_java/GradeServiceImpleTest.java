@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.LocalDateTime; // <-- agregado
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -41,12 +42,20 @@ class GradeServiceImpleTest {
         nota.setContenido(contenido);
         nota.setUsuario(usuario);
         nota.setCliente(cliente);
+        nota.setFechaModificacion(LocalDateTime.now()); // <-- agregado
         return nota;
     }
 
     @Test
     void testSave() {
-        GradesDto dto = new GradesDto(1L, "Titulo", "Contenido", 10L, 20L);
+        GradesDto dto = new GradesDto(
+                1L,
+                "Titulo",
+                LocalDateTime.now(), // <-- agregado updatedDate
+                "Contenido",
+                10L,
+                20L
+        );
         NotasEntity savedEntity = createNota(1L, 10L, 20L, "Titulo", "Contenido");
 
         when(notasRepository.save(any(NotasEntity.class))).thenReturn(savedEntity);
@@ -58,6 +67,7 @@ class GradeServiceImpleTest {
         assertEquals(dto.getContent(), result.getContent());
         assertEquals(dto.getIdUser(), result.getIdUser());
         assertEquals(dto.getIdCustomer(), result.getIdCustomer());
+        assertNotNull(result.getUpdatedDate()); // <-- validamos fecha
     }
 
     @Test
@@ -104,7 +114,14 @@ class GradeServiceImpleTest {
 
     @Test
     void testEditGrade() {
-        GradesDto dto = new GradesDto(4L, "Editado", "Contenido editado", 15L, 25L);
+        GradesDto dto = new GradesDto(
+                4L,
+                "Editado",
+                LocalDateTime.now(), // <-- agregado updatedDate
+                "Contenido editado",
+                15L,
+                25L
+        );
 
         gradeService.editGrade(dto);
 
