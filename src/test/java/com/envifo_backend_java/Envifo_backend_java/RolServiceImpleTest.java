@@ -42,7 +42,7 @@ class RolServiceImpleTest {
         permisos.setEditUsuarios(true);
 
         rolEntity = new RolesEntity();
-        rolEntity.setIdRol(1L);
+        rolEntity.setIdRol(4L);
         rolEntity.setName("ADMIN");
         rolEntity.setDescription("Rol administrador");
         rolEntity.setPermisos(permisos);
@@ -110,7 +110,10 @@ class RolServiceImpleTest {
 
     @Test
     void testEditRol_createsNewRoleIfNotExists() {
-        when(rolRepository.getByName("ADMIN")).thenReturn(Optional.empty());
+        rolDto.setIdRol(99L); // usar un id que NO sea 1 ni 2
+        rolDto.getPermisos().setIdPermiso(99L); // idem, evitar 1 o 2
+
+        when(rolRepository.getByIdRol(99L)).thenReturn(Optional.empty());
         when(rolRepository.save(any())).thenReturn(rolEntity);
 
         RolDto result = rolService.editRol(rolDto);
@@ -120,6 +123,7 @@ class RolServiceImpleTest {
         verify(permissionsServiceImple).editPermissions(any());
         verify(rolRepository).save(any());
     }
+
 
     @Test
     void testCreateRol_reservedNameRestringido() {

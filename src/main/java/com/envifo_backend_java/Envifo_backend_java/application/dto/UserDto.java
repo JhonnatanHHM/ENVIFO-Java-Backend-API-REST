@@ -37,10 +37,13 @@ public class UserDto {
 
     private RolesEntity rol;
 
+    private Long idRolAssigned;
+
 
     //Constructores
 
-    public UserDto(Long idUsuario, LocalDateTime dateRecord, Boolean state, String userName, String firstName, String middleName, String firstSurname, String secondSurname, String age, String phone, String email, String password, RolesEntity rol) {
+
+    public UserDto(Long idUsuario, LocalDateTime dateRecord, Boolean state, String userName, String firstName, String middleName, String firstSurname, String secondSurname, String age, String phone, String email, String password, RolesEntity rol, Long idRolAssigned) {
         this.idUsuario = idUsuario;
         this.dateRecord = dateRecord;
         this.state = state;
@@ -54,6 +57,7 @@ public class UserDto {
         this.email = email;
         this.password = password;
         this.rol = rol;
+        this.idRolAssigned = idRolAssigned;
     }
 
     public UserDto() {
@@ -166,4 +170,11 @@ public class UserDto {
         this.rol = rol;
     }
 
+    public Long getIdRolAssigned() {
+        return idRolAssigned;
+    }
+
+    public void setIdRolAssigned(Long idRolAssigned) {
+        this.idRolAssigned = idRolAssigned;
+    }
 }

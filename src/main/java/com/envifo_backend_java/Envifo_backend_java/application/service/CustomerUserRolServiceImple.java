@@ -151,6 +151,7 @@ public class CustomerUserRolServiceImple implements CustomerUserRolService {
         dto.setEmail(userWhitRol.getUsuario().getEmail());
         dto.setPassword("");
         dto.setRol(userWhitRol.getRol());
+        dto.setIdRolAssigned(userWhitRol.getIdCliUsuRol());
 
         return dto;
     }
