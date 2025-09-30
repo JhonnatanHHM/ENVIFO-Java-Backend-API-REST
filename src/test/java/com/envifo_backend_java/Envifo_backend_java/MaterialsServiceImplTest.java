@@ -7,14 +7,14 @@ import com.envifo_backend_java.Envifo_backend_java.domain.repository.CategoriesR
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.MaterialsRepository;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.StorageRepository;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.TexturesRepository;
-import com.envifo_backend_java.Envifo_backend_java.domain.repository.crud.CustomerMaterialRepository;
+
 import com.envifo_backend_java.Envifo_backend_java.domain.service.StorageService;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.TexturesService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.data.domain.Pageable;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -166,7 +166,10 @@ class MaterialsServiceImplTest {
 
     @Test
     void testGetLastMaterialByCustomer_success() throws IOException {
-        when(materialsRepository.getLastMaterialByCustomer(1L)).thenReturn(materialEntity);
+        // Simular el repositorio devolviendo una lista con un solo elemento
+        when(materialsRepository.getLastMaterialByCustomer(eq(1L), any(Pageable.class)))
+                .thenReturn(List.of(materialEntity));
+
         when(storageRepository.findByIdEntidadAndTipoEntidad(100L, "materiales"))
                 .thenReturn(Optional.of(almacenamiento));
         when(texturesService.getTextureByIdTexture(1L))
@@ -175,15 +178,16 @@ class MaterialsServiceImplTest {
 
         Optional<MaterialCompleteDto> result = materialsService.getLastMaterialByCustomer(1L);
 
-        assertTrue(result.isPresent());  // ahora sí debería ser true
+        assertTrue(result.isPresent());
         assertEquals("Madera", result.get().getNameMaterial());
     }
 
 
     @Test
     void testGetLastMaterialByCustomer_notFound() {
-        // Simular repo devolviendo null
-        when(materialsRepository.getLastMaterialByCustomer(99L)).thenReturn(null);
+        // Simular repositorio devolviendo lista vacía
+        when(materialsRepository.getLastMaterialByCustomer(eq(99L), any(Pageable.class)))
+                .thenReturn(Collections.emptyList());
 
         Optional<MaterialCompleteDto> result = materialsService.getLastMaterialByCustomer(99L);
 

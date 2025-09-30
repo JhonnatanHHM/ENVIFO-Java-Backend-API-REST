@@ -7,6 +7,7 @@ import com.envifo_backend_java.Envifo_backend_java.domain.repository.crud.Materi
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,8 +45,8 @@ public class MaterialesRepository implements MaterialsRepository {
     }
 
     @Override
-    public MaterialesEntity getLastMaterialByCustomer(Long idCustomer) {
-        return customerMaterialCrudRepository.findUltimoMaterialByCliente(idCustomer);
+    public List<MaterialesEntity> getLastMaterialByCustomer(Long idCustomer, Pageable pageable) {
+        return customerMaterialCrudRepository.findUltimoMaterialByCliente(idCustomer, pageable);
     }
 
     @Override

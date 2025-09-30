@@ -12,6 +12,10 @@ import com.envifo_backend_java.Envifo_backend_java.domain.service.TexturesServic
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.NotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.data.domain.PageRequest;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -195,7 +199,13 @@ public class MaterialsServiceImpl implements MaterialsService {
     @Override
     public Optional<MaterialCompleteDto> getLastMaterialByCustomer(Long idCustomer) {
 
-        MaterialesEntity material = materialsRepository.getLastMaterialByCustomer(idCustomer);
+        Pageable pageable = PageRequest.of(0, 1);
+        MaterialesEntity material = materialsRepository
+                .getLastMaterialByCustomer(idCustomer, pageable)
+                .stream()
+                .findFirst()
+                .orElse(null);
+
 
         if (material == null) {
             return Optional.empty();

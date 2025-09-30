@@ -8,12 +8,13 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface CustomerMaterialCrudRepository extends JpaRepository<ClienteMaterialEntity, Long> {
 
     // Devuelve todos los materiales asociados a un cliente
-    @Query("SELECT cm.material FROM ClienteMaterialEntity cm WHERE cm.cliente.idCliente = :idCliente")
+    @Query("SELECT cm.material FROM ClienteMaterialEntity cm JOIN FETCH cm.material.textura WHERE cm.cliente.idCliente = :idCliente")
     List<MaterialesEntity> findMaterialesByClienteId(@Param("idCliente") Long idCliente);
 
     @Modifying
@@ -23,7 +24,8 @@ public interface CustomerMaterialCrudRepository extends JpaRepository<ClienteMat
 
     @Query("SELECT cm.material FROM ClienteMaterialEntity cm " +
             "WHERE cm.cliente.idCliente = :idCliente " +
-            "ORDER BY cm.fechaRegistro DESC LIMIT 1")
-    MaterialesEntity findUltimoMaterialByCliente(@Param("idCliente") Long idCliente);
+            "ORDER BY cm.fechaRegistro DESC")
+    List<MaterialesEntity> findUltimoMaterialByCliente(@Param("idCliente") Long idCliente, Pageable pageable);
+
 
 }

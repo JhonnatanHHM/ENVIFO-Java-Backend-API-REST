@@ -2,6 +2,7 @@ package com.envifo_backend_java.Envifo_backend_java.domain.repository;
 
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.MaterialesEntity;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,7 +12,7 @@ public interface MaterialsRepository {
     List<MaterialesEntity> getMaterialByNameAndSectionCategory(String nameCategory, Long idCliente);
     List<MaterialesEntity> getObjectsByIdsMaterials(List<Long> idsMaterials);
     List<MaterialesEntity> findMaterialsGlobales();
-    MaterialesEntity getLastMaterialByCustomer(Long idCustomer);
+    List<MaterialesEntity> getLastMaterialByCustomer(Long idCustomer, Pageable pageable);
     MaterialesEntity saveMaterial (MaterialesEntity material);
     void deleteMaterial (Long idMaterial);
 }
