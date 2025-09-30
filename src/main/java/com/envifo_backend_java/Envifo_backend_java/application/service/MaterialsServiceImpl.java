@@ -272,16 +272,19 @@ public class MaterialsServiceImpl implements MaterialsService {
 
         return materiales.stream()
                 .map(material -> {
+                    // Traer imagen del material, puede no existir
                     Optional<AlmacenamientoEntity> imageOpt =
                             storageRepository.findByIdEntidadAndTipoEntidad(
                                     material.getIdMaterial(), "materiales");
 
-                    return imageOpt.map(image -> convertToMaterialDto(material, image, false));
+                    AlmacenamientoEntity image = imageOpt.orElse(null);
+
+                    // convertToMaterialDto maneja image null correctamente
+                    return convertToMaterialDto(material, image, false);
                 })
-                .filter(Optional::isPresent)
-                .map(Optional::get)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public List<MaterialCompleteDto> getGlobalMaterials() {
