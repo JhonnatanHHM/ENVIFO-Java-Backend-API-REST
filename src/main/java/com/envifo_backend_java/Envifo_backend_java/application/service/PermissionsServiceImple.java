@@ -31,12 +31,12 @@ public class PermissionsServiceImple implements PermissionsService {
         permisos.setEditUsuarios(permissionsDto.isEditUsuarios());
         permisos.setVistaProyectos(permissionsDto.isVistaProyectos());
         permisos.setEditProyectos(permissionsDto.isEditProyectos());
-        permisos.setVistaDisenios3d(permissionsDto.isEditPermisos());
+        permisos.setVistaDisenios3d(permissionsDto.isVistaDisenios3d());
         permisos.setEditDisenios3d(permissionsDto.isEditDisenios3d());
         permisos.setVistaMateriales(permissionsDto.isVistaMateriales());
         permisos.setEditMateriales(permissionsDto.isEditMateriales());
-        permisos.setVistaInformes(permissionsDto.isEditPermisos());
-        permisos.setVistaCategorias(permissionsDto.isEditPermisos());
+        permisos.setVistaInformes(permissionsDto.isVistaInformes());
+        permisos.setVistaCategorias(permissionsDto.isVistaCategorias());
         permisos.setEditCategorias(permissionsDto.isEditCategorias());
 
         // Guardar permisos en la base de datos
@@ -58,12 +58,12 @@ public class PermissionsServiceImple implements PermissionsService {
         permisos.setEditUsuarios(permisosEditados.isEditUsuarios());
         permisos.setVistaProyectos(permisosEditados.isVistaProyectos());
         permisos.setEditProyectos(permisosEditados.isEditProyectos());
-        permisos.setVistaDisenios3d(permisosEditados.isEditPermisos());
+        permisos.setVistaDisenios3d(permisosEditados.isVistaDisenios3d());
         permisos.setEditDisenios3d(permisosEditados.isEditDisenios3d());
         permisos.setVistaMateriales(permisosEditados.isVistaMateriales());
         permisos.setEditMateriales(permisosEditados.isEditMateriales());
-        permisos.setVistaInformes(permisosEditados.isEditPermisos());
-        permisos.setVistaCategorias(permisosEditados.isEditPermisos());
+        permisos.setVistaInformes(permisosEditados.isVistaInformes());
+        permisos.setVistaCategorias(permisosEditados.isVistaCategorias());
         permisos.setEditCategorias(permisosEditados.isEditCategorias());
 
         // Guardar permisos en la base de datos
