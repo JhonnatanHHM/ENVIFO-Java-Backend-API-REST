@@ -14,7 +14,7 @@ import java.util.List;
 public interface CustomerMaterialCrudRepository extends JpaRepository<ClienteMaterialEntity, Long> {
 
     // Devuelve todos los materiales asociados a un cliente
-    @Query("SELECT cm.material FROM ClienteMaterialEntity cm JOIN FETCH cm.material.textura WHERE cm.cliente.idCliente = :idCliente")
+    @Query("SELECT cm.material FROM ClienteMaterialEntity cm LEFT JOIN FETCH cm.material.textura WHERE cm.cliente.idCliente = :idCliente")
     List<MaterialesEntity> findMaterialesByClienteId(@Param("idCliente") Long idCliente);
 
     @Modifying
