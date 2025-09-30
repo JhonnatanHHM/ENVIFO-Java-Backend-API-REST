@@ -110,18 +110,15 @@ class RolServiceImpleTest {
 
     @Test
     void testEditRol_createsNewRoleIfNotExists() {
-        rolDto.setIdRol(99L); // usar un id que NO sea 1 ni 2
-        rolDto.getPermisos().setIdPermiso(99L); // idem, evitar 1 o 2
+        rolDto.setIdRol(99L);
+        rolDto.getPermisos().setIdPermiso(99L);
 
         when(rolRepository.getByIdRol(99L)).thenReturn(Optional.empty());
-        when(rolRepository.save(any())).thenReturn(rolEntity);
 
-        RolDto result = rolService.editRol(rolDto);
+        assertThrows(RuntimeException.class, () -> rolService.editRol(rolDto));
 
-        assertNotNull(result);
-        assertEquals("ADMIN", result.getName());
-        verify(permissionsServiceImple).editPermissions(any());
-        verify(rolRepository).save(any());
+        verify(rolRepository, never()).save(any());
+        verify(permissionsServiceImple, never()).editPermissions(any());
     }
 
 

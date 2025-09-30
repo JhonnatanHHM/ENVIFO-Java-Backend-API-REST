@@ -46,13 +46,16 @@ public class PermissionsServiceImple implements PermissionsService {
     @Override
     public PermisosEntity editPermissions(PermissionsDto permisosEditados) {
 
-        if (permisosEditados.getIdPermiso() == 3 || permisosEditados.getIdPermiso() == 16) {
+        // Validación de permisos predeterminados
+        if (permisosEditados.getIdPermiso() == 1 || permisosEditados.getIdPermiso() == 2) {
             throw new RuntimeException("No se pueden realizar cambios a los permisos GLOBALES o RESTRINGIDOS predeterminados");
         }
 
-        // editar permisos predeterminados
-        PermisosEntity permisos = new PermisosEntity();
-        permisos.setIdPermiso(permisosEditados.getIdPermiso());
+        // Buscar permisos en BD
+        PermisosEntity permisos = permissionsRepository.findByIdPermiso(permisosEditados.getIdPermiso())
+                .orElseThrow(() -> new RuntimeException("Permisos no encontrados con ID: " + permisosEditados.getIdPermiso()));
+
+        // Mapear todos los campos desde el DTO
         permisos.setEditPermisos(permisosEditados.isEditPermisos());
         permisos.setVistaUsuarios(permisosEditados.isVistaUsuarios());
         permisos.setEditUsuarios(permisosEditados.isEditUsuarios());
@@ -66,9 +69,10 @@ public class PermissionsServiceImple implements PermissionsService {
         permisos.setVistaCategorias(permisosEditados.isVistaCategorias());
         permisos.setEditCategorias(permisosEditados.isEditCategorias());
 
-        // Guardar permisos en la base de datos
+        // Guardar cambios en BD
         return permissionsRepository.save(permisos);
     }
+
 
     @Override
     public Optional<PermissionsDto> getByIdPermiso(Long idPermiso) {
@@ -79,20 +83,21 @@ public class PermissionsServiceImple implements PermissionsService {
         PermissionsDto permissionsDto = new PermissionsDto();
         permissionsDto.setIdPermiso(permisos.getIdPermiso());
         permissionsDto.setEditPermisos(permisos.isEditPermisos());
-        permissionsDto.setVistaUsuarios(permissionsDto.isVistaUsuarios());
-        permissionsDto.setEditUsuarios(permissionsDto.isEditUsuarios());
-        permissionsDto.setVistaProyectos(permissionsDto.isVistaProyectos());
+        permissionsDto.setVistaUsuarios(permisos.isVistaUsuarios());
+        permissionsDto.setEditUsuarios(permisos.isEditUsuarios());
+        permissionsDto.setVistaProyectos(permisos.isVistaProyectos());
         permissionsDto.setEditProyectos(permisos.isEditProyectos());
-        permissionsDto.setVistaDisenios3d(permissionsDto.isVistaDisenios3d());
+        permissionsDto.setVistaDisenios3d(permisos.isVistaDisenios3d());
         permissionsDto.setEditDisenios3d(permisos.isEditDisenios3d());
-        permissionsDto.setVistaMateriales(permissionsDto.isVistaMateriales());
-        permissionsDto.setEditMateriales(permissionsDto.isEditMateriales());
+        permissionsDto.setVistaMateriales(permisos.isVistaMateriales());
+        permissionsDto.setEditMateriales(permisos.isEditMateriales());
         permissionsDto.setVistaInformes(permisos.isVistaInformes());
         permissionsDto.setVistaCategorias(permisos.isVistaCategorias());
-        permissionsDto.setEditCategorias(permissionsDto.isEditCategorias());
+        permissionsDto.setEditCategorias(permisos.isEditCategorias());
 
         return Optional.of(permissionsDto);
     }
+
 
     @Override
     public void deleteByIdPermiso(Long idPermiso) {

@@ -1,13 +1,14 @@
-package com.envifo_backend_java.Envifo_backend_java;
+package com.envifo_backend_java.Envifo_backend_java.application.service;
 
 import com.envifo_backend_java.Envifo_backend_java.application.dto.PermissionsDto;
-import com.envifo_backend_java.Envifo_backend_java.application.service.PermissionsServiceImple;
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.PermisosEntity;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.PermissionsRepository;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.exceptions.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
 
@@ -16,64 +17,35 @@ import static org.mockito.Mockito.*;
 
 class PermissionsServiceImpleTest {
 
-    @InjectMocks
-    private PermissionsServiceImple service;
-
     @Mock
     private PermissionsRepository permissionsRepository;
+
+    @InjectMocks
+    private PermissionsServiceImple permissionsServiceImple;
+
+    private PermissionsDto dto;
+    private PermisosEntity entity;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        dto = new PermissionsDto();
+        dto.setIdPermiso(10L);
+        dto.setEditUsuarios(true);
+        dto.setVistaUsuarios(false);
+
+        entity = new PermisosEntity();
+        entity.setIdPermiso(10L);
+        entity.setEditUsuarios(false);
+        entity.setVistaUsuarios(true);
     }
 
-    // --- savePermission ---
     @Test
     void testSavePermission_success() {
-        PermissionsDto dto = new PermissionsDto();
-        dto.setEditPermisos(true);
-        dto.setVistaUsuarios(true);
-        dto.setEditUsuarios(true);
-        dto.setVistaProyectos(true);
-        dto.setEditProyectos(true);
-        dto.setEditDisenios3d(true);
-        dto.setVistaMateriales(true);
-        dto.setEditMateriales(true);
-        dto.setEditCategorias(true);
+        when(permissionsRepository.save(any(PermisosEntity.class))).thenReturn(entity);
 
-        PermisosEntity saved = new PermisosEntity();
-        saved.setIdPermiso(1L);
-
-        when(permissionsRepository.save(any(PermisosEntity.class))).thenReturn(saved);
-
-        PermisosEntity result = service.savePermission(dto);
-
-        assertNotNull(result);
-        assertEquals(1L, result.getIdPermiso());
-        verify(permissionsRepository, times(1)).save(any(PermisosEntity.class));
-    }
-
-    // --- editPermissions ---
-    @Test
-    void testEditPermissions_success() {
-        PermissionsDto dto = new PermissionsDto();
-        dto.setIdPermiso(10L);
-        dto.setEditPermisos(true);
-        dto.setVistaUsuarios(true);
-        dto.setEditUsuarios(true);
-        dto.setVistaProyectos(true);
-        dto.setEditProyectos(true);
-        dto.setEditDisenios3d(true);
-        dto.setVistaMateriales(true);
-        dto.setEditMateriales(true);
-        dto.setEditCategorias(true);
-
-        PermisosEntity updated = new PermisosEntity();
-        updated.setIdPermiso(10L);
-
-        when(permissionsRepository.save(any(PermisosEntity.class))).thenReturn(updated);
-
-        PermisosEntity result = service.editPermissions(dto);
+        PermisosEntity result = permissionsServiceImple.savePermission(dto);
 
         assertNotNull(result);
         assertEquals(10L, result.getIdPermiso());
@@ -81,60 +53,67 @@ class PermissionsServiceImpleTest {
     }
 
     @Test
+    void testEditPermissions_success() {
+        when(permissionsRepository.findByIdPermiso(10L)).thenReturn(Optional.of(entity));
+        when(permissionsRepository.save(any(PermisosEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        PermisosEntity result = permissionsServiceImple.editPermissions(dto);
+
+        assertNotNull(result);
+        assertEquals(10L, result.getIdPermiso());
+        assertTrue(result.isEditUsuarios());
+        assertFalse(result.isVistaUsuarios());
+        verify(permissionsRepository, times(1)).save(any(PermisosEntity.class));
+    }
+
+    @Test
     void testEditPermissions_restrictedIds_throwException() {
-        PermissionsDto dto = new PermissionsDto();
-        dto.setIdPermiso(3L);
+        dto.setIdPermiso(1L);
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () ->
-                service.editPermissions(dto)
-        );
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            permissionsServiceImple.editPermissions(dto);
+        });
 
-        assertTrue(ex.getMessage().contains("No se pueden realizar cambios"));
-        verify(permissionsRepository, never()).save(any());
-    }
-
-    // --- getByIdPermiso ---
-    @Test
-    void testGetByIdPermiso_found() {
-        PermisosEntity permisos = new PermisosEntity();
-        permisos.setIdPermiso(5L);
-        permisos.setEditPermisos(true);
-        permisos.setEditUsuarios(true);
-        permisos.setVistaUsuarios(true);
-        permisos.setEditProyectos(true);
-        permisos.setVistaProyectos(true);
-        permisos.setEditDisenios3d(true);
-        permisos.setVistaDisenios3d(true);
-        permisos.setEditMateriales(true);
-        permisos.setVistaMateriales(true);
-        permisos.setEditCategorias(true);
-        permisos.setVistaCategorias(true);
-        permisos.setVistaInformes(true);
-
-        when(permissionsRepository.findByIdPermiso(5L)).thenReturn(Optional.of(permisos));
-
-        Optional<PermissionsDto> result = service.getByIdPermiso(5L);
-
-        assertTrue(result.isPresent());
-        assertEquals(5L, result.get().getIdPermiso());
-        verify(permissionsRepository, times(1)).findByIdPermiso(5L);
+        assertTrue(exception.getMessage().contains("No se pueden realizar cambios"));
+        verify(permissionsRepository, never()).save(any(PermisosEntity.class));
     }
 
     @Test
-    void testGetByIdPermiso_notFound() {
+    void testEditPermissions_notFound_throwException() {
+        dto.setIdPermiso(99L);
         when(permissionsRepository.findByIdPermiso(99L)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () ->
-                service.getByIdPermiso(99L)
-        );
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            permissionsServiceImple.editPermissions(dto);
+        });
 
-        verify(permissionsRepository, times(1)).findByIdPermiso(99L);
+        assertTrue(exception.getMessage().contains("Permisos no encontrados con ID: 99"));
     }
 
-    // --- deleteByIdPermiso ---
+    @Test
+    void testGetByIdPermiso_success() {
+        when(permissionsRepository.findByIdPermiso(10L)).thenReturn(Optional.of(entity));
+
+        Optional<PermissionsDto> result = permissionsServiceImple.getByIdPermiso(10L);
+
+        assertTrue(result.isPresent());
+        assertEquals(10L, result.get().getIdPermiso());
+        assertTrue(result.get().isVistaUsuarios());
+    }
+
+    @Test
+    void testGetByIdPermiso_notFound_throwException() {
+        when(permissionsRepository.findByIdPermiso(20L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> permissionsServiceImple.getByIdPermiso(20L));
+    }
+
     @Test
     void testDeleteByIdPermiso_success() {
-        service.deleteByIdPermiso(7L);
-        verify(permissionsRepository, times(1)).deleteByIdPermiso(7L);
+        doNothing().when(permissionsRepository).deleteByIdPermiso(10L);
+
+        permissionsServiceImple.deleteByIdPermiso(10L);
+
+        verify(permissionsRepository, times(1)).deleteByIdPermiso(10L);
     }
 }

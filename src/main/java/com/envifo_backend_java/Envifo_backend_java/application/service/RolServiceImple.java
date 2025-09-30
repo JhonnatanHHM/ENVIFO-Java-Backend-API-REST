@@ -52,29 +52,35 @@ public class RolServiceImple implements RolService {
     @Override
     public RolDto editRol(RolDto rolDto) {
 
-        if ((rolDto.getName()).equals("GLOBAL") || (rolDto.getIdRol() == 1) ||
-                (rolDto.getIdRol() == 2) || (rolDto.getPermisos().getIdPermiso() == 1)
-                || (rolDto.getPermisos().getIdPermiso() == 2)
-                || (rolDto.getName()).equals("RESTRINGIDO")) {
+        // Validar roles y permisos predeterminados
+        if ("GLOBAL".equalsIgnoreCase(rolDto.getName()) || "RESTRINGIDO".equalsIgnoreCase(rolDto.getName())
+                || rolDto.getIdRol() == 1 || rolDto.getIdRol() == 2
+                || rolDto.getPermisos().getIdPermiso() == 1
+                || rolDto.getPermisos().getIdPermiso() == 2) {
             throw new RuntimeException("No se pueden realizar cambios a los roles GLOBALES o RESTRINGIDOS predeterminados");
         }
 
+        // Buscar el rol existente
         RolesEntity rolEntity = roleRepository.getByIdRol(rolDto.getIdRol())
-                .orElseGet(() -> {
-                    RolesEntity newRol = new RolesEntity();
-                    newRol.setIdRol(rolDto.getIdRol());
-                    newRol.setName(rolDto.getName());
-                    newRol.setDescription(rolDto.getDescription());
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + rolDto.getIdRol()));
 
-                    permissionsServiceImple.editPermissions(rolDto.getPermisos());
+        // Actualizar datos del rol
+        rolEntity.setName(rolDto.getName());
+        rolEntity.setDescription(rolDto.getDescription());
 
-                    newRol.setPermisos(convertToPermisosEntity(rolDto.getPermisos()));
-                    return roleRepository.save(newRol); // Guardar el nuevo rol y retornarlo
-                });
+        // Editar permisos asociados
+        permissionsServiceImple.editPermissions(rolDto.getPermisos());
 
-        // Convertir a DTO antes de devolverlo si es necesario
-        return convertToDto(rolEntity);
+        // Actualizar permisos en la entidad
+        rolEntity.setPermisos(convertToPermisosEntity(rolDto.getPermisos()));
+
+        // Guardar cambios
+        RolesEntity updatedRol = roleRepository.save(rolEntity);
+
+        // Retornar DTO actualizado
+        return convertToDto(updatedRol);
     }
+
 
     @Override
     public RolDto createRol(RolDto rolDto) {
