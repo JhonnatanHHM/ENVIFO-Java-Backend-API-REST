@@ -56,7 +56,7 @@ public class RolServiceImple implements RolService {
             throw new RuntimeException("No se pueden realizar cambios a los roles GLOBALES o RESTRINGIDOS predeterminados");
         }
 
-        RolesEntity rolEntity = roleRepository.getByName(rolDto.getName())
+        RolesEntity rolEntity = roleRepository.getByIdRol(rolDto.getIdRol())
                 .orElseGet(() -> {
                     RolesEntity newRol = new RolesEntity();
                     newRol.setIdRol(rolDto.getIdRol());
