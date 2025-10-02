@@ -9,7 +9,6 @@ public class ProjectDto {
     private boolean status;
     private Long userId;
     private Long clientId;
-    private Long scenarioId;
     private Designs3dDto design3d;
 
     public Long getIdProject() {
@@ -58,14 +57,6 @@ public class ProjectDto {
 
     public void setClientId(Long clientId) {
         this.clientId = clientId;
-    }
-
-    public Long getScenarioId() {
-        return scenarioId;
-    }
-
-    public void setScenarioId(Long scenarioId) {
-        this.scenarioId = scenarioId;
     }
 
     public Designs3dDto getDesign3d() {

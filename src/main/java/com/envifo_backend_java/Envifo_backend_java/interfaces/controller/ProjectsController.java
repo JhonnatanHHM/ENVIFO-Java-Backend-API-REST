@@ -1,14 +1,13 @@
 package com.envifo_backend_java.Envifo_backend_java.interfaces.controller;
 
-import com.envifo_backend_java.Envifo_backend_java.application.dto.ObjectDto;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.ProjectCompleteDto;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.ProjectDto;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.ProjectFilteredDto;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.ProjectsService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,7 +26,7 @@ import java.util.Optional;
 public class ProjectsController {
 
     private final ProjectsService projectsService;
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     @Autowired
     public ProjectsController(ProjectsService projectsService, ObjectMapper objectMapper) {
@@ -35,49 +34,75 @@ public class ProjectsController {
         this.objectMapper = objectMapper;
     }
 
-    @Operation(summary = "Guardar un nuevo proyecto", description = "Guarda un proyecto con su imagen asociada")
+    @Operation(summary = "Guardar un nuevo proyecto", description = "Guarda un proyecto con su diseño 3D y una imagen asociada (opcional)")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Proyecto guardado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Error al guardar el proyecto")
+            @ApiResponse(responseCode = "201", description = "Proyecto guardado correctamente", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Error en los datos enviados o en el procesamiento"),
+            @ApiResponse(responseCode = "404", description = "Usuario o cliente no encontrado")
     })
     @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> saveProject(
-            @RequestPart("project") @Parameter(description = "DTO con los datos del proyecto", required = true,
+            @RequestPart("project") @Parameter(description = "DTO con los datos del proyecto en formato JSON", required = true,
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProjectDto.class)))
             String projectJson,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+            @RequestPart(value = "image", required = false) @Parameter(description = "Imagen del proyecto (opcional)", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) MultipartFile image) {
         try {
+            if (projectJson == null || projectJson.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("El campo 'project' es requerido y no puede estar vacío");
+            }
+
             // Convertir JSON a DTO
             ProjectDto projectDto = objectMapper.readValue(projectJson, ProjectDto.class);
+            if (projectDto.getDesign3d() == null) {
+                return ResponseEntity.badRequest().body("El campo 'design3d' es requerido en el ProjectDto");
+            }
+
             String result = projectsService.saveProject(projectDto, image);
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().body("Error al deserializar el JSON del proyecto: " + e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
         } catch (IOException e) {
-            return ResponseEntity.badRequest().body("Error al guardar el proyecto: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error al procesar la imagen: " + e.getMessage());
         }
     }
 
-    @Operation(summary = "Actualizar proyecto", description = "Actualiza un proyecto con nuevos datos e imagen")
+    @Operation(summary = "Actualizar un proyecto existente", description = "Actualiza los datos de un proyecto y su imagen asociada (opcional)")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Proyecto actualizado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Error al actualizar el proyecto")
+            @ApiResponse(responseCode = "200", description = "Proyecto actualizado correctamente", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Error en los datos enviados o en el procesamiento"),
+            @ApiResponse(responseCode = "404", description = "Proyecto, usuario o cliente no encontrado")
     })
     @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateProject(
-            @RequestPart("project") @Parameter(description = "DTO con los datos del proyecto", required = true,
+            @RequestPart("project") @Parameter(description = "DTO con los datos del proyecto en formato JSON", required = true,
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProjectDto.class)))
             String projectJson,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+            @RequestPart(value = "image", required = false) @Parameter(description = "Imagen del proyecto (opcional)", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) MultipartFile image) {
         try {
+            if (projectJson == null || projectJson.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("El campo 'project' es requerido y no puede estar vacío");
+            }
+
             // Convertir JSON a DTO
             ProjectDto projectDto = objectMapper.readValue(projectJson, ProjectDto.class);
+            if (projectDto.getIdProject() == null) {
+                return ResponseEntity.badRequest().body("El campo 'idProject' es requerido para actualizar el proyecto");
+            }
+
             String result = projectsService.updateProject(projectDto, image);
             return ResponseEntity.ok(result);
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().body("Error al deserializar el JSON del proyecto: " + e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
         } catch (IOException e) {
-            return ResponseEntity.badRequest().body("Error al actualizar el proyecto: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error al procesar la imagen: " + e.getMessage());
         }
     }
 
-    @Operation(summary = "Obtener proyecto por ID", description = "Devuelve un proyecto completo por su ID")
+    @Operation(summary = "Obtener proyecto por ID", description = "Devuelve los detalles completos de un proyecto por su ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Proyecto encontrado",
                     content = @Content(schema = @Schema(implementation = ProjectCompleteDto.class))),
@@ -87,7 +112,7 @@ public class ProjectsController {
     public ResponseEntity<ProjectCompleteDto> getByIdProject(@PathVariable Long idProject) {
         Optional<ProjectCompleteDto> projectOpt = projectsService.getByIdProject(idProject);
         return projectOpt.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @Operation(summary = "Eliminar proyecto", description = "Elimina un proyecto por su ID")
@@ -114,10 +139,7 @@ public class ProjectsController {
     @GetMapping("/customer/{idCustomer}")
     public ResponseEntity<List<ProjectFilteredDto>> getByCustomer(@PathVariable Long idCustomer) {
         List<ProjectFilteredDto> list = projectsService.getProjectByCustomer(idCustomer);
-        if (list.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(list);
+        return list.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(list);
     }
 
     @Operation(summary = "Obtener proyectos por usuario", description = "Lista todos los proyectos creados por un usuario")
@@ -129,10 +151,7 @@ public class ProjectsController {
     @GetMapping("/user/{idUser}")
     public ResponseEntity<List<ProjectFilteredDto>> getByUser(@PathVariable Long idUser) {
         List<ProjectFilteredDto> list = projectsService.getProjectByUser(idUser);
-        if (list.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(list);
+        return list.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(list);
     }
 
     @Operation(summary = "Obtener proyectos por usuario y cliente", description = "Lista todos los proyectos de un cliente creados por un usuario")
@@ -146,9 +165,6 @@ public class ProjectsController {
             @PathVariable Long idUser,
             @PathVariable Long idCustomer) {
         List<ProjectFilteredDto> list = projectsService.getProjectByUserAndCustomer(idUser, idCustomer);
-        if (list.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(list);
+        return list.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(list);
     }
 }

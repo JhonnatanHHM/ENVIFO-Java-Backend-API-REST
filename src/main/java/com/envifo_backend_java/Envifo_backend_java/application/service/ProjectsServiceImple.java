@@ -7,30 +7,37 @@ import com.envifo_backend_java.Envifo_backend_java.domain.repository.StorageRepo
 import com.envifo_backend_java.Envifo_backend_java.domain.service.ProjectsService;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.StorageService;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ProjectsServiceImple implements ProjectsService {
 
-    private ProjectsRepository projectsRepository;
-    private MaterialsServiceImpl materialsService;
-    private ObjectsServiceImpl objectsService;
-    private StorageService storageService;
-    private Designs3dServiceImpl designs3dService;
-    private UsuarioRepository usuarioRepository;
-    private ClientesRepository clientesRepository;
-    private StorageRepository storageRepository;
+    private final ProjectsRepository projectsRepository;
+    private final MaterialsServiceImpl materialsService;
+    private final ObjectsServiceImpl objectsService;
+    private final StorageService storageService;
+    private final Designs3dServiceImpl designs3dService;
+    private final UsuarioRepository usuarioRepository;
+    private final ClientesRepository clientesRepository;
+    private final StorageRepository storageRepository;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public ProjectsServiceImple(ProjectsRepository projectsRepository, MaterialsServiceImpl materialsService, ObjectsServiceImpl objectsService, StorageService storageService, Designs3dServiceImpl designs3dService, UsuarioRepository usuarioRepository, ClientesRepository clientesRepository, StorageRepository storageRepository) {
+    public ProjectsServiceImple(ProjectsRepository projectsRepository, MaterialsServiceImpl materialsService,
+                                ObjectsServiceImpl objectsService, StorageService storageService,
+                                Designs3dServiceImpl designs3dService, UsuarioRepository usuarioRepository,
+                                ClientesRepository clientesRepository, StorageRepository storageRepository) {
         this.projectsRepository = projectsRepository;
         this.materialsService = materialsService;
         this.objectsService = objectsService;
@@ -39,6 +46,7 @@ public class ProjectsServiceImple implements ProjectsService {
         this.usuarioRepository = usuarioRepository;
         this.clientesRepository = clientesRepository;
         this.storageRepository = storageRepository;
+        this.objectMapper = new ObjectMapper();
     }
 
     @Override
@@ -79,18 +87,28 @@ public class ProjectsServiceImple implements ProjectsService {
 
             dto.setDesign(designDto);
 
-            ObjectMapper objectMapper = new ObjectMapper();
-
             try {
-                // Convertir string JSON de materiales a lista de Long
-                List<Long> materialIds = objectMapper.readValue(
-                        disenio.getMateriales(), objectMapper.getTypeFactory().constructCollectionType(List.class, Long.class)
-                );
+                // Convertir JsonNode de materiales a lista de Long
+                List<Long> materialIds = new ArrayList<>();
+                if (disenio.getMateriales() != null && disenio.getMateriales().isArray()) {
+                    ArrayNode materialesArray = (ArrayNode) disenio.getMateriales();
+                    for (JsonNode node : materialesArray) {
+                        if (node.isNumber()) {
+                            materialIds.add(node.asLong());
+                        }
+                    }
+                }
 
-                // Convertir string JSON de objetos a lista de Long
-                List<Long> objetoIds = objectMapper.readValue(
-                        disenio.getObjetos(), objectMapper.getTypeFactory().constructCollectionType(List.class, Long.class)
-                );
+                // Convertir JsonNode de objetos a lista de Long
+                List<Long> objetoIds = new ArrayList<>();
+                if (disenio.getObjetos() != null && disenio.getObjetos().isArray()) {
+                    ArrayNode objetosArray = (ArrayNode) disenio.getObjetos();
+                    for (JsonNode node : objetosArray) {
+                        if (node.isNumber()) {
+                            objetoIds.add(node.asLong());
+                        }
+                    }
+                }
 
                 // Obtener lista de materiales
                 List<MaterialCompleteDto> materiales = materialsService.getMaterialsByIds(materialIds);
@@ -101,11 +119,13 @@ public class ProjectsServiceImple implements ProjectsService {
                 dto.setObjects(objetos);
 
             } catch (Exception e) {
-                // Manejar error de conversión
-                e.printStackTrace();
-                throw new RuntimeException("Error al convertir el JSON de materiales u objetos a lista");
+                System.err.println("Error al procesar JSON de materiales u objetos: " + e.getMessage());
+                dto.setMaterials(Collections.emptyList());
+                dto.setObjects(Collections.emptyList());
             }
-
+        } else {
+            dto.setMaterials(Collections.emptyList());
+            dto.setObjects(Collections.emptyList());
         }
 
         // Imagen del proyecto
@@ -115,7 +135,6 @@ public class ProjectsServiceImple implements ProjectsService {
 
         return Optional.of(dto);
     }
-
 
     @Override
     public List<ProjectFilteredDto> getProjectByCustomer(Long idCustomer) {
@@ -155,7 +174,6 @@ public class ProjectsServiceImple implements ProjectsService {
             dto.setProjectName(proyecto.getNombreProyecto());
             dto.setDescription(proyecto.getDescripcion());
 
-            // Obtener imagen del proyecto (si existe)
             Optional<AlmacenamientoEntity> imageOpt =
                     storageRepository.findByIdEntidadAndTipoEntidad(proyecto.getIdProyecto(), "proyectos");
 
@@ -198,40 +216,48 @@ public class ProjectsServiceImple implements ProjectsService {
 
     @Override
     public String saveProject(ProjectDto projectDto, MultipartFile image) throws IOException {
-        ProyectosEntity newProject = new ProyectosEntity();
+        if (projectDto == null || projectDto.getDesign3d() == null) {
+            throw new IllegalArgumentException("ProjectDto o Design3dDto no puede ser nulo");
+        }
 
+        ProyectosEntity newProject = new ProyectosEntity();
         newProject.setNombreProyecto(projectDto.getProjectName());
         newProject.setDescripcion(projectDto.getDescription());
         newProject.setEstado(projectDto.isStatus());
 
         UsuarioEntity usuario = usuarioRepository.getByIdUsuario(projectDto.getUserId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
         newProject.setUsuario(usuario);
 
-        Optional<ClientesEntity> cliente = clientesRepository.getByIdCliente(projectDto.getClientId());
-
-        newProject.setCliente(cliente.get());
+        if (projectDto.getClientId() != null) {
+            ClientesEntity cliente = clientesRepository.getByIdCliente(projectDto.getClientId())
+                    .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+            newProject.setCliente(cliente);
+        } else {
+            newProject.setCliente(null);
+        }
 
         Disenios3dEntity disenio = designs3dService.saveDesign(projectDto.getDesign3d());
-
         newProject.setDisenio(disenio);
 
         ProyectosEntity projectSaved = projectsRepository.saveProject(newProject);
 
         // Procesar imagen si se envía
         if (image != null && !image.isEmpty()) {
-
             StorageDto dto = new StorageDto();
             dto.setIdEntity(projectSaved.getIdProyecto());
-
             storageService.saveFile(image, dto, "proyectos", "imagenes");
         }
-        return "Material creado correctamente";
+
+        return "Proyecto creado correctamente";
     }
 
     @Override
     public String updateProject(ProjectDto projectDto, MultipartFile image) throws IOException {
+        if (projectDto == null) {
+            throw new IllegalArgumentException("ProjectDto no puede ser nulo");
+        }
+
         ProyectosEntity existingProject = projectsRepository.getByIdProject(projectDto.getIdProject())
                 .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
 
@@ -244,8 +270,9 @@ public class ProjectsServiceImple implements ProjectsService {
         existingProject.setUsuario(usuario);
 
         if (projectDto.getClientId() != null) {
-            Optional<ClientesEntity> cliente = clientesRepository.getByIdCliente(projectDto.getClientId());
-            cliente.ifPresent(existingProject::setCliente);
+            ClientesEntity cliente = clientesRepository.getByIdCliente(projectDto.getClientId())
+                    .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+            existingProject.setCliente(cliente);
         } else {
             existingProject.setCliente(null);
         }
@@ -257,6 +284,7 @@ public class ProjectsServiceImple implements ProjectsService {
 
         projectsRepository.saveProject(existingProject);
 
+        // Procesar imagen si se envía y no está vacía
         if (image != null && !image.isEmpty()) {
             StorageDto dto = new StorageDto();
             dto.setIdEntity(existingProject.getIdProyecto());
@@ -266,10 +294,8 @@ public class ProjectsServiceImple implements ProjectsService {
         return "Proyecto actualizado correctamente";
     }
 
-
     @Override
     public void deleteProject(Long idProjecto) {
-
         Optional<AlmacenamientoEntity> imageOpt =
                 storageRepository.findByIdEntidadAndTipoEntidad(idProjecto, "proyectos");
 
@@ -289,10 +315,9 @@ public class ProjectsServiceImple implements ProjectsService {
         });
 
         projectOpt.ifPresent(proyecto -> projectsRepository.deleteProject(proyecto.getIdProyecto()));
-
     }
 
-    private Optional<StorageDto> convertToStorageDto (AlmacenamientoEntity imagen) {
+    private Optional<StorageDto> convertToStorageDto(AlmacenamientoEntity imagen) {
         StorageDto storageDto = new StorageDto();
         storageDto.setIdFile(imagen.getIdArchivo());
         storageDto.setNameFile(imagen.getNombreArchivo());
@@ -302,10 +327,10 @@ public class ProjectsServiceImple implements ProjectsService {
             String url = storageService.getPresignedUrl(imagen.getIdArchivo());
             storageDto.setKeyR2(url);
         } catch (Exception e) {
+            System.err.println("Error al generar URL: " + e.getMessage());
             storageDto.setKeyR2("Error al generar URL");
         }
 
         return Optional.of(storageDto);
-
     }
 }

@@ -1,6 +1,5 @@
 package com.envifo_backend_java.Envifo_backend_java.application.service;
 
-
 import com.envifo_backend_java.Envifo_backend_java.application.dto.Designs3dDto;
 import com.envifo_backend_java.Envifo_backend_java.domain.model.entity.Disenios3dEntity;
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.Designs3dRepository;
@@ -27,8 +26,7 @@ public class Designs3dServiceImpl implements Designs3dService {
         entity.setMateriales(dto.getMateriales());
         entity.setObjetos(dto.getObjetos());
 
-        Disenios3dEntity saved = repository.saveDesign(entity);
-        return saved;
+        return repository.saveDesign(entity);
     }
 
     @Override
@@ -39,9 +37,7 @@ public class Designs3dServiceImpl implements Designs3dService {
         entity.setMateriales(dto.getMateriales());
         entity.setObjetos(dto.getObjetos());
 
-        Disenios3dEntity saved = repository.saveDesign(entity);
-
-        return saved;
+        return repository.saveDesign(entity);
     }
 
     @Override
