@@ -9,6 +9,5 @@ import java.util.Optional;
 public interface Designs3dService {
     Disenios3dEntity saveDesign(Designs3dDto designDto);
     Disenios3dEntity updateDesign(Designs3dDto dto);
-    Optional<Designs3dDto> getDesignById(Long id);
     void deleteDesign(Long id);
 }

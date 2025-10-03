@@ -10,6 +10,7 @@ import com.envifo_backend_java.Envifo_backend_java.domain.repository.ProjectsRep
 import com.envifo_backend_java.Envifo_backend_java.domain.repository.StorageRepository;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.StorageService;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -128,7 +129,7 @@ class ProjectsServiceImpleTest {
     }
 
     @Test
-    void testGetByIdProject_notFound() {
+    void testGetByIdProject_notFound() throws JsonProcessingException {
         when(projectsRepository.getByIdProject(999L)).thenReturn(Optional.empty());
         Optional<ProjectCompleteDto> result = projectsService.getByIdProject(999L);
         assertTrue(result.isEmpty());
@@ -181,8 +182,7 @@ class ProjectsServiceImpleTest {
     @Test
     void testUpdateProject_successWithNullClient() throws IOException {
         // Crear JsonNode para Designs3dDto
-        ObjectNode configuracionNode = objectMapper.createObjectNode();
-        configuracionNode.put("ambiental", 0.8);
+        String configuracionNode = "ambiental";
         ArrayNode materialesNode = objectMapper.createArrayNode();
         materialesNode.add(789);
         ArrayNode objetosNode = objectMapper.createArrayNode();
@@ -190,8 +190,8 @@ class ProjectsServiceImpleTest {
         Designs3dDto designDto = new Designs3dDto();
         designDto.setIdDisenio(4L);
         designDto.setConfiguracion(configuracionNode);
-        designDto.setMateriales(materialesNode);
-        designDto.setObjetos(objetosNode);
+        designDto.setMateriales(String.valueOf(materialesNode));
+        designDto.setObjetos(String.valueOf(objetosNode));
 
         ProjectDto dto = new ProjectDto();
         dto.setIdProject(100L);

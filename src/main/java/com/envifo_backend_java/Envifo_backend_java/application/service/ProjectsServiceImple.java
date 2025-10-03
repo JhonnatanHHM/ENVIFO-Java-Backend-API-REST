@@ -7,6 +7,7 @@ import com.envifo_backend_java.Envifo_backend_java.domain.repository.StorageRepo
 import com.envifo_backend_java.Envifo_backend_java.domain.service.ProjectsService;
 import com.envifo_backend_java.Envifo_backend_java.domain.service.StorageService;
 import com.envifo_backend_java.Envifo_backend_java.infrastructure.persistence.repository.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -50,7 +51,7 @@ public class ProjectsServiceImple implements ProjectsService {
     }
 
     @Override
-    public Optional<ProjectCompleteDto> getByIdProject(Long idProject) {
+    public Optional<ProjectCompleteDto> getByIdProject(Long idProject) throws JsonProcessingException {
         Optional<ProyectosEntity> projectOpt = projectsRepository.getByIdProject(idProject);
 
         if (projectOpt.isEmpty()) {
@@ -81,9 +82,15 @@ public class ProjectsServiceImple implements ProjectsService {
 
             Designs3dDto designDto = new Designs3dDto();
             designDto.setIdDisenio(disenio.getIdDisenio());
-            designDto.setConfiguracion(disenio.getConfiguracion());
-            designDto.setMateriales(disenio.getMateriales());
-            designDto.setObjetos(disenio.getObjetos());
+            // Convertir JsonNode a String para configuracion
+            try {
+                designDto.setConfiguracion(objectMapper.writeValueAsString(disenio.getConfiguracion()));
+            } catch (Exception e) {
+                System.err.println("Error al convertir configuracion a String: " + e.getMessage());
+                designDto.setConfiguracion("{}"); // Valor por defecto en caso de error
+            }
+            designDto.setMateriales(objectMapper.writeValueAsString(disenio.getMateriales()));
+            designDto.setObjetos(objectMapper.writeValueAsString(disenio.getObjetos()));
 
             dto.setDesign(designDto);
 

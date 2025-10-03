@@ -3,6 +3,7 @@ package com.envifo_backend_java.Envifo_backend_java.domain.service;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.ProjectDto;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.ProjectCompleteDto;
 import com.envifo_backend_java.Envifo_backend_java.application.dto.ProjectFilteredDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.util.Optional;
 
 public interface ProjectsService {
 
-    Optional<ProjectCompleteDto> getByIdProject(Long idProject);
+    Optional<ProjectCompleteDto> getByIdProject(Long idProject) throws JsonProcessingException;
     List<ProjectFilteredDto> getProjectByCustomer(Long idCustomer);
     List<ProjectFilteredDto> getProjectByUser(Long idUser);
     List<ProjectFilteredDto> getProjectByUserAndCustomer(Long idUser, Long idCustomer);

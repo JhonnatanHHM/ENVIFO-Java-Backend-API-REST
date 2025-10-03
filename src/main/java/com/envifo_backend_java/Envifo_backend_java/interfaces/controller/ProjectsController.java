@@ -109,7 +109,7 @@ public class ProjectsController {
             @ApiResponse(responseCode = "404", description = "Proyecto no encontrado")
     })
     @GetMapping("/{idProject}")
-    public ResponseEntity<ProjectCompleteDto> getByIdProject(@PathVariable Long idProject) {
+    public ResponseEntity<ProjectCompleteDto> getByIdProject(@PathVariable Long idProject) throws JsonProcessingException {
         Optional<ProjectCompleteDto> projectOpt = projectsService.getByIdProject(idProject);
         return projectOpt.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
