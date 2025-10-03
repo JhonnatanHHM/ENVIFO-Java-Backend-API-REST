@@ -249,18 +249,17 @@ public class MaterialsServiceImpl implements MaterialsService {
     //3d
     @Override
     public List<MaterialCompleteDto> getMaterialsByIds(List<Long> ids) {
+        System.out.println("getMaterialsByIds called with IDs: " + ids);
         List<MaterialesEntity> materiales = materialsRepository.getObjectsByIdsMaterials(ids);
-
+        System.out.println("Materiales encontrados: " + materiales.size());
         return materiales.stream()
                 .map(material -> {
                     Optional<AlmacenamientoEntity> imageOpt =
                             storageRepository.findByIdEntidadAndTipoEntidad(
                                     material.getIdMaterial(), "materiales3d");
-
-                    return imageOpt.map(image -> convertToMaterialDto(material, image, true));
+                    System.out.println("Material ID: " + material.getIdMaterial() + ", imageOpt present: " + imageOpt.isPresent());
+                    return convertToMaterialDto(material, imageOpt.orElse(null), true);
                 })
-                .filter(Optional::isPresent)
-                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
@@ -356,7 +355,6 @@ public class MaterialsServiceImpl implements MaterialsService {
 
 
     private MaterialCompleteDto convertToMaterialDto(MaterialesEntity material, AlmacenamientoEntity imagen, boolean texture3d) {
-
         MaterialCompleteDto materialDto = new MaterialCompleteDto();
         materialDto.setIdMaterial(material.getIdMaterial());
         materialDto.setNameMaterial(material.getNombre());
@@ -368,7 +366,6 @@ public class MaterialsServiceImpl implements MaterialsService {
         materialDto.setNameCategory(material.getCategoria().getNombre());
 
         TextureCompleteDto textureDto = null;
-
         if (material.getTextura() != null) {
             Optional<TextureCompleteDto> optTexture;
             if (!texture3d) {
@@ -376,21 +373,20 @@ public class MaterialsServiceImpl implements MaterialsService {
             } else {
                 optTexture = texturesService.getDisplacementByIdTexture(material.getTextura().getIdTextura());
             }
-
-            // Asignar si está presente
-            if (optTexture.isPresent()) {
-                textureDto = optTexture.get();
-            }
+            textureDto = optTexture.orElse(null);
         }
-
-        // Asignar al DTO (puede ser null si no hay textura)
         materialDto.setTexture(textureDto);
-        materialDto.setMaterial(convertToStorageDto(imagen));
+
+        if (imagen != null) {
+            materialDto.setMaterial(Optional.ofNullable(convertToStorageDto(imagen).orElse(null)));
+        } else {
+            materialDto.setMaterial(null);
+        }
 
         return materialDto;
     }
 
-    private Optional<StorageDto> convertToStorageDto (AlmacenamientoEntity imagen) {
+    private Optional<StorageDto> convertToStorageDto(AlmacenamientoEntity imagen) {
         StorageDto storageDto = new StorageDto();
         storageDto.setIdFile(imagen.getIdArchivo());
         storageDto.setNameFile(imagen.getNombreArchivo());
@@ -400,10 +396,10 @@ public class MaterialsServiceImpl implements MaterialsService {
             String url = storageService.getPresignedUrl(imagen.getIdArchivo());
             storageDto.setKeyR2(url);
         } catch (Exception e) {
+            System.err.println("Error al generar URL: " + e.getMessage());
             storageDto.setKeyR2("Error al generar URL");
         }
 
         return Optional.of(storageDto);
-
     }
 }
